@@ -31,6 +31,7 @@ module AllQ
             server.send_string(result.to_s)
           end
           Fiber.yield
+          sleep(0.01)
         rescue ex
           p "Error in main_loop:allqserver"
           p ex.message
