@@ -5,7 +5,7 @@ require "../lib/*"
 
 module AllQ
   class Server
-    PORT = ENV[SERVER_PORT]? || "5555"
+    PORT = ENV["SERVER_PORT"]? || "5555"
     TOTAL_FIBERS = 10
     def listen
       # Simple server
