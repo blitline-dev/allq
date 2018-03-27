@@ -17,8 +17,8 @@ module AllQ
       server.set_socket_option(::ZMQ::CURVE_SECRETKEY, "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI")
 
 
-      server.bind("tcp://127.0.0.1:#{PORT}")
-      puts "Listening tcp://127.0.0.1:#{PORT}"
+      server.bind("tcp://0.0.0.0:#{PORT}")
+      puts "Listening tcp://0.0.0.0:#{PORT}"
 
       cache_store = CacheStore.new
       request_handler = RequestHandler.new(cache_store)
