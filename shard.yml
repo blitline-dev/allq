@@ -1,0 +1,17 @@
+name: all_q
+version: 0.1.0
+
+authors:
+  - Jason <jaciones@gmail.com>
+
+targets:
+  all_q:
+    main: src/all_q.cr
+
+crystal: 0.24.1
+
+license: MIT
+
+dependencies:
+  zeromq:
+    github: benoist/zeromq-crystal
