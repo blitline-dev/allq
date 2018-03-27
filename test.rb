@@ -11,7 +11,7 @@ def put(val = nil)
   	}
 	}
 	
-	puts `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
+#	puts `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
 end
 
 def get
@@ -22,7 +22,11 @@ def get
     }
   }
 
-  puts `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
+  output = `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
+	return if output.empty?
+  puts output
+  o = JSON.parse(output)
+  puts o.inspect
 end
 
 def stats
@@ -32,17 +36,27 @@ def stats
      tube: "tube-1"
    }
  }
-  puts `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
+ puts `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
 end
 
+stats
+exit 0;
 
-1.upto(1) do
-  put
+def random_stuff
+	v = rand(10)
+  if v < 3
+		job = get
+  elsif v < 8
+    put
+  else
+    stats
+  end
 end
 
-get
-
+i = 0
 loop do
-  stats
-  sleep(1)
+  i += 1
+  random_stuff
+  puts i.to_s
+#  sleep(1)
 end
