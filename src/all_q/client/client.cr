@@ -4,9 +4,9 @@ require "./*"
 
 module AllQ
   class Client
-    SERVER_IP = "127.0.0.1"
-    SERVER_PORT = "5555"
-    CLIENT_PORT = "7766"
+    SERVER_IP = ENV["SERVER_IP"]? || "127.0.0.1"
+    SERVER_PORT = ENV["SERVER_PORT"]? || "5555"
+    CLIENT_PORT = ENV["TCP_CLIENT_PORT"]? || "7766"
 
     @server_client : ZMQ::Socket
 
