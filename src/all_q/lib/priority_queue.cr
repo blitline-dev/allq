@@ -20,7 +20,11 @@ class PriorityQueue(T)
   end
 
   def get
+    puts @prioritized_queues.inspect
+    puts @min_priority.inspect
+
     item = @prioritized_queues[@min_priority].shift?
+    puts "item=#{item}"
     return item if item
 
     find_next_min

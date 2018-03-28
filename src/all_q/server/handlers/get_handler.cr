@@ -4,7 +4,7 @@ module AllQ
     def process(json : Hash(String, JSON::Type))
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
-      puts "Indata"
+      puts "Indata #{data}"
       job = @cache_store.tubes[data["tube"]].get
       puts "job=#{job}"
       if job
