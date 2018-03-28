@@ -12,7 +12,6 @@ class PriorityQueue(T)
   end
 
   def put(item : AllQ::Job, priority : Int32)
-    puts "priority = #{priority}"
     queue = @prioritized_queues[priority]
     if @prioritized_queues.size < priority
       @min_priority = priority if priority < @min_priority

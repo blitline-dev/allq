@@ -12,7 +12,6 @@ module AllQ
       priority = data["priority"]? ? data["priority"] : 5
       delay = data["delay"]? ?  data["delay"] : 0
 
-      puts "+++++++ #{delay}"
       @cache_store.tubes[tube_name].put(job, priority.to_i, delay)
       result = Hash(String, String).new
       result["job_id"] = job.id
