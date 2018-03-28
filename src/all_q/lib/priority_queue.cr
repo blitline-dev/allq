@@ -8,7 +8,6 @@ class PriorityQueue(T)
       @prioritized_queues << Deque(T).new
     end
     puts @prioritized_queues.inspect
-    puts T.inspect
   end
 
   def put(item : AllQ::Job, priority : Int32)
@@ -20,11 +19,7 @@ class PriorityQueue(T)
   end
 
   def get
-    puts @prioritized_queues.inspect
-    puts @min_priority.inspect
-
     item = @prioritized_queues[@min_priority].shift?
-    puts "item=#{item}"
     return item if item
 
     find_next_min
@@ -41,7 +36,7 @@ class PriorityQueue(T)
 
 
   def find_next_min
-    index = @min_priority
+    index = 0
     while(@prioritized_queues[index].size == 0 && index < @prioritized_queues.size - 1)
       index += 1
     end
