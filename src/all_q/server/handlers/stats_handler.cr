@@ -9,9 +9,11 @@ module AllQ
         all_tubes[tube.name] = data_hash
         data_hash["ready"] = tube.size.to_s
         data_hash["delayed"] = tube.delayed_size.to_s
+        data_hash["reserved"] = "0"
+        data_hash["buried"] = "0"
       end
       add_reserved(all_tubes)
-
+      add_buried(all_tubes)
       return all_tubes
     end
 
@@ -30,7 +32,7 @@ module AllQ
     end
 
     def add_buried(all_tubes)
-      reserves = @cache_store.buried.reserved_jobs_by_tube
+      reserves = @cache_store.buried.buried_jobs_by_tube
       reserves.each do |k, v|
         tube = all_tubes[k]?
         data_hash = Hash(String, String).new

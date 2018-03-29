@@ -5,7 +5,6 @@ module AllQ
       @cache = Hash(String, ReservedJob).new
       @tube_cache = tube_cache
       @buried_cache = buried_cache
-      puts "Created"
       start_sweeper
     end
 
@@ -42,6 +41,7 @@ module AllQ
       job.reserved = false
       if job.expired_count > job.expired_limit
         @buried_cache.set_job_buried(job)
+        @cache.delete(job.id)
         return
       end
 
@@ -51,7 +51,7 @@ module AllQ
     end
 
     def delete(job_id)
-      @cache.delete(job_id)
+      @cache.delete(job_id) if @cache[job_id]?
     end
 
     def touch(job_id)

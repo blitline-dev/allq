@@ -10,12 +10,16 @@ module AllQ
       @cache[job.id] = job
     end
 
+    def count
+      @cache.size
+    end
+
     def get_job_ids
       @cache.keys
     end
 
-    def delete(job_id)
-      @cache.delete[job_id] if @cache[job_id]
+    def delete(job_id : String)
+      @cache.delete(job_id) if @cache[job_id]?
     end
 
     def kick(job_id)
@@ -25,11 +29,19 @@ module AllQ
       end
     end
 
+    def kick
+      first = @cache.shift?
+      if first
+        job = first.values[0]
+        @tube_cache[job.tube].put(job)
+      end
+    end
+
     def buried_jobs_by_tube
       tubes = Hash(String, Int32).new
-      @cache.each do |k, v|
-        tubes[v.job.tube] = 0 unless tubes[v.job.tube]?
-        tubes[v.job.tube] += 1
+      @cache.each do |k, job|
+        tubes[job.tube] = 0 unless tubes[job.tube]?
+        tubes[job.tube] += 1
       end
       return tubes
     end
