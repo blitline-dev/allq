@@ -27,6 +27,9 @@ module AllQ
           result = GetHandler.new(@cacheStore).process(params)
         when "stats"
           result = StatsHandler.new(@cacheStore).process(params)
+        when "delete"
+          result = DeleteHandler.new(@cacheStore).process(params)
+
         else
           puts "illegal action"
       end
