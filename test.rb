@@ -26,7 +26,18 @@ def get
 	return if output.empty?
   puts output
   o = JSON.parse(output)
+  job_id = o["job_id"]
   puts o.inspect
+  p = {
+    action: "delete",
+    params: {
+      job_id: job_id
+    }
+  }
+  output = `echo '#{p.to_json}' | socat - tcp4-connect:127.0.0.1:7766`
+  return if output.empty?
+  puts output
+
 end
 
 def stats
