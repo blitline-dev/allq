@@ -3,6 +3,7 @@ require "json"
 module AllQ
   class RequestHandler
     def initialize(@cacheStore : AllQ::CacheStore)
+      @action_count = 0
     end
 
     def process(body)
@@ -20,6 +21,7 @@ module AllQ
 
     def action(name, params)
       result = Hash(String, Hash(String, String)).new
+      @action_count += 1
       case name
         when "put"
           result = PutHandler.new(@cacheStore).process(params)
@@ -27,6 +29,8 @@ module AllQ
           result = GetHandler.new(@cacheStore).process(params)
         when "stats"
           result = StatsHandler.new(@cacheStore).process(params)
+          result["global"] = Hash(String, String).new
+          result["global"]["action_count"] = @action_count.to_s
         when "delete"
           result = DeleteHandler.new(@cacheStore).process(params)
 
