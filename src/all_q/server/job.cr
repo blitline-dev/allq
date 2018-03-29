@@ -18,7 +18,7 @@ module AllQ
       @parent_id = data["parent_id"]?
       @body = data["body"]? || ""
       @expired_count = 0
-      @expired_limit = 3
+      @expired_limit = data["expired_limit"]? ? data["expired_limit"].to_i : 3
       @reserved = false
     end
 
