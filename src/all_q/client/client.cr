@@ -15,10 +15,24 @@ module AllQ
       @server_client = build_socket(context)
       start_server_connection(@server_client)
       start_local_proxy(self)
+      @restart = false
+      @reconnect_count = 0
     end
 
     def build_socket(context) : ZMQ::Socket
       return context.socket(ZMQ::REQ)
+    end
+
+    def reconnect
+      return if @restart = true
+      puts "Reconnecting..."
+      sleep_time = @reconnect_count
+      unless sleep_time.nil?
+        sleep_time += 1
+        @reconnect_count = sleep_time
+        sleep(sleep_time)
+      end
+      @restart = true
     end
 
     def start_server_connection(server_client)
@@ -31,9 +45,16 @@ module AllQ
 
         puts "Connecting tcp://#{SERVER_IP}:#{SERVER_PORT}"
         server_client.connect("tcp://#{SERVER_IP}:#{SERVER_PORT}")
-        loop do
-          sleep()
+        @restart = false
+        while !@restart
+          sleep(0.001)
         end
+
+        # Close and rstart
+        server_client.close
+        context = ZMQ::Context.new
+        @server_client = build_socket(context)
+        start_server_connection(@server_client)
       end
     end
 
@@ -47,6 +68,9 @@ module AllQ
 
       begin
         result_string = @server_client.receive_string
+        if result_string.blank?
+          reconnect
+        end
       rescue ex2
         puts ex2.message
       end   
@@ -66,6 +90,7 @@ module AllQ
     end
 
   end
+
 end
 
 client = AllQ::Client.new

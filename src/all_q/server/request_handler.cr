@@ -33,7 +33,14 @@ module AllQ
           result["global"]["action_count"] = @action_count.to_s
         when "delete"
           result = DeleteHandler.new(@cacheStore).process(params)
-
+        when "done"
+          result = DoneHandler.new(@cacheStore).process(params)
+        when "set_parent"
+          result = SetParentJobHandler.new(@cacheStore).process(params)
+        when "set_children_started"
+          result = SetChildrenStartedHandler.new(@cacheStore).process(params)
+        when "touch"
+          result = TouchHandler.new(@cacheStore).process(params)
         else
           puts "illegal action"
       end
