@@ -13,6 +13,8 @@ module AllQ
         output["job_id"] = job_id
         output["error"] = "Job ID not found in reserved or buried."
       end
+      return_data["delete"] = output
+      return return_data
     end
 
     def find_and_delete(job_id)

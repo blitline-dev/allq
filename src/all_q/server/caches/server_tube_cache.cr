@@ -30,6 +30,11 @@ module AllQ
       return tube
     end
 
+    def put(job, priority = 5, delay = 0)
+      tube = get(job.tube)
+      tube.put(job, priority, delay)
+    end
+
 
 
   end

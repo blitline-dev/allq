@@ -2,6 +2,7 @@ require "zeromq"
 require "./handlers/*"
 require "./*"
 require "../lib/*"
+require "./caches/*"
 
 module AllQ
   class Server

@@ -8,6 +8,7 @@ module AllQ
     property body : String
     property tube : String
     property reserved : Bool
+    property noop : Bool
     property ttl : Int32
     property expired_count : Int32
     property expired_limit : Int32
@@ -20,6 +21,10 @@ module AllQ
       @expired_count = 0
       @expired_limit = data["expired_limit"]? ? data["expired_limit"].to_i : 3
       @reserved = false
+      @noop = data["noop"].to_s == "true"
+      if @noop
+        raise "Noop jobs MUST have a parent ID" unless @parent_id
+      end
     end
 
     def to_hash
@@ -30,9 +35,6 @@ module AllQ
       data["expired_count"] = @expired_count.to_s
       return data
     end
-
-
-
 
   end
 end

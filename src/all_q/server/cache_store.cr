@@ -1,10 +1,11 @@
 module AllQ
   class CacheStore
-    property :tubes, :buried, :reserved
+    property :tubes, :buried, :reserved, :parents
     def initialize
       @tubes = ServerTubeCache.new
       @buried = BuriedCache.new(@tubes)
-      @reserved = ReservedCache.new(@tubes, @buried)
+      @parents = ParentCache.new(@tubes, @buried)
+      @reserved = ReservedCache.new(@tubes, @buried, @parents)
     end
   end
 end
