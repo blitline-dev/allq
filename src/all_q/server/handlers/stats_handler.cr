@@ -11,32 +11,19 @@ module AllQ
         data_hash["delayed"] = tube.delayed_size.to_s
         data_hash["reserved"] = "0"
         data_hash["buried"] = "0"
+        data_hash["parents"] = "0"
       end
-      add_reserved(all_tubes)
-      add_buried(all_tubes)
+      add(all_tubes, "reserved", @cache_store.reserved.reserved_jobs_by_tube)
+      add(all_tubes, "buried", @cache_store.buried.buried_jobs_by_tube)
+      add(all_tubes, "parents", @cache_store.parents.parent_jobs_by_tube)
       return all_tubes
     end
 
-    def add_reserved(all_tubes)
-      reserves = @cache_store.reserved.reserved_jobs_by_tube
-      reserves.each do |k, v|
+    def add(all_tubes, name, hash : Hash(String, Int32))
+      hash.each do |k, v|
         tube = all_tubes[k]?
         data_hash = Hash(String, String).new
-        data_hash["reserved"] = v.to_s
-        if tube
-          tube.merge!(data_hash)
-        else
-          tube = data_hash
-        end
-      end
-    end
-
-    def add_buried(all_tubes)
-      reserves = @cache_store.buried.buried_jobs_by_tube
-      reserves.each do |k, v|
-        tube = all_tubes[k]?
-        data_hash = Hash(String, String).new
-        data_hash["buried"] = v.to_s
+        data_hash[name] = v.to_s
         if tube
           tube.merge!(data_hash)
         else

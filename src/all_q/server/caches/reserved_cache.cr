@@ -58,13 +58,13 @@ module AllQ
     end
 
     def done(job_id)
-      delete(job_id)
       if @cache[job_id]?
         reserved_job = @cache[job_id]
         parent_job_id = reserved_job.job.parent_id
         if parent_job_id
           @parent_cache.child_completed(parent_job_id)
         end
+        delete(job_id)
       end
     end
 

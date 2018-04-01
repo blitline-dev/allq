@@ -13,7 +13,7 @@ module AllQ
       delay = data["delay"]? ?  data["delay"] : 0
 
       @cache_store.tubes[tube_name].put(job, priority.to_i, delay)
-      if job.parent_id
+      if job.parent_id && !job.parent_id.to_s.blank?
         @cache_store.parents.child_started(job.parent_id)
       end
       result = Hash(String, String).new

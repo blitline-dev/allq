@@ -21,6 +21,7 @@ module AllQ
     end
 
     def child_completed(job_id)
+      puts "child_completed #{job_id}"
       check_parent_job(job_id, true)
     end
 
@@ -51,10 +52,22 @@ module AllQ
       end
     end
 
+    def parent_jobs_by_tube
+      tubes = Hash(String, Int32).new
+      @cache.each do |k, v|
+        tubes[v.job.tube] = 0 unless tubes[v.job.tube]?
+        tubes[v.job.tube] += 1
+      end
+      return tubes
+    end
+
     def start_parent_job(parent_job)
+      puts "&" * 90
+      puts "start_parent_job"
       job = parent_job.job
       @cache.delete(job.id)
       if job.noop
+        p "IN NOOP!!!!!!!!!!!!!!"
         new_parent_job = get(job.parent_id)
         start_parent_job(new_parent_job)
         return

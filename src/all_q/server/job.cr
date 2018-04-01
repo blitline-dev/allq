@@ -21,7 +21,7 @@ module AllQ
       @expired_count = 0
       @expired_limit = data["expired_limit"]? ? data["expired_limit"].to_i : 3
       @reserved = false
-      @noop = data["noop"].to_s == "true"
+      @noop = data["noop"]? ? data["noop"].to_s == "true" : false
       if @noop
         raise "Noop jobs MUST have a parent ID" unless @parent_id
       end

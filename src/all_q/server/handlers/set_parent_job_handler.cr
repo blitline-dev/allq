@@ -12,6 +12,10 @@ module AllQ
       if data["limit"]?
         @cache_store.parents.set_limit(job.id, data["limit"].to_i)
       end
+      result = Hash(String, String).new
+      result["id"] = job.id
+      return_data["job"] = result
+
       return return_data
     end
 
