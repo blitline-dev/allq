@@ -35,7 +35,7 @@ module AllQ
           result = DeleteHandler.new(@cacheStore).process(params)
         when "done"
           result = DoneHandler.new(@cacheStore).process(params)
-        when "set_parent"
+        when "set_parent_job"
           result = SetParentJobHandler.new(@cacheStore).process(params)
         when "set_children_started"
           result = SetChildrenStartedHandler.new(@cacheStore).process(params)
