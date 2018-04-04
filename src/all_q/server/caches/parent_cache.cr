@@ -2,15 +2,15 @@ require "json"
 
 module AllQ
   class ParentCache
-    def initialize(tube_cache : ServerTubeCache, buried_cache : AllQ::BuriedCache)
+    def initialize(@tubes : AllQ::ServerTubeCache, @buried : AllQ::BuriedCache)
       @cache = Hash(String, ParentJob).new
-      @tubes = tube_cache
-      @buried = buried_cache
+      @serializer = ParentCacheSerDe(ParentJob).new
+      @serializer.load(@cache)
     end
 
-    def set_job_as_parent(job : AllQ::Job, timeout : Int32, run_on_timeout = false)
+    def set_job_as_parent(job : Job, timeout : Int32, run_on_timeout = false)
       now = Time.now.to_s("%s").to_i
-      parent_job = ParentJob.new(now, job, 0, timeout, run_on_timeout)
+      parent_job = ParentJob.new(now, job, 0, timeout, -1, run_on_timeout, 0)
       @cache[job.id] = parent_job
     end
 
@@ -62,16 +62,19 @@ module AllQ
     end
 
     def start_parent_job(parent_job)
-      puts "&" * 90
-      puts "start_parent_job"
       job = parent_job.job
       @cache.delete(job.id)
+
       if job.noop
-        p "IN NOOP!!!!!!!!!!!!!!"
-        new_parent_job = get(job.parent_id)
-        start_parent_job(new_parent_job)
+        if job.parent_id
+          new_parent_job = get(job.parent_id).job
+          child_completed(job.parent_id)
+        end
+        @serializer.remove(job)
         return
       end
+      #  @serializer.move_from_parent_to_ready(job)
+      @serializer.move_parent_to_ready(parent_job.job)
       @tubes.put(job)
     end
 
@@ -92,6 +95,7 @@ module AllQ
             start_parent_job(parent_job)
           else
             @cach.delete(parent_job.job.id)
+            @serializer.move_parent_to_buried(parent_job.job)
             @buried.set_job_buried(parent_job.job)
           end
         end
@@ -99,11 +103,10 @@ module AllQ
     end
 
     class ParentJob
+      include Cannon::Auto
       property :start, :job, :child_count, :timeout, :limit, :run_on_timeout, :started_count
 
-      def initialize(@start : Int32, @job : Job, @child_count : Int32, @timeout : Int32, @run_on_timeout : Bool)
-        @started_count = 0
-        @limit = 0
+      def initialize(@start : Int32, @job : Job, @child_count : Int32, @timeout : Int32, @limit : Int32, @run_on_timeout : Bool, @started_count : Int32)
       end
 
       def set_limit(limit)
@@ -117,7 +120,45 @@ module AllQ
       def increment_started
         @started_count += 1
       end
+    end
+  end
 
+  # ----------------------------------------
+  # Serializer
+  # ----------------------------------------
+
+  class ParentCacheSerDe(T) < BaseSerDe(T)
+    def serialize(parent_job : T)
+      File.open(build_parent(parent_job.job), "w") do |f|
+        Cannon.encode f, job
+      end
+    end
+
+    def move_parent_to_ready(job : Job)
+      parent = build_parent(job)
+      ready = build_ready(job)
+      FileUtils.mv(parent, ready)
+    end
+
+    def move_parent_to_buried(job : Job)
+      parent = build_parent(job)
+      buried = build_buried(job)
+      FileUtils.mv(parent, buried)
+    end
+
+    def remove(job : Job)
+      FileUtils.rm(build_parent(job))
+    end
+
+    def load(cache : Hash(String, T))
+      base_path = "#{@base_dir}/parents/*"
+      Dir[base_path].each do |file|
+        File.open(file, "r") do |f|
+          puts file
+          job = Cannon.decode f, ParentCache::ParentJob
+          cache[job.job.id] = job
+        end
+      end
     end
   end
 end

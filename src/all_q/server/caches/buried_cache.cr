@@ -1,12 +1,11 @@
 module AllQ
   class BuriedCache
-
     def initialize(tube_cache : ServerTubeCache)
       @cache = Hash(String, Job).new
       @tube_cache = tube_cache
     end
 
-    def set_job_buried(job : AllQ::Job)
+    def set_job_buried(job : Job)
       @cache[job.id] = job
     end
 
@@ -19,7 +18,12 @@ module AllQ
     end
 
     def delete(job_id : String)
-      @cache.delete(job_id) if @cache[job_id]?
+      if @cache[job_id]?
+        job = @cache[job_id]
+        @cache.delete(job_id)
+        return job
+      end
+      return nil
     end
 
     def kick(job_id)
@@ -45,6 +49,32 @@ module AllQ
       end
       return tubes
     end
+  end
 
+  # ----------------------------------------
+  # Serializer
+  # ----------------------------------------
+
+  class BuriedCacheSerDe(T) < BaseSerDe(T)
+    def serialize(buried_job : T)
+      File.open(build_buried(buried_job), "w") do |f|
+        Cannon.encode f, buried_job
+      end
+    end
+
+    def remove(job : Job)
+      FileUtils.rm(build_buried(job))
+    end
+
+    def load(cache : Hash(String, T))
+      base_path = "#{@base_dir}/buired/*"
+      Dir[base_path].each do |file|
+        File.open(file, "r") do |f|
+          puts file
+          job = Cannon.decode f, Job
+          cache[job.id] = job
+        end
+      end
+    end
   end
 end

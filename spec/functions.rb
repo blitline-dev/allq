@@ -21,11 +21,11 @@ class Functions
       }
     }
     if limit
-      p[:limit] = limit.to_i
+      p[:params][:limit] = limit.to_i
     end
 
     if noop
-      p[:noop] = true
+      p[:params][:noop] = true
     end
     output = send_to_server(p)
     return output["job"]["id"]
@@ -39,7 +39,7 @@ class Functions
         body: (0...8).map { (65 + rand(26)).chr }.join
       }
     }
-    
+
     p[:params].merge!(merge_data)
     output = send_to_server(p)
     return output["job"]["id"]

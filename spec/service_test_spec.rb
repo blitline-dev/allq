@@ -84,51 +84,52 @@ describe 'Put/Get' do
     stats_count(f, 1, 0, 0, 0, 0)
     parent_id = f.get_return_id
     expect(parent_id).to eq(job_id)
+    f.done(job_id)
+
   end
 
-  # it 'handles multiple waits' do
-  #   f = Functions.new
-  #   limit = 3
-  #   master_id = f.create_parent_job_return_id(2, nil)
-  #   merge_data = {
-  #     parent_id: job_id,
-  #     noop: true,
-  #     limit: limit
-  #   }
-  #   waiter_1 = f.create_parent_job_merge(merge_data)
-  #   waiter_2 = f.create_parent_job_merge(merge_data)
+  it 'handles multiple waits' do
+    f = Functions.new
+    limit = 3
+    master_id = f.create_parent_job_return_id(2, nil)
+    merge_data = {
+      parent_id: master_id,
+      noop: true,
+      limit: limit
+    }
+    waiter_1 = f.create_parent_job_merge(merge_data)
+    waiter_2 = f.create_parent_job_merge(merge_data)
 
-  #   merge_data = {
-  #     parent_id: waiter_1
-  #   }
+    merge_data = {
+      parent_id: waiter_1
+    }
 
-  #   1.upto(limit) do
-  #     f.put(nil, merge_data)
-  #   end
+    1.upto(limit) do
+      f.put(nil, merge_data)
+    end
 
-  #   merge_data = {
-  #     parent_id: waiter_2
-  #   }
+    merge_data = {
+      parent_id: waiter_2
+    }
 
-  #   1.upto(limit) do
-  #     f.put(nil, merge_data)
-  #   end
+    1.upto(limit) do
+      f.put(nil, merge_data)
+    end
 
-  #   stats_count(f, 6, 0, 0, 0, 3)
-  #   f.get_set_done
-  #   f.get_set_done
-  #   f.get_set_done
-  #   f.get_set_done
-  #   f.get_set_done
-  #   stats_count(f, 1, 0, 0, 0, 3)
-  #   f.get_set_done
-  #   stats_count(f, 1, 0, 0, 0, 0)
-  #   # -- Cleanup
-  #   f.get_set_done
-
-  # end
-
-
-
+    stats_count(f, 6, 0, 0, 0, 3)
+    f.get_set_done
+    f.get_set_done
+    f.get_set_done
+    stats_count(f, 3, 0, 0, 0, 2)
+    f.get_set_done
+    f.get_set_done
+    f.get_set_done
+    stats_count(f, 1, 0, 0, 0, 0)
+    last_job_id = f.get_return_id
+    expect(master_id).to eq(last_job_id)
+    f.done(last_job_id)
+    # -- Cleanup
+    stats_count(f, 0, 0, 0, 0)
+  end
 
 end
