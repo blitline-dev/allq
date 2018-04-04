@@ -1,5 +1,4 @@
 class ExpiringCache(T)
-  
   struct CacheItem(X)
     property start, item
 
@@ -7,7 +6,7 @@ class ExpiringCache(T)
     end
   end
 
-  def initialize( expiration_in_seconds = 3600, @sweep_interval = 5,  block : (String -> T)? = nil)
+  def initialize(expiration_in_seconds = 3600, @sweep_interval = 5, block : (String -> T)? = nil)
     @cache = Hash(String, CacheItem(T)).new
     @expiration = expiration_in_seconds
     start_sweeper
@@ -65,7 +64,3 @@ class ExpiringCache(T)
     end
   end
 end
-
-
-
-

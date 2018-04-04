@@ -1,16 +1,13 @@
-
 class PriorityQueue(T)
-
   def initialize(priority_limit = 10)
     @prioritized_queues = Array(Deque(T)).new
     @min_priority = priority_limit / 2
     1.upto(priority_limit) do
       @prioritized_queues << Deque(T).new
     end
-    puts @prioritized_queues.inspect
   end
 
-  def put(item : AllQ::Job, priority : Int32)
+  def put(item : Job, priority : Int32)
     queue = @prioritized_queues[priority]
     if @prioritized_queues.size < priority
       @min_priority = priority if priority < @min_priority
@@ -26,6 +23,15 @@ class PriorityQueue(T)
     return @prioritized_queues[@min_priority].shift?
   end
 
+  def get_as_job_arrays : Array(Array(Job))
+    arr = Array(Array(Job)).new
+    @prioritized_queues.each do |queue|
+      jobs = queue.to_a
+      arr << jobs
+    end
+    return arr
+  end
+
   def size
     size = 0
     @prioritized_queues.each do |i|
@@ -34,10 +40,9 @@ class PriorityQueue(T)
     return size
   end
 
-
   def find_next_min
     index = 0
-    while(@prioritized_queues[index].size == 0 && index < @prioritized_queues.size - 1)
+    while (@prioritized_queues[index].size == 0 && index < @prioritized_queues.size - 1)
       index += 1
     end
     if index < @prioritized_queues.size
@@ -46,6 +51,4 @@ class PriorityQueue(T)
       @min_priority = @prioritized_queues.size / 2
     end
   end
-
 end
-

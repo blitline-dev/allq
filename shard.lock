@@ -1,5 +1,9 @@
 version: 1.0
 shards:
+  cannon:
+    github: Papierkorb/cannon
+    version: 0.2.1
+
   zeromq:
     github: benoist/zeromq-crystal
     commit: a92be120b21743e17c9103630890b36329f819bb

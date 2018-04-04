@@ -1,6 +1,5 @@
 module AllQ
   class StatsHandler < BaseHandler
-
     def process(json : Hash(String, JSON::Type))
       all_tubes = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
@@ -12,6 +11,10 @@ module AllQ
         data_hash["reserved"] = "0"
         data_hash["buried"] = "0"
         data_hash["parents"] = "0"
+        throttle_size = tube.throttle_size
+        if throttle_size
+          data_hash["throttle_size"] = throttle_size.to_s
+        end
       end
       add(all_tubes, "reserved", @cache_store.reserved.reserved_jobs_by_tube)
       add(all_tubes, "buried", @cache_store.buried.buried_jobs_by_tube)
@@ -31,6 +34,5 @@ module AllQ
         end
       end
     end
-
   end
 end

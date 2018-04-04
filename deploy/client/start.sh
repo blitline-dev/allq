@@ -1,0 +1,1 @@
+sudo docker run --name=allq_client -d --restart=unless-stopped -p 7766:7766 allq_client
