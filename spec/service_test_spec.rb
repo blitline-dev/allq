@@ -11,30 +11,10 @@ def stats_count(f, r = 0, rs = 0, b = 0, d = 0, p = 0)
 end
 
 describe 'Put/Get' do
-  it 'put-get-done works' do
-    f = Functions.new
-    f.put
-    out = f.get
-    expect(out['job']['id'].size > 0).to be_truthy
-    expect(out['job']['body'].size > 0).to be_truthy
-    f.done(out['job']['id'])
-    stats_count(f)
-  end
 
-  it 'put-get-count works' do
-    f = Functions.new
-    f.put
-    f.put
-    stats_count(f, 2, 0, 0)
-    f1 = f.get
-    stats_count(f, 1, 1, 0)
-    f2 = f.get
-    stats_count(f, 0, 2, 0)
-    f.done(f1['job']['id'])
-    f.done(f2['job']['id'])
-    stats_count(f)
-  end
-
+  # ----------------------------
+  # Timeout tests
+  # -----------------------------
   # it 'handles delay properly' do
   #   f = Functions.new
   #   merge_data = {
@@ -65,6 +45,34 @@ describe 'Put/Get' do
   #   stats_count(f, 0, 0, 0, 0)
   # end
 
+  # ----------------------------
+  # Non-Timeout tests
+  # -----------------------------
+
+  it 'put-get-done works' do
+    f = Functions.new
+    f.put
+    out = f.get
+    expect(out['job']['id'].size > 0).to be_truthy
+    expect(out['job']['body'].size > 0).to be_truthy
+    f.done(out['job']['id'])
+    stats_count(f)
+  end
+
+  it 'put-get-count works' do
+    f = Functions.new
+    f.put
+    f.put
+    stats_count(f, 2, 0, 0)
+    f1 = f.get
+    stats_count(f, 1, 1, 0)
+    f2 = f.get
+    stats_count(f, 0, 2, 0)
+    f.done(f1['job']['id'])
+    f.done(f2['job']['id'])
+    stats_count(f)
+  end
+
   it 'handles parent jobs properly' do
     f = Functions.new
     limit = 3
@@ -89,47 +97,49 @@ describe 'Put/Get' do
   end
 
   it 'handles multiple waits' do
-    f = Functions.new
-    limit = 3
-    master_id = f.create_parent_job_return_id(2, nil)
-    merge_data = {
-      parent_id: master_id,
-      noop: true,
-      limit: limit
-    }
-    waiter_1 = f.create_parent_job_merge(merge_data)
-    waiter_2 = f.create_parent_job_merge(merge_data)
+    1.upto(3) do
+      f = Functions.new
+      limit = 3
+      master_id = f.create_parent_job_return_id(2, nil)
+      merge_data = {
+        parent_id: master_id,
+        noop: true,
+        limit: limit
+      }
+      waiter_1 = f.create_parent_job_merge(merge_data)
+      waiter_2 = f.create_parent_job_merge(merge_data)
 
-    merge_data = {
-      parent_id: waiter_1
-    }
+      merge_data = {
+        parent_id: waiter_1
+      }
 
-    1.upto(limit) do
-      f.put(nil, merge_data)
+      1.upto(limit) do
+        f.put(nil, merge_data)
+      end
+
+      merge_data = {
+        parent_id: waiter_2
+      }
+
+      1.upto(limit) do
+        f.put(nil, merge_data)
+      end
+
+      stats_count(f, 6, 0, 0, 0, 3)
+      f.get_set_done
+      f.get_set_done
+      f.get_set_done
+      stats_count(f, 3, 0, 0, 0, 2)
+      f.get_set_done
+      f.get_set_done
+      f.get_set_done
+      stats_count(f, 1, 0, 0, 0, 0)
+      last_job_id = f.get_return_id
+      expect(master_id).to eq(last_job_id)
+      f.done(last_job_id)
+      # -- Cleanup
+      stats_count(f, 0, 0, 0, 0)
     end
-
-    merge_data = {
-      parent_id: waiter_2
-    }
-
-    1.upto(limit) do
-      f.put(nil, merge_data)
-    end
-
-    stats_count(f, 6, 0, 0, 0, 3)
-    f.get_set_done
-    f.get_set_done
-    f.get_set_done
-    stats_count(f, 3, 0, 0, 0, 2)
-    f.get_set_done
-    f.get_set_done
-    f.get_set_done
-    stats_count(f, 1, 0, 0, 0, 0)
-    last_job_id = f.get_return_id
-    expect(master_id).to eq(last_job_id)
-    f.done(last_job_id)
-    # -- Cleanup
-    stats_count(f, 0, 0, 0, 0)
   end
 
 end

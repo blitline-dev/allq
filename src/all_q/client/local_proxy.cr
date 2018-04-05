@@ -2,9 +2,8 @@ require "socket"
 
 class Tcp
   TOTAL_FIBERS = 5
-  
-  def initialize(@host : String, @port : Int32, @base_dir : String, @debug : Bool, @sender : AllQ::Client)
 
+  def initialize(@host : String, @port : Int32, @base_dir : String, @debug : Bool, @sender : AllQ::Client)
     @connections = 0
     @version = ENV["CL_VERSION"]? || "0.0.0.0"
   end
@@ -31,7 +30,7 @@ class Tcp
       return
     end
 
-    puts "Recieved: #{data}" if @debug
+    puts "Received: #{data}" if @debug
     while data
       if data && data.size > 5
         begin
@@ -47,11 +46,11 @@ class Tcp
 
   def stats_response(socket : TCPSocket)
     data = {
-      "version" => @version,
-      "debug" => @debug,
+      "version"     => @version,
+      "debug"       => @debug,
       "connections" => @connections,
-      "port" =>  @port,
-      "available" => TOTAL_FIBERS
+      "port"        => @port,
+      "available"   => TOTAL_FIBERS,
     }
     p "Stats Response #{data}"
     socket.puts(data.to_s)
@@ -103,7 +102,4 @@ class Tcp
     result = @sender.send(data)
     socket.puts(result)
   end
-
-
 end
-

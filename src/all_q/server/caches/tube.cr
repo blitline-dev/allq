@@ -8,6 +8,7 @@ module AllQ
       @delayed = Array(DelayedJob).new
       @ready_serde = ReadyCacheSerDe(Job).new(@name)
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
+      start_sweeper
     end
 
     def load_serialized
@@ -96,23 +97,27 @@ module AllQ
 
   class ReadyCacheSerDe(T) < BaseSerDe(T)
     def initialize(@name : String)
+      return unless SERIALIZE
       @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
       FileUtils.mkdir_p("#{@base_dir}/ready/#{@name}")
     end
 
     def move_ready_to_reserved(job : Job)
+      return unless SERIALIZE
       ready = build_ready(job)
       reserved = build_reserved(job)
       FileUtils.mv(ready, reserved)
     end
 
     def move_delayed_to_ready(job : Job)
+      return unless SERIALIZE
       delayed = build_delayed(job)
       ready = build_ready(job)
       FileUtils.mv(delayed, ready)
     end
 
     def serialize(ready_job : T)
+      return unless SERIALIZE
       file_path = build_ready(ready_job)
       File.open(file_path, "w") do |f|
         Cannon.encode f, ready_job
@@ -120,14 +125,17 @@ module AllQ
     end
 
     def remove(job : Job)
+      return unless SERIALIZE
       FileUtils.rm(build_ready(job))
     end
 
     def load(cache : Hash(String, T))
+      return unless SERIALIZE
       load_special
     end
 
     def load_special(priority_queue : PriorityQueue(Job))
+      return unless SERIALIZE
       base_path = "#{@base_dir}/ready/#{@name}/*"
       Dir[base_path].each do |file|
         File.open(file, "r") do |f|
@@ -145,11 +153,14 @@ module AllQ
 
   class DelayedCacheSerDe(T) < BaseSerDe(T)
     def initialize(@name : String)
+      return unless SERIALIZE
+
       @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
       FileUtils.mkdir_p("#{@base_dir}/delayed/#{@name}")
     end
 
     def serialize(delayed : T)
+      return unless SERIALIZE
       file_path = build_delayed(delayed)
       File.open(file_path, "w") do |f|
         Cannon.encode f, delayed
@@ -157,13 +168,16 @@ module AllQ
     end
 
     def remove(job : Job)
+      return unless SERIALIZE
       FileUtils.rm(build_delayed(job))
     end
 
     def load(cache : Hash(String, T))
+      return unless SERIALIZE
     end
 
     def load_special(cache : Array(AllQ::Tube::DelayedJob))
+      return unless SERIALIZE
       base_path = "#{@base_dir}/delayed/#{@name}/*"
       Dir[base_path].each do |file|
         File.open(file, "r") do |f|

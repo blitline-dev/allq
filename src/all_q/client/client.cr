@@ -4,13 +4,11 @@ require "./*"
 
 module AllQ
   class Client
-    SERVER_IP = ENV["SERVER_IP"]? || "127.0.0.1"
-    SERVER_PORT = ENV["SERVER_PORT"]? || "5555"
     CLIENT_PORT = ENV["TCP_CLIENT_PORT"]? || "7766"
 
     @server_client : ZMQ::Socket
 
-    def initialize
+    def initialize(@server : String, @port : String)
       context = ZMQ::Context.new
       @server_client = build_socket(context)
       start_server_connection(@server_client)
@@ -43,8 +41,8 @@ module AllQ
         server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, "kA3:7cq}Pv+-#j9bNLZIwkWDb[0]71E@kVPl9hg}")
         server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, "rimy00EMw2WO>sctSIe5rw&9c8*qz*jeg+:S.?!n")
 
-        puts "Connecting tcp://#{SERVER_IP}:#{SERVER_PORT}"
-        server_client.connect("tcp://#{SERVER_IP}:#{SERVER_PORT}")
+        puts "Connecting tcp://#{@server}:#{@port}"
+        server_client.connect("tcp://#{@server}:#{@port}")
         @restart = false
         while !@restart
           sleep(0.001)
@@ -59,7 +57,7 @@ module AllQ
     end
 
     def send(data)
-     begin
+      begin
         hash = AllQ::Parser.parse(data)
         @server_client.send_string(hash.to_json)
       rescue ex
@@ -70,11 +68,37 @@ module AllQ
         result_string = @server_client.receive_string
         if result_string.blank?
           reconnect
+          # -- Admin results are only ever on 'gets'
+        elsif result_string[0..6] == "{\"admin"
+          admin(result_string)
+          return "{}"
         end
       rescue ex2
         puts ex2.message
-      end   
+      end
       return result_string
+    end
+
+    def something
+    end
+
+    def redirect(server_ip : String, port : String)
+      return unless server_ip.size > 0 && port.size > 0
+      @server = server_ip
+      @port = port
+      reconnect
+    end
+
+    def admin(server_response)
+      vals = JSON.parse(server_response)
+      if vals && vals["admin"]
+        name = vals["admin"]["name"]
+        if "redirect" == name.to_s
+          server = vals["admin"]["server"].to_s
+          port = vals["admin"]["port"].to_s
+          redirect(server, port)
+        end
+      end
     end
 
     def start_local_proxy(raw_server)
@@ -85,15 +109,13 @@ module AllQ
         allq_dir = "/tmp"
 
         server = Tcp.new(listen, port.to_i, allq_dir, true, raw_server)
-        server.listen()
+        server.listen
       end
     end
-
   end
-
 end
 
-client = AllQ::Client.new
+client = AllQ::Client.new(ENV["SERVER_IP"]? || "127.0.0.1", ENV["SERVER_PORT"]? || "5555")
 loop do
   sleep(1000)
 end

@@ -12,6 +12,7 @@ module AllQ
       now = Time.now.to_s("%s").to_i
       parent_job = ParentJob.new(now, job, 0, timeout, -1, run_on_timeout, 0)
       @cache[job.id] = parent_job
+      @serializer.serialize(parent_job)
     end
 
     def child_started(job_id)
@@ -21,7 +22,6 @@ module AllQ
     end
 
     def child_completed(job_id)
-      puts "child_completed #{job_id}"
       check_parent_job(job_id, true)
     end
 
@@ -66,7 +66,7 @@ module AllQ
       @cache.delete(job.id)
 
       if job.noop
-        if job.parent_id
+        if !job.parent_id.to_s.blank?
           new_parent_job = get(job.parent_id).job
           child_completed(job.parent_id)
         end
@@ -129,28 +129,33 @@ module AllQ
 
   class ParentCacheSerDe(T) < BaseSerDe(T)
     def serialize(parent_job : T)
+      return unless SERIALIZE
       File.open(build_parent(parent_job.job), "w") do |f|
-        Cannon.encode f, job
+        Cannon.encode f, parent_job.job
       end
     end
 
     def move_parent_to_ready(job : Job)
+      return unless SERIALIZE
       parent = build_parent(job)
       ready = build_ready(job)
       FileUtils.mv(parent, ready)
     end
 
     def move_parent_to_buried(job : Job)
+      return unless SERIALIZE
       parent = build_parent(job)
       buried = build_buried(job)
       FileUtils.mv(parent, buried)
     end
 
     def remove(job : Job)
+      return unless SERIALIZE
       FileUtils.rm(build_parent(job))
     end
 
     def load(cache : Hash(String, T))
+      return unless SERIALIZE
       base_path = "#{@base_dir}/parents/*"
       Dir[base_path].each do |file|
         File.open(file, "r") do |f|

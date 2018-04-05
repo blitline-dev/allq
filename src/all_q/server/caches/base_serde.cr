@@ -1,4 +1,6 @@
 class BaseSerDe(T)
+  SERIALIZE = (ENV["SERIALIZE"]?.to_s == "true")
+
   def initialize
     @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
   end
