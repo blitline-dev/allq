@@ -24,14 +24,19 @@ module AllQ
       puts "Listening tcp://0.0.0.0:#{PORT}"
 
       cache_store = CacheStore.new
-      cache_store.run
       request_handler = RequestHandler.new(cache_store)
+      redirect_handler = RedirectHandler.new(cache_store, request_handler)
+
       loop do
         begin
           in_string = server.receive_string(ASYNC)
           unless in_string.blank?
-            result = request_handler.process(in_string)
-            server.send_string(result.to_s)
+            if cache_store.redirect?
+              result = redirect_handler.process(in_string)
+            else
+              result = request_handler.process(in_string)
+              server.send_string(result.to_s)
+            end
           end
           Fiber.yield
           sleep(0.0001)

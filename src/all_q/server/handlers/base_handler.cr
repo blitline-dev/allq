@@ -19,6 +19,5 @@ module AllQ
       end
       return h
     end
-
   end
 end

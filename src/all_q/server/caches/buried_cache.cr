@@ -57,16 +57,19 @@ module AllQ
 
   class BuriedCacheSerDe(T) < BaseSerDe(T)
     def serialize(buried_job : T)
+      return unless SERIALIZE
       File.open(build_buried(buried_job), "w") do |f|
         Cannon.encode f, buried_job
       end
     end
 
     def remove(job : Job)
+      return unless SERIALIZE
       FileUtils.rm(build_buried(job))
     end
 
     def load(cache : Hash(String, T))
+      return unless SERIALIZE
       base_path = "#{@base_dir}/buired/*"
       Dir[base_path].each do |file|
         File.open(file, "r") do |f|

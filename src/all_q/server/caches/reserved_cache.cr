@@ -70,7 +70,7 @@ module AllQ
       if @cache[job_id]?
         reserved_job = @cache[job_id]
         parent_job_id = reserved_job.job.parent_id
-        if parent_job_id
+        if !parent_job_id.to_s.blank?
           @parent_cache.child_completed(parent_job_id)
         end
         job = @cache[job_id].job
@@ -113,28 +113,34 @@ module AllQ
 
   class ReservedCacheSerDe(T) < BaseSerDe(T)
     def serialize(reserved_job : T)
+      return unless SERIALIZE
+
       File.open(build_reserved(reserved_job.job), "w") do |f|
         Cannon.encode f, reserved_job
       end
     end
 
     def move_reserved_to_ready(job : Job)
+      return unless SERIALIZE
       reserved = build_reserved(job)
       ready = build_ready(job)
       FileUtils.mv(reserved, ready)
     end
 
     def move_reserved_to_buried(job : Job)
+      return unless SERIALIZE
       reserved = build_reserved(job)
       buried = build_buried(job)
       FileUtils.mv(reserved, buried)
     end
 
     def remove(job : Job)
+      return unless SERIALIZE
       FileUtils.rm(build_reserved(job))
     end
 
     def load(cache : Hash(String, T))
+      return unless SERIALIZE
       base_path = "#{@base_dir}/reserved/*"
       Dir[base_path].each do |file|
         File.open(file, "r") do |f|

@@ -15,7 +15,7 @@ module AllQ
         return result.to_json
       rescue ex
         puts ex.inspect_with_backtrace
-        return "error: #{ex.message}" 
+        return "error: #{ex.message}"
       end
     end
 
@@ -23,29 +23,30 @@ module AllQ
       result = Hash(String, Hash(String, String)).new
       @action_count += 1
       case name
-        when "put"
-          result = PutHandler.new(@cacheStore).process(params)
-        when "get"
-          result = GetHandler.new(@cacheStore).process(params)
-        when "stats"
-          result = StatsHandler.new(@cacheStore).process(params)
-          result["global"] = Hash(String, String).new
-          result["global"]["action_count"] = @action_count.to_s
-        when "delete"
-          result = DeleteHandler.new(@cacheStore).process(params)
-        when "done"
-          result = DoneHandler.new(@cacheStore).process(params)
-        when "set_parent_job"
-          result = SetParentJobHandler.new(@cacheStore).process(params)
-        when "set_children_started"
-          result = SetChildrenStartedHandler.new(@cacheStore).process(params)
-        when "touch"
-          result = TouchHandler.new(@cacheStore).process(params)
-        else
-          puts "illegal action"
+      when "put"
+        result = PutHandler.new(@cacheStore).process(params)
+      when "get"
+        result = GetHandler.new(@cacheStore).process(params)
+      when "stats"
+        result = StatsHandler.new(@cacheStore).process(params)
+        result["global"] = Hash(String, String).new
+        result["global"]["action_count"] = @action_count.to_s
+      when "delete"
+        result = DeleteHandler.new(@cacheStore).process(params)
+      when "done"
+        result = DoneHandler.new(@cacheStore).process(params)
+      when "set_parent_job"
+        result = SetParentJobHandler.new(@cacheStore).process(params)
+      when "set_children_started"
+        result = SetChildrenStartedHandler.new(@cacheStore).process(params)
+      when "touch"
+        result = TouchHandler.new(@cacheStore).process(params)
+      when "admin"
+        result = AdminHandler.new(@cacheStore).process(params)
+      else
+        puts "illegal action"
       end
       return result
     end
-
   end
 end

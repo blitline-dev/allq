@@ -42,6 +42,8 @@ module AllQ
     # --------------------------------------------
     def prep_serializers
       @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
+      return unless (ENV["SERIALIZE"]?.to_s == "true")
+
       ensure_dirs
       prep_tubes
     end
