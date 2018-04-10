@@ -1,5 +1,6 @@
 require "json"
 require "cannon"
+require "random"
 
 class JobFactory
   property id : String
