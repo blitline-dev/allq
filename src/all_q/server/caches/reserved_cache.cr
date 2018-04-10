@@ -80,6 +80,17 @@ module AllQ
       return nil
     end
 
+    def release(job_id)
+      reserverd_job = @cache[job_id]?
+      if reserverd_job
+        job = reserverd_job.job
+        tube = @tube_cache[job.tube]
+        tube.put(job)
+        @serializer.move_reserved_to_ready(job)
+        @cache.delete(job_id)
+      end
+    end
+
     def touch(job_id)
       reserved_job = @cache[job_id]?
       if reserved_job

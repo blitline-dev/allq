@@ -43,6 +43,8 @@ module AllQ
         result = TouchHandler.new(@cacheStore).process(params)
       when "admin"
         result = AdminHandler.new(@cacheStore).process(params)
+      when "release"
+        result = ReleaseHandler.new(@cacheStore).process(params)
       else
         puts "illegal action"
       end
