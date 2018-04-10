@@ -1,104 +1,59 @@
 require "zeromq"
 require "json"
+require "uri"
 require "./*"
+require "./server_connection"
 
 module AllQ
   class Client
     CLIENT_PORT = ENV["TCP_CLIENT_PORT"]? || "7766"
 
-    @server_client : ZMQ::Socket
+    def initialize(servers : Array(String))
+      @server_connections = Hash(String, ServerConnection).new
 
-    def initialize(@server : String, @port : String)
-      context = ZMQ::Context.new
-      @server_client = build_socket(context)
-      start_server_connection(@server_client)
+      servers.each do |server|
+        server_uri = server.split(":")
+        server_path = server_uri[0].to_s
+        port = server_uri[1].to_s
+        new_server_connection = ServerConnection.new(server_path.to_s, port.to_s)
+        @server_connections[new_server_connection.id] = new_server_connection
+      end
       start_local_proxy(self)
-      @restart = false
-      @reconnect_count = 0
     end
 
-    def build_socket(context) : ZMQ::Socket
-      return context.socket(ZMQ::REQ)
-    end
-
-    def reconnect
-      return if @restart = true
-      puts "Reconnecting..."
-      sleep_time = @reconnect_count
-      unless sleep_time.nil?
-        sleep_time += 1
-        @reconnect_count = sleep_time
-        sleep(sleep_time)
-      end
-      @restart = true
-    end
-
-    def start_server_connection(server_client)
-      spawn do
-        server_client.set_socket_option(::ZMQ::ZAP_DOMAIN, "roger")
-        server_client.set_socket_option(::ZMQ::CURVE_SERVER, 1)
-        server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@")
-        server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, "kA3:7cq}Pv+-#j9bNLZIwkWDb[0]71E@kVPl9hg}")
-        server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, "rimy00EMw2WO>sctSIe5rw&9c8*qz*jeg+:S.?!n")
-
-        puts "Connecting tcp://#{@server}:#{@port}"
-        server_client.connect("tcp://#{@server}:#{@port}")
-        @restart = false
-        while !@restart
-          sleep(0.001)
-        end
-
-        # Close and rstart
-        server_client.close
-        context = ZMQ::Context.new
-        @server_client = build_socket(context)
-        start_server_connection(@server_client)
-      end
-    end
-
-    def send(data)
-      begin
-        hash = AllQ::Parser.parse(data)
-        @server_client.send_string(hash.to_json)
-      rescue ex
-        puts ex.message
-      end
-
-      begin
-        result_string = @server_client.receive_string
-        if result_string.blank?
-          reconnect
-          # -- Admin results are only ever on 'gets'
-        elsif result_string[0..6] == "{\"admin"
-          admin(result_string)
-          return "{}"
-        end
-      rescue ex2
-        puts ex2.message
-      end
-      return result_string
-    end
-
-    def something
-    end
-
-    def redirect(server_ip : String, port : String)
-      return unless server_ip.size > 0 && port.size > 0
-      @server = server_ip
-      @port = port
-      reconnect
-    end
-
-    def admin(server_response)
-      vals = JSON.parse(server_response)
-      if vals && vals["admin"]
-        name = vals["admin"]["name"]
-        if "redirect" == name.to_s
-          server = vals["admin"]["server"].to_s
-          port = vals["admin"]["port"].to_s
-          redirect(server, port)
+    def special_cased(parsed_data) : Nil | String
+      results = nil
+      if parsed_data["action"]?
+        if parsed_data["action"].to_s == "stats"
+          results = aggregate_stats(parsed_data)
         end
       end
+      results
+    end
+
+    def aggregate_stats(parsed_data) : String
+      result_hash = Hash(String, JSON::Any).new
+      @server_connections.values.each do |server_client|
+        output = server_client.send_string(parsed_data)
+        result_hash[server_client.id] = JSON.parse(output)
+      end
+      result_hash.to_json
+    end
+
+    def send(data : String)
+      hash = AllQ::Parser.parse(data)
+      special_result = special_cased(hash)
+      if special_result
+        return special_result
+      end
+      if hash["q_server"]?
+        q_server = hash.delete("q_server")
+        server_client = @server_connections[q_server.to_s]
+      else
+        server_client = @server_connections.values.sample
+      end
+      q_server = server_client.id
+      server_client.send_string(hash)
     end
 
     def start_local_proxy(raw_server)
@@ -115,7 +70,9 @@ module AllQ
   end
 end
 
-client = AllQ::Client.new(ENV["SERVER_IP"]? || "127.0.0.1", ENV["SERVER_PORT"]? || "5555")
+server_string = "127.0.0.1:5555"
+
+client = AllQ::Client.new([server_string])
 loop do
   sleep(1000)
 end
