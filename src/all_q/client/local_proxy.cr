@@ -69,7 +69,7 @@ class Tcp
             @connections -= 1
           rescue ex
             p "Error in spawn_listener"
-            p ex.message
+            puts ex.inspect_with_backtrace
           end
         end
       end
