@@ -49,4 +49,5 @@ module AllQ
   end
 end
 
+puts "version= #{ENV["version"]?}"
 AllQ::Server.new.listen

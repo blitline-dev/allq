@@ -73,6 +73,7 @@ end
 server_string = ENV["SERVER_STRING"]? || "127.0.0.1:5555"
 
 client = AllQ::Client.new([server_string])
+puts "version= #{ENV["version"]?}"
 loop do
   sleep(1000)
 end
