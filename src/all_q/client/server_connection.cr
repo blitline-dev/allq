@@ -60,7 +60,9 @@ module AllQ
           result = JSON.parse(result_string)
           if result["job"]?
             job_data = result["job"].as_h
-            job_data["q_server"] = id
+            unless job_data.empty?
+              job_data["q_server"] = id
+            end
           end
           result_string = result.to_json
         end
