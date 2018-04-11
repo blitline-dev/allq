@@ -70,7 +70,7 @@ module AllQ
   end
 end
 
-server_string = "127.0.0.1:5555"
+server_string = ENV["SERVER_STRING"]? || "127.0.0.1:5555"
 
 client = AllQ::Client.new([server_string])
 loop do
