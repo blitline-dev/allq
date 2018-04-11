@@ -13,9 +13,9 @@ RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq
 RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 
-ENV version=31
+ENV version=34
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/server/server.cr --release -o allq_server
 RUN cd allq && chmod 777 allq_server && mv allq_server /usr/bin/allq_server
 
-ENTRYPOINT ["allq_server"]
+ENTRYPOINT ["/usr/bin/allq_server"]
