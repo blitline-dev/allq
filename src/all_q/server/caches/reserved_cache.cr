@@ -10,6 +10,10 @@ module AllQ
       start_sweeper
     end
 
+    def clear_all
+      @cache.clear
+    end
+
     def set_job_reserved(job : Job)
       now = Time.now.to_s("%s").to_i
       @cache[job.id] = ReservedJob.new(now, job)

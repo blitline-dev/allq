@@ -37,7 +37,7 @@ class JobFactory
 
   def self.to_hash(job)
     data = Hash(String, String).new
-    data["id"] = job.id
+    data["job_id"] = job.id
     data["body"] = job.body
     data["tube"] = job.tube
     data["expired_count"] = job.expired_count.to_s

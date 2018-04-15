@@ -7,6 +7,10 @@ module AllQ
       prep_serializers
     end
 
+    def clear_all
+      @cache.clear
+    end
+
     def reserved_cache
       return @reserved_cache
     end

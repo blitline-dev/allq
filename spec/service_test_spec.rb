@@ -2,12 +2,14 @@ require 'functions'
 require 'spec_helper'
 
 def stats_count(f, r = 0, rs = 0, b = 0, d = 0, p = 0)
-  out = f.stats
-  expect(out['tube-1']['ready']).to eq(r.to_s)
-  expect(out['tube-1']['reserved']).to eq(rs.to_s)
-  expect(out['tube-1']['buried']).to eq(b.to_s)
-  expect(out['tube-1']['delayed']).to eq(d.to_s)
-  expect(out['tube-1']['parents']).to eq(p.to_s)
+  out_all = f.stats
+  out_all.each do |k, out|
+    expect(out['tube-1']['ready']).to eq(r.to_s)
+    expect(out['tube-1']['reserved']).to eq(rs.to_s)
+    expect(out['tube-1']['buried']).to eq(b.to_s)
+    expect(out['tube-1']['delayed']).to eq(d.to_s)
+    expect(out['tube-1']['parents']).to eq(p.to_s)
+  end
 end
 
 describe 'Put/Get' do
@@ -15,6 +17,7 @@ describe 'Put/Get' do
   # ----------------------------
   # Timeout tests
   # -----------------------------
+
   # it 'handles delay properly' do
   #   f = Functions.new
   #   merge_data = {
@@ -43,7 +46,7 @@ describe 'Put/Get' do
   #   job_id = f.get_return_id
   #   f.done(job_id)
   #   stats_count(f, 0, 0, 0, 0)
-  # end
+  #  end
 
   # ----------------------------
   # Non-Timeout tests
@@ -53,9 +56,9 @@ describe 'Put/Get' do
     f = Functions.new
     f.put
     out = f.get
-    expect(out['job']['id'].size > 0).to be_truthy
+    expect(out['job']['job_id'].size > 0).to be_truthy
     expect(out['job']['body'].size > 0).to be_truthy
-    f.done(out['job']['id'])
+    f.done(out['job']['job_id'])
     stats_count(f)
   end
 
@@ -68,8 +71,8 @@ describe 'Put/Get' do
     stats_count(f, 1, 1, 0)
     f2 = f.get
     stats_count(f, 0, 2, 0)
-    f.done(f1['job']['id'])
-    f.done(f2['job']['id'])
+    f.done(f1['job']['job_id'])
+    f.done(f2['job']['job_id'])
     stats_count(f)
   end
 
@@ -78,6 +81,7 @@ describe 'Put/Get' do
     limit = 3
     job_id = f.create_parent_job_return_id(limit, nil)
 
+    puts "Job ID returned = #{job_id}"
     stats_count(f, 0, 0, 0, 0, 1)
     merge_data = {
       parent_id: job_id

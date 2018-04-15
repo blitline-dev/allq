@@ -36,7 +36,7 @@ class Tcp
         begin
           do_stuff(data, socket)
         rescue ex
-          p ex.message
+          p ex.inspect_with_backtrace
           p "Data:#{data}"
         end
         data = get_socket_data(socket)
@@ -90,7 +90,7 @@ class Tcp
       end
     rescue ex
       p "Error in tcp:loop!"
-      p ex.message
+      p ex.inspect_with_backtrace
     end
   end
 

@@ -28,7 +28,7 @@ class Functions
       p[:params][:noop] = true
     end
     output = send_to_server(p)
-    return output["job"]["id"]
+    return output["job"]["job_id"]
   end
 
   def create_parent_job_merge(merge_data)
@@ -42,7 +42,7 @@ class Functions
 
     p[:params].merge!(merge_data)
     output = send_to_server(p)
-    return output["job"]["id"]
+    return output["job"]["job_id"]
   end
 
 
@@ -82,7 +82,7 @@ class Functions
 
   def get_return_id
     output = get
-    return output["job"]["id"]
+    return output["job"]["job_id"]
   end
 
   def get
@@ -111,13 +111,13 @@ class Functions
   def put_get_delete
     put
     out = get
-    job_id = out['job']['id']
+    job_id = out['job']['job_id']
     delete(job_id)
   end
 
   def get_set_done
     out = get
-    job_id = out['job']['id']
+    job_id = out['job']['job_id']
     done(job_id)
   end
 

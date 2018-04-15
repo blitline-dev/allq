@@ -7,6 +7,10 @@ class PriorityQueue(T)
     end
   end
 
+  def clear
+    @prioritized_queues.clear
+  end
+
   def put(item : Job, priority : Int32)
     queue = @prioritized_queues[priority]
     if @prioritized_queues.size < priority

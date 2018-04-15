@@ -8,6 +8,10 @@ module AllQ
       @serializer.load(@cache)
     end
 
+    def clear_all
+      @cache.clear
+    end
+
     def set_job_as_parent(job : Job, timeout : Int32, run_on_timeout = false)
       now = Time.now.to_s("%s").to_i
       parent_job = ParentJob.new(now, job, 0, timeout, -1, run_on_timeout, 0)

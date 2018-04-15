@@ -11,7 +11,7 @@ module AllQ
         body_hash = JSON.parse(body).as_h
         result = Hash(String, Hash(String, String)).new
         result = action(body_hash["action"], body_hash["params"].as(Hash(String, JSON::Type)))
-        puts result.to_json
+        puts "results from #{body_hash["action"]?.to_s} #{result.to_json}"
         return result.to_json
       rescue ex
         puts ex.inspect_with_backtrace
@@ -43,6 +43,8 @@ module AllQ
         result = TouchHandler.new(@cacheStore).process(params)
       when "admin"
         result = AdminHandler.new(@cacheStore).process(params)
+      when "clear"
+        result = ClearHandler.new(@cacheStore).process(params)
       when "release"
         result = ReleaseHandler.new(@cacheStore).process(params)
       else

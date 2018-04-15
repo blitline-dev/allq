@@ -6,7 +6,8 @@ require "./server_connection"
 
 module AllQ
   class Client
-    CLIENT_PORT = ENV["TCP_CLIENT_PORT"]? || "7766"
+    CLIENT_PORT    = ENV["TCP_CLIENT_PORT"]? || "7766"
+    JOB_ID_DIVIDER = ","
 
     def initialize(servers : Array(String))
       @server_connections = Hash(String, ServerConnection).new
@@ -40,18 +41,46 @@ module AllQ
       result_hash.to_json
     end
 
+    def get_job_id(hash) : Nil | JSON::Any
+      job_id = nil
+      if hash["params"]?
+        params = hash["params"]
+        if params["job_id"]?
+          job_id = params["job_id"]
+        elsif params["parent_id"]?
+          job_id = params["parent_id"]
+        end
+      end
+      return job_id
+    end
+
     def send(data : String)
       hash = AllQ::Parser.parse(data)
       special_result = special_cased(hash)
       if special_result
         return special_result
       end
-      if hash["q_server"]?
-        q_server = hash.delete("q_server")
-        server_client = @server_connections[q_server.to_s]
-      else
-        server_client = @server_connections.values.sample
+
+      server_client = @server_connections.values.sample
+
+      if hash["action"]?
+        job_id = get_job_id(hash)
+        if job_id
+          vals = job_id.to_s.split(JOB_ID_DIVIDER)
+          size = vals.size
+          if size == 2
+            q_server = vals[0]
+            job_id = vals[1]
+            server_client = @server_connections[q_server]
+          elsif size == 1
+            job_id = vals[0]
+            puts "JobID isn't q_server FORMAT ->#{hash["action"]} ->#{job_id}"
+          else
+            raise "Illegal Job ID #{hash.to_s}"
+          end
+        end
       end
+
       q_server = server_client.id
       server_client.send_string(hash)
     end
@@ -72,7 +101,7 @@ end
 
 server_string = ENV["SERVER_STRING"]? || "127.0.0.1:5555"
 
-client = AllQ::Client.new([server_string])
+client = AllQ::Client.new(server_string.split(","))
 puts "version= #{ENV["version"]?}"
 loop do
   sleep(1000)

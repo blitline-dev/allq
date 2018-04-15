@@ -19,6 +19,13 @@ module AllQ
       return !@redirect_info.nil?
     end
 
+    def clear_all
+      @tubes.clear_all
+      @buried.clear_all
+      @tubes.clear_all
+      @reserved.clear_all
+    end
+
     struct RedirectInfo
       property server, port
 
