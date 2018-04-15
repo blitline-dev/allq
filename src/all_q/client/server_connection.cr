@@ -40,12 +40,17 @@ module AllQ
       end
     end
 
-    def send_string(hash : Hash(String, JSON::Type))
+    def send_string(hash : JSON::Any)
       result_string = ""
       begin
-        @server_client.send_string(hash.to_json)
+        string_to_send = hash.to_json
+        string_to_send = string_to_send.gsub(/\"job_id\"\s*:\s*\".*?\,(.*?)\"/, "\"job_id\":\"\\1\"")
+        string_to_send = string_to_send.gsub(/\"parent_id\"\s*:\s*\".*?\,(.*?)\"/, "\"parent_id\":\"\\1\"")
+        puts "Sending to server: #{string_to_send}"
+        @server_client.send_string(string_to_send)
       rescue ex
-        puts ex.message
+        puts "Exception1 is send_string"
+        puts ex.inspect_with_backtrace
       end
 
       begin
@@ -57,17 +62,12 @@ module AllQ
           admin(result_string)
           return "{}"
         else
-          result = JSON.parse(result_string)
-          if result["job"]?
-            job_data = result["job"].as_h
-            unless job_data.empty?
-              job_data["q_server"] = id
-            end
-          end
-          result_string = result.to_json
+          result_string = result_string.gsub(/\"job_id\"\s*:\s*\"(.*?)\"/, "\"job_id\":\"#{id},\\1\"")
+          result_string = result_string.gsub(/\"parent_id\"\s*:\s*\"(.*?)\"/, "\"parent_id\":\"#{id},\\1\"")
         end
       rescue ex2
-        puts ex2.message
+        puts "Exception2 is send_string"
+        puts ex2.inspect_with_backtrace
       end
       return result_string
     end

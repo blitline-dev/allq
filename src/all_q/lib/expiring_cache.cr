@@ -13,6 +13,10 @@ class ExpiringCache(T)
     @block = block
   end
 
+  def clear
+    @cache.clear
+  end
+
   def put(name : String, item : T)
     now = Time.now.to_s("%s").to_i
     new_item = CacheItem(T).new(now, item)

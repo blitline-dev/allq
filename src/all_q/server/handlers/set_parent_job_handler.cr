@@ -12,12 +12,11 @@ module AllQ
 
       @cache_store.parents.set_job_as_parent(job, timeout, run_on_timeout)
       if data["limit"]?
-        p "Setting limit #{data}"
         @cache_store.parents.set_limit(job.id, data["limit"].to_i)
       end
 
       result = Hash(String, String).new
-      result["id"] = job.id
+      result["job_id"] = job.id
       return_data["job"] = result
 
       return return_data

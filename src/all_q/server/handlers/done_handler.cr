@@ -8,6 +8,7 @@ module AllQ
       if job_id
         job = @cache_store.reserved.done(job_id)
         output["done"] = job_id
+        return_data["job"] = output
       else
         raise "Job ID not found in reserved"
       end

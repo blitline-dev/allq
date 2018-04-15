@@ -11,6 +11,11 @@ module AllQ
       start_sweeper
     end
 
+    def clear
+      @priority_queue.clear
+      @delayed.clear
+    end
+
     def load_serialized
       @ready_serde.load_special(@priority_queue)
       @delayed_serde.load_special(@delayed)

@@ -5,6 +5,10 @@ module AllQ
       @tube_cache = tube_cache
     end
 
+    def clear_all
+      @cache.clear
+    end
+
     def set_job_buried(job : Job)
       @cache[job.id] = job
     end
