@@ -1,21 +1,20 @@
 require "./base_handler"
 
 # ---------------------------------
-# Action: done
+# Action: bury
 # Params:
-#     job_id : <job id> (mark job as done)
-# ---------------------------------
+#     job_id : <job id> (clear job from buried or reserved)
 
 module AllQ
-  class DoneHandler < BaseHandler
+  class BuryHandler < BaseHandler
     def process(json : Hash(String, JSON::Type))
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]?
       output = Hash(String, String).new
       if job_id
-        job = @cache_store.reserved.done(job_id)
-        output["done"] = job_id
+        job = @cache_store.reserved.bury(job_id)
+        output["bury"] = job_id
         return_data["job"] = output
       else
         raise "Job ID not found in reserved"

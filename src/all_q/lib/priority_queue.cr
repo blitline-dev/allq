@@ -19,6 +19,14 @@ class PriorityQueue(T)
     queue << item
   end
 
+  def peek
+    item = @prioritized_queues[@min_priority].first?
+    return item if item
+
+    find_next_min
+    return @prioritized_queues[@min_priority].first?
+  end
+
   def get
     item = @prioritized_queues[@min_priority].shift?
     return item if item

@@ -52,6 +52,61 @@ describe 'Put/Get' do
   # Non-Timeout tests
   # -----------------------------
 
+  it 'clear works' do
+    f = Functions.new
+    f.put
+    f.clear_all
+    f.put
+    stats_count(f, 1, 0, 0, 0 , 0)
+    f.clear_all
+  end
+
+  it 'put-get-bury-peek works' do
+    f = Functions.new
+    f.put
+    out = f.get
+    expect(out['job']['job_id'].size > 0).to be_truthy
+    expect(out['job']['body'].size > 0).to be_truthy
+    f.bury(out['job']['job_id'])
+    stats_count(f, 0, 0, 1, 0 , 0)
+    f.peek('tube-1', buried: "true")
+    stats_count(f, 0, 0, 1, 0 , 0)
+    f.kick('tube-1')
+    stats_count(f, 1, 0, 0, 0 , 0)
+    out = f.get
+    stats_count(f, 0, 1, 0, 0 , 0)
+    f.done(out['job']['job_id'])
+    stats_count(f, 0, 0, 0, 0 , 0)
+  end
+
+  it 'put-get-bury-kick works' do
+    f = Functions.new
+    f.put
+    out = f.get
+    expect(out['job']['job_id'].size > 0).to be_truthy
+    expect(out['job']['body'].size > 0).to be_truthy
+    f.bury(out['job']['job_id'])
+    stats_count(f, 0, 0, 1, 0 , 0)
+    f.kick('tube-1')
+    stats_count(f, 1, 0, 0, 0 , 0)
+    out = f.get
+    stats_count(f, 0, 1, 0, 0 , 0)
+    f.done(out['job']['job_id'])
+    stats_count(f, 0, 0, 0, 0 , 0)
+  end
+
+  it 'put-get-bury works' do
+    f = Functions.new
+    f.put
+    out = f.get
+    expect(out['job']['job_id'].size > 0).to be_truthy
+    expect(out['job']['body'].size > 0).to be_truthy
+    f.bury(out['job']['job_id'])
+    stats_count(f, 0, 0, 1, 0 , 0)
+    f.delete(out['job']['job_id'])
+  end
+
+
   it 'put-get-done works' do
     f = Functions.new
     f.put

@@ -6,6 +6,7 @@ module AllQ
       @cache = Hash(String, ParentJob).new
       @serializer = ParentCacheSerDe(ParentJob).new
       @serializer.load(@cache)
+      start_sweeper
     end
 
     def clear_all
@@ -49,6 +50,7 @@ module AllQ
     def check_parent_job(job_id, increment_child_count = false)
       parent_job = @cache.fetch(job_id)
       parent_job.child_count += 1 if increment_child_count
+      puts
       if parent_job.limit > 0
         if parent_job.limit <= parent_job.child_count
           start_parent_job(parent_job)
@@ -98,7 +100,7 @@ module AllQ
           if parent_job.run_on_timeout
             start_parent_job(parent_job)
           else
-            @cach.delete(parent_job.job.id)
+            @cache.delete(parent_job.job.id)
             @serializer.move_parent_to_buried(parent_job.job)
             @buried.set_job_buried(parent_job.job)
           end

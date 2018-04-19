@@ -59,6 +59,52 @@ class Functions
     send_to_server(p)
   end
 
+  def bury(job_id, merge_data = {})
+    p = {
+      action: 'bury',
+      params: {
+        job_id: job_id
+      }
+    }
+
+    p[:params].merge!(merge_data)
+    send_to_server(p)
+  end
+
+  def peek(tube, merge_data = {})
+    p = {
+      action: 'peek',
+      params: {
+        tube: tube
+      }
+    }
+
+    p[:params].merge!(merge_data)
+    send_to_server(p)
+  end
+
+  def clear_all()
+    p = {
+      action: 'clear',
+      params: {
+        cache_type: "all"
+      }
+    }
+    send_to_server(p)
+  end
+
+  def kick(tube, merge_data = {})
+    p = {
+      action: 'kick',
+      params: {
+        tube: tube
+      }
+    }
+
+    p[:params].merge!(merge_data)
+    send_to_server(p)
+  end
+
   def delete(job_id)
     p = {
       action: 'delete',

@@ -70,6 +70,16 @@ module AllQ
       return nil
     end
 
+    def bury(job_id)
+      if @cache[job_id]?
+        job = @cache[job_id].job
+        @buried_cache.set_job_buried(job)
+        delete(job.id)
+        @serializer.move_reserved_to_buried(job)
+      end
+      return nil
+    end
+
     def done(job_id)
       if @cache[job_id]?
         reserved_job = @cache[job_id]

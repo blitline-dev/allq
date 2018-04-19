@@ -1,3 +1,11 @@
+require "./base_handler"
+
+# ---------------------------------
+# Action: delete
+# Params:
+#     job_id : <job id> (clear job from buried or reserved)
+# ---------------------------------
+
 module AllQ
   class DeleteHandler < BaseHandler
     def process(json : Hash(String, JSON::Type))
