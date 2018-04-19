@@ -45,6 +45,12 @@ module AllQ
         result = AdminHandler.new(@cacheStore).process(params)
       when "clear"
         result = ClearHandler.new(@cacheStore).process(params)
+      when "peek"
+        result = PeekHandler.new(@cacheStore).process(params)
+      when "bury"
+        result = BuryHandler.new(@cacheStore).process(params)
+      when "kick"
+        result = KickHandler.new(@cacheStore).process(params)
       when "release"
         result = ReleaseHandler.new(@cacheStore).process(params)
       else

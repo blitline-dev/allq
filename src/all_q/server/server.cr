@@ -54,7 +54,7 @@ end
 if AllQ::Server::A_CURVE_SECRETKEY == "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI"
   public_key, private_key = ZMQ::Util.curve_keypair
   puts ""
-  puts "Warning:"
+  puts "WARNING:"
   puts "You are using the DEFAULT CURVE secret key! Do not do this unless you are only testing locally."
   puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   puts ""
@@ -66,6 +66,9 @@ if AllQ::Server::A_CURVE_SECRETKEY == "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI"
   puts "It's OK if you don't, I will generate new ones again next time you run me."
   puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 end
-
+puts ""
 puts "version= #{ENV["version"]?}"
+puts "--------------------------------------"
+puts "-- Running in #{BaseSerDe::SERIALIZE ? "serialize" : "non-serialized"} mode"
+puts "--------------------------------------"
 AllQ::Server.new.listen

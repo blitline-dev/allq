@@ -1,26 +1,22 @@
 require "./base_handler"
 
 # ---------------------------------
-# Action: done
+# Action: kick
 # Params:
-#     job_id : <job id> (mark job as done)
+#     tube : <tube name> (kick job from tube into ready)
 # ---------------------------------
 
 module AllQ
-  class DoneHandler < BaseHandler
+  class KickHandler < BaseHandler
     def process(json : Hash(String, JSON::Type))
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
-      job_id = data["job_id"]?
+      job_id = @cache_store.buried.kick(data["tube"])
       output = Hash(String, String).new
       if job_id
-        job = @cache_store.reserved.done(job_id)
-        output["done"] = job_id
-        return_data["job"] = output
-      else
-        raise "Job ID not found in reserved"
+        output["job_id"] = job_id
+        return_data["kick"] = output
       end
-
       return return_data
     end
   end

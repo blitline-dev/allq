@@ -24,6 +24,7 @@ module AllQ
       @buried.clear_all
       @tubes.clear_all
       @reserved.clear_all
+      @parents.clear_all
     end
 
     struct RedirectInfo

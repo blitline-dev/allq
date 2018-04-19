@@ -35,6 +35,10 @@ module AllQ
       end
     end
 
+    def peek
+      @priority_queue.peek
+    end
+
     def get
       continue = true
       throttle = @throttle
