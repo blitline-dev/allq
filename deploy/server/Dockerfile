@@ -13,7 +13,7 @@ RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq
 RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 
-ENV version=43
+ENV version=44
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && shards
 RUN cd allq && sed -i 's/FFI::MemoryPointer.*$/" " * 41/g' lib/zeromq/src/zeromq/util.cr && sed -i 's/\.read_string//g' lib/zeromq/src/zeromq/util.cr

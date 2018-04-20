@@ -4,9 +4,10 @@ module AllQ
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]?
+      delay = data["delay"]? || 0
       output = Hash(String, String).new
       if job_id
-        @cache_store.reserved.release(job_id)
+        @cache_store.reserved.release(job_id, delay)
         output["job_id"] = job_id.to_s
         return_data["release"] = output
       else
