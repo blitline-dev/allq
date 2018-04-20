@@ -81,7 +81,6 @@ module AllQ
         end
       end
 
-      q_server = server_client.id
       server_client.send_string(hash)
     end
 
