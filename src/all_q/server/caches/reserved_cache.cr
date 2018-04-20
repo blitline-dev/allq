@@ -44,10 +44,10 @@ module AllQ
 
     def expire_job(reserved_job)
       job = reserved_job.job
-      job.expired_count += 1
+      job.expireds += 1
       job.reserved = false
 
-      if job.expired_count > job.expired_limit
+      if job.expireds > job.expired_limit
         @buried_cache.set_job_buried(job)
         delete(job.id)
         @serializer.move_reserved_to_buried(job)
@@ -94,12 +94,12 @@ module AllQ
       return nil
     end
 
-    def release(job_id)
+    def release(job_id, delay = 0)
       reserverd_job = @cache[job_id]?
       if reserverd_job
         job = reserverd_job.job
         tube = @tube_cache[job.tube]
-        tube.put(job)
+        tube.put(job, job.priority, delay)
         @serializer.move_reserved_to_ready(job)
         @cache.delete(job_id)
       end
