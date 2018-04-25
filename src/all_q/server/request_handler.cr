@@ -4,6 +4,8 @@ module AllQ
   class RequestHandler
     def initialize(@cacheStore : AllQ::CacheStore)
       @action_count = 0
+      @debug = false
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
     end
 
     def process(body)
@@ -11,7 +13,7 @@ module AllQ
         body_hash = JSON.parse(body).as_h
         result = Hash(String, Hash(String, String)).new
         result = action(body_hash["action"], body_hash["params"].as(Hash(String, JSON::Type)))
-        puts "results from #{body_hash["action"]?.to_s} #{result.to_json}"
+        puts "results from #{body_hash["action"]?.to_s} #{result.to_json}" if @debug
         return result.to_json
       rescue ex
         puts ex.inspect_with_backtrace

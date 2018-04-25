@@ -1,6 +1,8 @@
 module AllQ
   class BaseHandler
     def initialize(@cache_store : CacheStore)
+      @debug = false
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
     end
 
     def json_to_string_hash(json_type : JSON::Any) : Hash(String, String)
