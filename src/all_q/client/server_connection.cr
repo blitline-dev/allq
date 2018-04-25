@@ -46,7 +46,6 @@ module AllQ
         string_to_send = hash.to_json
         string_to_send = string_to_send.gsub(/\"job_id\"\s*:\s*\".*?\,(.*?)\"/, "\"job_id\":\"\\1\"")
         string_to_send = string_to_send.gsub(/\"parent_id\"\s*:\s*\".*?\,(.*?)\"/, "\"parent_id\":\"\\1\"")
-        puts "Sending to server: #{string_to_send}"
         @server_client.send_string(string_to_send)
       rescue ex
         puts "Exception1 is send_string"

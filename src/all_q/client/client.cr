@@ -91,7 +91,7 @@ module AllQ
         debug = ENV["CL_DEBUG"]?.to_s == "true"
         allq_dir = "/tmp"
 
-        server = Tcp.new(listen, port.to_i, allq_dir, true, raw_server)
+        server = Tcp.new(listen, port.to_i, allq_dir, debug, raw_server)
         server.listen
       end
     end
