@@ -97,7 +97,7 @@ module AllQ
     def start_server_connection(server_client)
       spawn do
         server_client.set_socket_option(::ZMQ::ZAP_DOMAIN, A_ZAP_DOMAIN)
-        server_client.set_socket_option(::ZMQ::CURVE_SERVER, 0)
+        server_client.set_socket_option(::ZMQ::CURVE_SERVER, 1)
         server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, A_CURVE_SERVER_PUBLIC_KEY)
         server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, A_CURVE_PUBLICKEY)
         server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, A_CURVE_SECRETKEY)
