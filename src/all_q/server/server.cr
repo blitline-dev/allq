@@ -75,6 +75,8 @@ if AllQ::Server::A_CURVE_SECRETKEY == "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI"
   puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 end
 puts ""
+puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
+puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
 puts "version= #{ENV["version"]?}"
 puts "--------------------------------------"
 puts "-- Running in #{BaseSerDe::SERIALIZE ? "serialize" : "non-serialized"} mode"
