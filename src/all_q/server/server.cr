@@ -11,7 +11,7 @@ module AllQ
     TOTAL_FIBERS      = 10
     ASYNC             =  1
     A_CURVE_SECRETKEY = ENV["A_CURVE_SECRETKEY"]? || "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI"
-    A_CURVE_PUBLICKEY = ENV["A_CURVE_SECRETKEY"]? || "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@"
+    A_CURVE_PUBLICKEY = ENV["A_CURVE_PUBLICKEY"]? || "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@"
     A_ZAP_DOMAIN      = ENV["A_ZAP_DOMAIN"]? || "roger"
 
     def listen

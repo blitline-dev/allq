@@ -2,7 +2,7 @@ module AllQ
   class ServerConnection
     @server_client : ZMQ::Socket
     A_ZAP_DOMAIN              = ENV["A_ZAP_DOMAIN"]? || "roger"
-    A_CURVE_SERVER_PUBLIC_KEY = ENV["A_CURVE_SERVERKEY"]? || "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@"
+    A_CURVE_SERVER_PUBLIC_KEY = ENV["A_CURVE_SERVER_PUBLICKEY"]? || "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@"
     A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "kA3:7cq}Pv+-#j9bNLZIwkWDb[0]71E@kVPl9hg}"
     A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "rimy00EMw2WO>sctSIe5rw&9c8*qz*jeg+:S.?!n"
 
