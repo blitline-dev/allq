@@ -15,6 +15,9 @@ module AllQ
       start_server_connection(@server_client)
       @reconnect_count = 0
       @id = Random::Secure.urlsafe_base64(6)
+      puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
+      puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
+      puts "A_CURVE_SERVER_PUBLIC_KEY = #{A_CURVE_SERVER_PUBLIC_KEY[0..4]}..."
     end
 
     def build_socket(context) : ZMQ::Socket
