@@ -15,13 +15,15 @@ module AllQ
     A_ZAP_DOMAIN      = ENV["A_ZAP_DOMAIN"]? || "roger"
 
     def listen
+      puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
+      puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
+
       # Simple server
       context = ZMQ::Context.new
 
       server = context.socket(::ZMQ::REP)
       server.set_socket_option(::ZMQ::ZAP_DOMAIN, A_ZAP_DOMAIN)
       server.set_socket_option(::ZMQ::CURVE_SERVER, 1)
-      server.set_socket_option(::ZMQ::CURVE_SECRETKEY, A_CURVE_SECRETKEY)
       server.set_socket_option(::ZMQ::CURVE_PUBLICKEY, A_CURVE_PUBLICKEY)
 
       server.bind("tcp://0.0.0.0:#{PORT}")
@@ -75,8 +77,6 @@ if AllQ::Server::A_CURVE_SECRETKEY == "HLM9c1VT)cJf3^e7Jkp.x:fK2rvA!5f]Xo71B8nI"
   puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 end
 puts ""
-puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
-puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
 puts "version= #{ENV["version"]?}"
 puts "--------------------------------------"
 puts "-- Running in #{BaseSerDe::SERIALIZE ? "serialize" : "non-serialized"} mode"
