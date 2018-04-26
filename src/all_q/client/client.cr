@@ -80,7 +80,6 @@ module AllQ
           end
         end
       end
-
       server_client.send_string(hash)
     end
 
