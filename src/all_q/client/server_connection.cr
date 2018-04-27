@@ -1,10 +1,12 @@
+require "base64"
+
 module AllQ
   class ServerConnection
     @server_client : ZMQ::Socket
     A_ZAP_DOMAIN              = ENV["A_ZAP_DOMAIN"]? || "roger"
-    A_CURVE_SERVER_PUBLIC_KEY = ENV["A_CURVE_SERVER_PUBLICKEY"]? || "W}@/*{s8T8&/j%H5>>/m+O?MdJO]$Vbo2FC0pAS@"
-    A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "kA3:7cq}Pv+-#j9bNLZIwkWDb[0]71E@kVPl9hg}"
-    A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "rimy00EMw2WO>sctSIe5rw&9c8*qz*jeg+:S.?!n"
+    A_CURVE_SERVER_PUBLIC_KEY = ENV["A_CURVE_SERVER_PUBLICKEY"]? || "V31ALyp7czhUOCYvaiVINT4+L20rTz9NZEpPXSRWYm8yRkMwcEFTQA=="
+    A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "a0EzOjdjcX1QdistI2o5Yk5MWkl3a1dEYlswXTcxRUBrVlBsOWhnfQ=="
+    A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "cmlteTAwRU13MldPPnNjdFNJZTVydyY5YzgqcXoqamVnKzpTLj8hbg=="
 
     property id
 
@@ -98,9 +100,9 @@ module AllQ
       spawn do
         server_client.set_socket_option(::ZMQ::ZAP_DOMAIN, A_ZAP_DOMAIN)
         server_client.set_socket_option(::ZMQ::CURVE_SERVER, 1)
-        server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, A_CURVE_SERVER_PUBLIC_KEY)
-        server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, A_CURVE_PUBLICKEY)
-        server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, A_CURVE_SECRETKEY)
+        server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, Base64.decode_string(A_CURVE_SERVER_PUBLIC_KEY))
+        server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, Base64.decode_string(A_CURVE_PUBLICKEY))
+        server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, Base64.decode_string(A_CURVE_SECRETKEY))
 
         puts "Connecting tcp://#{@server}:#{@port}"
         server_client.connect("tcp://#{@server}:#{@port}")
