@@ -24,6 +24,7 @@ module AllQ
       server = context.socket(::ZMQ::REP)
       server.set_socket_option(::ZMQ::ZAP_DOMAIN, A_ZAP_DOMAIN)
       server.set_socket_option(::ZMQ::CURVE_SERVER, 1)
+      server.set_socket_option(::ZMQ::CURVE_SECRETKEY, A_CURVE_SECRETKEY)
       server.set_socket_option(::ZMQ::CURVE_PUBLICKEY, A_CURVE_PUBLICKEY)
 
       server.bind("tcp://0.0.0.0:#{PORT}")
