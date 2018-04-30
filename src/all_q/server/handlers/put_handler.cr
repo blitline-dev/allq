@@ -19,10 +19,7 @@ module AllQ
       job.id = Random::Secure.urlsafe_base64(16)
       tube_name = data["tube"]
 
-      delay = data["delay"]? ? data["delay"] : 0
-      if delay == 0
-        delay = -1 # Since we only have 1 second granularity, force to be active now
-      end
+      delay = data["delay"]? ? data["delay"].to_i : 0
 
       @cache_store.tubes[tube_name].put(job, priority.to_i, delay)
       if job.parent_id && !job.parent_id.to_s.blank?

@@ -33,6 +33,7 @@ module AllQ
         result = StatsHandler.new(@cacheStore).process(params)
         result["global"] = Hash(String, String).new
         result["global"]["action_count"] = @action_count.to_s
+        puts results.inspect if @debug
       when "delete"
         result = DeleteHandler.new(@cacheStore).process(params)
       when "done"
