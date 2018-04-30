@@ -2,6 +2,9 @@ require "json"
 
 module AllQ
   class RequestHandler
+    PING = "ping"
+    PONG = "pong"
+
     def initialize(@cacheStore : AllQ::CacheStore)
       @action_count = 0
       @debug = false
@@ -10,6 +13,7 @@ module AllQ
 
     def process(body)
       begin
+        return PONG if body == PING
         body_hash = JSON.parse(body).as_h
         result = Hash(String, Hash(String, String)).new
         result = action(body_hash["action"], body_hash["params"].as(Hash(String, JSON::Type)))
@@ -33,7 +37,7 @@ module AllQ
         result = StatsHandler.new(@cacheStore).process(params)
         result["global"] = Hash(String, String).new
         result["global"]["action_count"] = @action_count.to_s
-        puts results.inspect if @debug
+        puts result.inspect if @debug
       when "delete"
         result = DeleteHandler.new(@cacheStore).process(params)
       when "done"
