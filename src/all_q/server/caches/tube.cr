@@ -26,7 +26,7 @@ module AllQ
     end
 
     def put(job, priority = 5, delay = 0)
-      if delay < 1
+      if delay.to_i < 1
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else
