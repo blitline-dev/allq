@@ -71,6 +71,7 @@ module AllQ
           result_string = result_string.gsub(/\"parent_id\"\s*:\s*\"(.*?)\"/, "\"parent_id\":\"#{id},\\1\"")
         end
       rescue ex2
+        reconnect
         puts "Exception2 is send_string"
         puts ex2.inspect_with_backtrace
       end

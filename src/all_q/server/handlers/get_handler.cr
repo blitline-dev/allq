@@ -15,7 +15,6 @@ module AllQ
         @cache_store.reserved.set_job_reserved(job)
         return_data["job"] = JobFactory.to_hash(job)
       else
-        puts "No jobs..." if @debug
         return_data["job"] = Hash(String, String).new
       end
       return return_data
