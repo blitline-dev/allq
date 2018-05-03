@@ -96,9 +96,12 @@ module AllQ
           val = wrapped_send(server_client, hash)
           return val unless val.nil?
         else
-          server_client = @server_connections.values.sample
-          val = wrapped_send(server_client, hash)
-          return val unless val.nil?
+          @server_connections.values.each do |server_client|
+            if server_client.ping?
+              val = wrapped_send(server_client, hash)
+              return val unless val.nil?
+            end
+          end
         end
         sleep(i)
       end
