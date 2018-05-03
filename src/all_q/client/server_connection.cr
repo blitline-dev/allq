@@ -45,6 +45,18 @@ module AllQ
       end
     end
 
+    def ping?
+      good = false
+      begin
+        @server_client.send_string("ping")
+        result_string = @server_client.receive_string
+        good = true if result_string == "pong"
+      rescue ex
+        puts ex.inspect_with_backtrace
+      end
+      return good
+    end
+
     def send_string(hash : JSON::Any)
       result_string = ""
       begin

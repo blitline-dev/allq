@@ -32,15 +32,15 @@ class Tcp
 
     puts "Received: #{data}" if @debug
     while data
-      if data && data.size > 5
+      if data && data.size > 3
         begin
           do_stuff(data, socket)
         rescue ex
           p ex.inspect_with_backtrace
           p "Data:#{data}"
         end
-        data = get_socket_data(socket)
       end
+      data = get_socket_data(socket)
     end
   end
 
