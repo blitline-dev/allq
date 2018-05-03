@@ -82,15 +82,15 @@ class Tcp
     server = TCPServer.new(@host, @port)
 
     spawn_listener(ch)
-    begin
-      puts "Local proxy @ #{@port}"
-      loop do
+    puts "Local proxy @ #{@port}"
+    loop do
+      begin
         socket = server.accept
         ch.send socket
+      rescue ex
+        p "Error in tcp:loop!"
+        p ex.inspect_with_backtrace
       end
-    rescue ex
-      p "Error in tcp:loop!"
-      p ex.inspect_with_backtrace
     end
   end
 
