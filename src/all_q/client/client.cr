@@ -57,6 +57,7 @@ module AllQ
     def send(data : String)
       hash = AllQ::Parser.parse(data)
       special_result = special_cased(hash)
+      forced_connection = false
       if special_result
         return special_result
       end
@@ -72,6 +73,7 @@ module AllQ
             q_server = vals[0]
             job_id = vals[1]
             server_client = @server_connections[q_server]
+            forced_connection = true
           elsif size == 1
             job_id = vals[0]
             puts "JobID isn't q_server FORMAT ->#{hash["action"]} ->#{job_id}"
@@ -80,7 +82,35 @@ module AllQ
           end
         end
       end
-      server_client.send_string(hash)
+
+      begin
+        server_client.send_string(hash)
+      rescue ex
+        progressive_backoff(hash, forced_connection, server_client)
+      end
+    end
+
+    def progressive_backoff(hash, forced_connection, server_client)
+      1.upto(3) do |i|
+        if forced_connection
+          val = wrapped_send(server_client, hash)
+          return val unless val.nil?
+        else
+          server_client = @server_connections.values.sample
+          val = wrapped_send(server_client, hash)
+          return val unless val.nil?
+        end
+        sleep(i)
+      end
+      raise "Faild send to server"
+    end
+
+    def wrapped_send(server_client, hash)
+      begin
+        return server_client.send_string(hash)
+      rescue
+      end
+      return nil
     end
 
     def start_local_proxy(raw_server)

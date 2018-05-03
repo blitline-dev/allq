@@ -74,6 +74,7 @@ module AllQ
         reconnect
         puts "Exception2 is send_string"
         puts ex2.inspect_with_backtrace
+        raise "Failed to talk to server side"
       end
       return result_string
     end
@@ -82,7 +83,7 @@ module AllQ
       return if @restart = true
       puts "Reconnecting..."
       sleep_time = @reconnect_count
-      unless sleep_time.nil?
+      unless sleep_time == 0
         sleep_time += 1
         @reconnect_count = sleep_time
         sleep(sleep_time)
@@ -109,10 +110,10 @@ module AllQ
         server_client.connect("tcp://#{@server}:#{@port}")
         @restart = false
         while !@restart
-          sleep(0.001)
+          sleep(0.5)
         end
 
-        # Close and rstart
+        # Close and restart
         server_client.close
         context = ZMQ::Context.new
         @server_client = build_socket(context)
