@@ -6,8 +6,9 @@ require "./server_connection"
 
 module AllQ
   class Client
-    CLIENT_PORT    = ENV["TCP_CLIENT_PORT"]? || "7766"
-    JOB_ID_DIVIDER = ","
+    CLIENT_PORT        = ENV["TCP_CLIENT_PORT"]? || "7766"
+    JOB_ID_DIVIDER     = ","
+    ALL_SERVER_ACTIONS = ["clear"]
 
     def initialize(servers : Array(String))
       @server_connections = Hash(String, ServerConnection).new
@@ -54,6 +55,12 @@ module AllQ
       return job_id
     end
 
+    def send_all(str)
+      @server_connections.values.each do |server_client|
+        server_client.send_string(str)
+      end
+    end
+
     def send(data : String)
       hash = AllQ::Parser.parse(data)
       special_result = special_cased(hash)
@@ -61,10 +68,10 @@ module AllQ
       if special_result
         return special_result
       end
-
+      hash_action_name = hash["action"]?
       server_client = @server_connections.values.sample
 
-      if hash["action"]?
+      if hash_action_name
         job_id = get_job_id(hash)
         if job_id
           vals = job_id.to_s.split(JOB_ID_DIVIDER)
@@ -84,7 +91,11 @@ module AllQ
       end
 
       begin
-        server_client.send_string(hash)
+        if hash_action_name && ALL_SERVER_ACTIONS.includes?(hash_action_name)
+          send_all(hash)
+        else
+          server_client.send_string(hash)
+        end
       rescue ex
         progressive_backoff(hash, forced_connection, server_client)
       end
