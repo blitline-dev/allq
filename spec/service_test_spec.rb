@@ -117,6 +117,20 @@ describe 'Put/Get' do
     stats_count(f)
   end
 
+  it 'handles stats with breakout' do
+    f = Functions.new
+    f.put
+    f.put
+    stats_count(f, 2, 0, 0)
+    f1 = f.get
+    stats_count(f, 1, 1, 0)
+    f2 = f.get
+    stats_count(f, 0, 2, 0)
+    f.done(f1['job']['job_id'])
+    f.done(f2['job']['job_id'])
+    stats_count(f)
+  end
+
   it 'put-get-count works' do
     f = Functions.new
     f.put

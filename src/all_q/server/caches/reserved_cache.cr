@@ -7,6 +7,8 @@ module AllQ
       @parent_cache = parent_cache
       @serializer = ReservedCacheSerDe(ReservedJob).new
       @serializer.load(@cache)
+      @debug = false
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       start_sweeper
     end
 
@@ -30,9 +32,11 @@ module AllQ
     end
 
     def sweep
+      puts "Sweeping Reservered Cache" if @debug
       now = Time.now.to_s("%s").to_i
       @cache.values.each do |reserved_job|
         if reserved_job.start + reserved_job.job.ttl < now
+          puts "Expiring Job From Reserved Cache" if @debug
           expire_job(reserved_job)
         end
       end
