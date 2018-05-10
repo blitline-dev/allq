@@ -15,8 +15,10 @@ class JobFactory
   property priority : Int32
   property releases : Int32
 
+  TTL = ENV["DEFAULT_TTL"]? || 3600
+
   def initialize(data : Hash(String, String), @tube : String, priority : Int32)
-    @ttl = data["ttl"]? ? data["ttl"].to_i : 3600
+    @ttl = data["ttl"]? ? data["ttl"].to_i : TTL.to_i
     @id = data["id"]? || Random::Secure.urlsafe_base64
     @parent_id = data["parent_id"]?.to_s
     @body = data["body"]? || ""

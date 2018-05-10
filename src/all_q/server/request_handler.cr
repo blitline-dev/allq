@@ -28,6 +28,7 @@ module AllQ
     def action(name, params)
       result = Hash(String, Hash(String, String)).new
       @action_count += 1
+      @action_count = 0 if @action_count == Int32::MAX - 1
       case name
       when "put"
         result = PutHandler.new(@cacheStore).process(params)

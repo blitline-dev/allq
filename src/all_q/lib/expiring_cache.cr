@@ -58,7 +58,7 @@ class ExpiringCache(T)
   end
 
   def sweep
-    puts "Sweeping..."
+    puts "Sweeping Expiring Cache..."
     now = Time.now.to_s("%s").to_i
     @cache.delete_if do |k, v|
       if v.start < now - @expiration
