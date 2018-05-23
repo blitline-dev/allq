@@ -17,6 +17,17 @@ module AllQ
       else
         job = @cache_store.tubes[data["tube"]].peek
       end
+      if data["all_reserved"]? && data["all_reserved"]?.to_s == "true"
+        reserved = @cache_store.reserved
+        jobs = reserved.get_all_jobs
+        jobs.each do |r_job|
+          real_job = r_job.job
+          if !real_job.nil?
+            return_data[real_job.id] = JobFactory.to_hash(real_job)
+            return return_data
+          end
+        end
+      end
       if job
         return_data["job"] = JobFactory.to_hash(job)
       else
