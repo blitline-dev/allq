@@ -12,6 +12,10 @@ module AllQ
       start_sweeper
     end
 
+    def get_all_jobs
+      return @cache.values
+    end
+
     def clear_all
       @cache.clear
     end
@@ -25,7 +29,11 @@ module AllQ
     def start_sweeper
       spawn do
         loop do
-          sweep
+          begin
+            sweep
+          rescue ex
+            puts ex.inspect_with_backtrace
+          end
           sleep(5)
         end
       end
@@ -153,19 +161,19 @@ module AllQ
       return unless SERIALIZE
       reserved = build_reserved(job)
       ready = build_ready(job)
-      FileUtils.mv(reserved, ready)
+      FileUtils.mv(reserved, ready) if File.exists?(reserved)
     end
 
     def move_reserved_to_buried(job : Job)
       return unless SERIALIZE
       reserved = build_reserved(job)
       buried = build_buried(job)
-      FileUtils.mv(reserved, buried)
+      FileUtils.mv(reserved, buried) if File.exists?(reserved)
     end
 
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_reserved(job))
+      FileUtils.rm(build_reserved(job)) if File.exists?(build_reserved(job))
     end
 
     def load(cache : Hash(String, T))
