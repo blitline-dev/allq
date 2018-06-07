@@ -12,8 +12,9 @@ RUN cat /etc/apt/sources.list
 RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
 RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
+RUN apt-get install -y socat
 
-ENV version=49
+ENV version=50
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/client/client.cr --release -o allq_client
 RUN cd allq && chmod 777 allq_client && mv allq_client /usr/bin/allq_client
