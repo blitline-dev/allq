@@ -1,6 +1,6 @@
 module AllQ
   class Tube
-    property :name, :priority_queue, :delayed
+    property :name, :priority_queue, :delayed, :touched
     PRIORITY_SIZE = ENV["PRIORITY_SIZE"]? || 10
 
     def initialize(@name : String)
@@ -8,12 +8,18 @@ module AllQ
       @delayed = Array(DelayedJob).new
       @ready_serde = ReadyCacheSerDe(Job).new(@name)
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
+      @touched = Time.now
+      touch
       start_sweeper
     end
 
     def clear
       @priority_queue.clear
       @delayed.clear
+    end
+
+    def touch
+      @touched = Time.now
     end
 
     def load_serialized
@@ -26,6 +32,7 @@ module AllQ
     end
 
     def put(job, priority = 5, delay = 0)
+      touch
       if delay.to_i < 1
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
@@ -40,6 +47,7 @@ module AllQ
     end
 
     def get
+      touch
       continue = true
       throttle = @throttle
       if throttle
@@ -76,17 +84,22 @@ module AllQ
     def start_sweeper
       spawn do
         loop do
-          time_now = Time.now.to_s("%s").to_i
-          @delayed.reject! do |delayed_job|
-            if delayed_job.time_to_start < time_now
-              put(delayed_job.job, delayed_job.priority)
-              @ready_serde.move_delayed_to_ready(delayed_job.job)
-              true
-            else
-              false
+          begin
+            time_now = Time.now.to_s("%s").to_i
+            @delayed.reject! do |delayed_job|
+              if delayed_job.time_to_start < time_now
+                put(delayed_job.job, delayed_job.priority)
+                @ready_serde.move_delayed_to_ready(delayed_job.job)
+                true
+              else
+                false
+              end
             end
+            sleep(1)
+          rescue ex
+            puts "Tube start_sweeper Exception"
+            puts ex.inspect_with_backtrace
           end
-          sleep(1)
         end
       end
     end

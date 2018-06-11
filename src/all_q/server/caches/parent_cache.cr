@@ -87,8 +87,13 @@ module AllQ
     def start_sweeper
       spawn do
         loop do
-          sweep
-          sleep(5)
+          begin
+            sweep
+            sleep(5)
+          rescue ex
+            puts "Parent Cache start_sweeper Exception"
+            puts ex.inspect_with_backtrace
+          end
         end
       end
     end
