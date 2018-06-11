@@ -5,6 +5,7 @@ module AllQ
     def initialize
       @cache = Hash(String, AllQ::Tube).new
       prep_serializers
+      start_sweeper
     end
 
     def clear_all
@@ -39,6 +40,24 @@ module AllQ
     def put(job, priority = 5, delay = 0)
       tube = get(job.tube)
       tube.put(job, priority, delay)
+    end
+
+    def start_sweeper
+      spawn do
+        loop do
+          begin
+            puts "Sweeping for dead tubes..."
+            time_now = Time.now
+            @cache.delete_if do |key, value|
+              value.size == 0 && value.touched < time_now - 1.hour
+            end
+          rescue ex
+            puts "Server Tube Cache Sweeper Exception"
+            puts ex.inspect_with_backtrace
+          end
+          sleep(3600)
+        end
+      end
     end
 
     # --------------------------------------------

@@ -51,8 +51,13 @@ class ExpiringCache(T)
   def start_sweeper
     spawn do
       loop do
-        sweep
-        sleep(@sweep_interval)
+        begin
+          sweep
+          sleep(@sweep_interval)
+        rescue ex
+          puts "Expiring Cache Sweeper Exception"
+          puts ex.inspect_with_backtrace
+        end
       end
     end
   end
