@@ -97,12 +97,16 @@ module AllQ
           server_client.send_string(hash)
         end
       rescue ex
+        puts "Failed to send to server '#{hash_action_name}'"
+        puts ex.inspect_with_backtrace
+
         progressive_backoff(hash, forced_connection, server_client)
       end
     end
 
     def progressive_backoff(hash, forced_connection, server_client)
       1.upto(3) do |i|
+        puts "Retrying send..."
         if forced_connection
           val = wrapped_send(server_client, hash)
           return val unless val.nil?
