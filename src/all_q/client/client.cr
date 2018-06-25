@@ -2,6 +2,7 @@ require "zeromq"
 require "json"
 require "uri"
 require "./*"
+require "./handlers/*"
 require "./server_connection"
 
 module AllQ
@@ -27,7 +28,12 @@ module AllQ
       results = nil
       if parsed_data["action"]?
         if parsed_data["action"].to_s == "stats"
-          results = aggregate_stats(parsed_data)
+          stats_aggregator = AllQ::StatsAggregator.new(@server_connections)
+          results = stats_aggregator.process(parsed_data)
+        end
+        if parsed_data["action"].to_s == "peek"
+          client_peek_handler = AllQ::ClientPeekHandler.new(@server_connections)
+          results = client_peek_handler.process(parsed_data)
         end
       end
       results
@@ -71,6 +77,13 @@ module AllQ
       hash_action_name = hash["action"]?
       server_client = @server_connections.values.sample
 
+      # ------------------------------------------------------------
+      # The server connection handles appending server ID to
+      # response. Job id has ServerID prepended to it for the
+      # client app to keep. When that ID is sent back through
+      # this client, it's pulled out and removed by server_connection
+      # See method ServerConnection.send_string
+      # -------------------------------------------------------------
       if hash_action_name
         job_id = get_job_id(hash)
         if job_id
