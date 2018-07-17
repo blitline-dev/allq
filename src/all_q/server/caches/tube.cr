@@ -9,8 +9,13 @@ module AllQ
       @ready_serde = ReadyCacheSerDe(Job).new(@name)
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
       @touched = Time.now
+      @paused = false
       touch
       start_sweeper
+    end
+
+    def pause(paused : Bool)
+      @paused = paused
     end
 
     def clear
@@ -48,6 +53,7 @@ module AllQ
 
     def get
       touch
+      return nil if @paused
       continue = true
       throttle = @throttle
       if throttle

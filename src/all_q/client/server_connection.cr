@@ -114,6 +114,7 @@ module AllQ
       spawn do
         server_client.set_socket_option(::ZMQ::ZAP_DOMAIN, A_ZAP_DOMAIN)
         server_client.set_socket_option(::ZMQ::CURVE_SERVER, 1)
+        server_client.set_socket_option(::ZMQ::REQ_CORRELATE, 1)
         server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, Base64.decode_string(A_CURVE_SERVER_PUBLIC_KEY))
         server_client.set_socket_option(::ZMQ::CURVE_PUBLICKEY, Base64.decode_string(A_CURVE_PUBLICKEY))
         server_client.set_socket_option(::ZMQ::CURVE_SECRETKEY, Base64.decode_string(A_CURVE_SECRETKEY))
