@@ -2,8 +2,9 @@ require "json"
 
 module AllQ
   class RequestHandler
-    PING = "ping"
-    PONG = "pong"
+    PING      = "ping"
+    PONG      = "pong"
+    LOCAL_MAX = Int32::MAX - 10
 
     def initialize(@cacheStore : AllQ::CacheStore)
       @action_count = 0
@@ -28,7 +29,7 @@ module AllQ
     def action(name, params)
       result = Hash(String, Hash(String, String)).new
       @action_count += 1
-      @action_count = 0 if @action_count == Int32::MAX - 1
+      @action_count = 0 if @action_count > LOCAL_MAX
       case name
       when "put"
         result = PutHandler.new(@cacheStore).process(params)
@@ -55,6 +56,10 @@ module AllQ
         result = ClearHandler.new(@cacheStore).process(params)
       when "peek"
         result = PeekHandler.new(@cacheStore).process(params)
+      when "pause"
+        result = PauseHandler.new(@cacheStore).process(params)
+      when "unpause"
+        result = UnpauseHandler.new(@cacheStore).process(params)
       when "bury"
         result = BuryHandler.new(@cacheStore).process(params)
       when "kick"
