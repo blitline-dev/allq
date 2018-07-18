@@ -8,7 +8,7 @@ require "./base_handler"
 
 module AllQ
   class DeleteHandler < BaseHandler
-    def process(json : Hash(String, JSON::Type))
+    def process(json : JSON::Any)
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]? || "Job ID not found in reserved or buried. #{data.inspect}"

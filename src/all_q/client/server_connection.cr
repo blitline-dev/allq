@@ -11,6 +11,8 @@ module AllQ
     property id
 
     def initialize(@server : String, @port : String)
+      @debug = false # INFER TYPE
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
       context = ZMQ::Context.new
       @server_client = build_socket(context)
@@ -64,6 +66,7 @@ module AllQ
         string_to_send = string_to_send.gsub(/\"job_id\"\s*:\s*\".*?\,(.*?)\"/, "\"job_id\":\"\\1\"")
         string_to_send = string_to_send.gsub(/\"parent_id\"\s*:\s*\".*?\,(.*?)\"/, "\"parent_id\":\"\\1\"")
 
+        puts "Sending #{string_to_send}" if @debug
         @server_client.send_string(string_to_send)
       rescue ex
         puts "Exception1 is send_string"
@@ -71,7 +74,9 @@ module AllQ
       end
 
       begin
-        result_string = @server_client.receive_string
+        result_string = @server_client.receive_string.strip
+        puts "Got #{result_string}" if @debug
+
         if result_string.blank?
           reconnect
           # -- Admin results are only ever on 'gets'

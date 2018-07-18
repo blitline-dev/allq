@@ -106,6 +106,7 @@ module AllQ
       begin
         if hash_action_name && ALL_SERVER_ACTIONS.includes?(hash_action_name)
           send_all(hash)
+          return "{}"
         else
           server_client.send_string(hash)
         end

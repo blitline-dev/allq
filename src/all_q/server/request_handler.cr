@@ -8,16 +8,16 @@ module AllQ
 
     def initialize(@cacheStore : AllQ::CacheStore)
       @action_count = 0
-      @debug = false
+      @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
     end
 
-    def process(body)
+    def process(body : String)
       begin
         return PONG if body == PING
-        body_hash = JSON.parse(body).as_h
+        body_hash = JSON.parse(body)
         result = Hash(String, Hash(String, String)).new
-        result = action(body_hash["action"], body_hash["params"].as(Hash(String, JSON::Type)))
+        result = action(body_hash["action"], body_hash["params"])
         puts "results from #{body_hash["action"]?.to_s} #{result.to_json}" if @debug
         return result.to_json
       rescue ex
@@ -26,7 +26,7 @@ module AllQ
       end
     end
 
-    def action(name, params)
+    def action(name, params : JSON::Any)
       result = Hash(String, Hash(String, String)).new
       @action_count += 1
       @action_count = 0 if @action_count > LOCAL_MAX

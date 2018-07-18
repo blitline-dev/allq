@@ -7,7 +7,7 @@ require "./base_handler"
 
 module AllQ
   class BuryHandler < BaseHandler
-    def process(json : Hash(String, JSON::Type))
+    def process(json : JSON::Any)
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]?

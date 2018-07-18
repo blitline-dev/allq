@@ -14,9 +14,9 @@ module AllQ
       return h
     end
 
-    def normalize_json_hash(json_hash : JSON::Type)
+    def normalize_json_hash(json_hash : JSON::Any)
       h = Hash(String, String).new
-      json_hash.each do |k, v|
+      json_hash.as_h.each do |k, v|
         h[k.to_s] = v.to_s
       end
       return h
