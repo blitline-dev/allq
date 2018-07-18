@@ -5,9 +5,9 @@ module AllQ
 
     def process(body)
       begin
-        body_hash = JSON.parse(body).as_h
+        body_hash = JSON.parse(body)
         result = Hash(String, Hash(String, String)).new
-        result = action(body_hash["action"], body_hash["params"].as(Hash(String, JSON::Type)))
+        result = action(body_hash["action"].to_s, body_hash["params"])
         return result.to_json
       rescue ex
         puts ex.inspect_with_backtrace
@@ -44,7 +44,7 @@ module AllQ
       return false if @cache_store.redirect_info.nil?
       is_ok = true
       stats_handler = StatsHandler.new(@cache_store)
-      results = stats_handler.process(Hash(String, JSON::Type).new)
+      results = stats_handler.process(JSON.parse("{}"))
       results.each do |tube_name, stats|
         stats.each do |k, v|
           is_ok = false if v.to_i > 0

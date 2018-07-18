@@ -31,7 +31,7 @@ module AllQ
     def get(name)
       tube = @cache[name]?
       if tube.nil?
-        tube = AllQ::Tube.new(name)
+        tube = AllQ::Tube.new(name.to_s)
         @cache[name] = tube
       end
       return tube

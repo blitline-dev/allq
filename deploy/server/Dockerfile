@@ -14,13 +14,13 @@ RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 RUN apt-get install -y socat
 
-ENV version=66
+ENV version=73
 RUN git clone https://blitline-dev:***REMOVED***@github.com/blitline-dev/allq.git
 RUN cd allq && shards
 RUN cd allq && sed -i 's/FFI::MemoryPointer.*$/" " * 41/g' lib/zeromq/src/zeromq/util.cr && sed -i 's/\.read_string//g' lib/zeromq/src/zeromq/util.cr
 
+RUN echo $(crystal -v)
 RUN cd allq && crystal build src/all_q/server/server.cr --release -o allq_server
-
 
 
 RUN cd allq && chmod 777 allq_server && mv allq_server /usr/bin/allq_server

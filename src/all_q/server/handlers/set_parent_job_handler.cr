@@ -1,10 +1,10 @@
 module AllQ
   class SetParentJobHandler < BaseHandler
-    def process(json : Hash(String, JSON::Type))
+    def process(json : JSON::Any)
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       priority = data["priority"]? ? data["priority"] : 5
-      job = JobFactory.new(data, data["tube"], priority.to_i).get_job
+      job = JobFactory.new(data, data["tube"].to_s, priority.to_i).get_job
       @cache_store.tubes.get(job.tube)
 
       timeout = data["timeout"]? ? data["timeout"].to_i : 3600

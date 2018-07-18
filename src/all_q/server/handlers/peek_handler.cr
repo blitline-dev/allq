@@ -9,7 +9,7 @@ require "./base_handler"
 
 module AllQ
   class PeekHandler < BaseHandler
-    def process(json : Hash(String, JSON::Type))
+    def process(json : JSON::Any)
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       if data["buried"]? && data["buried"]?.to_s == "true"
