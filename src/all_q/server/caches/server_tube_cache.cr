@@ -31,7 +31,7 @@ module AllQ
     def get(name)
       tube = @cache[name]?
       if tube.nil?
-        tube = AllQ::Tube.new(name.to_s)
+        tube = AllQ::Tube.new(name)
         @cache[name] = tube
       end
       return tube
@@ -72,11 +72,11 @@ module AllQ
     end
 
     def ensure_dirs
-      FileUtils.mkdir_p("#{@base_dir}/buried")
-      FileUtils.mkdir_p("#{@base_dir}/reserved")
-      FileUtils.mkdir_p("#{@base_dir}/parents")
-      FileUtils.mkdir_p("#{@base_dir}/ready")
-      FileUtils.mkdir_p("#{@base_dir}/delayed")
+      FileUtils.mkdir_p("#{@base_dir}/buried", 777)
+      FileUtils.mkdir_p("#{@base_dir}/reserved", 777)
+      FileUtils.mkdir_p("#{@base_dir}/parents", 777)
+      FileUtils.mkdir_p("#{@base_dir}/ready", 777)
+      FileUtils.mkdir_p("#{@base_dir}/delayed", 777)
     end
 
     def prep_tubes

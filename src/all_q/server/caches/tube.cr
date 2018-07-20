@@ -127,7 +127,7 @@ module AllQ
     def initialize(@name : String)
       return unless SERIALIZE
       @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
-      FileUtils.mkdir_p("#{@base_dir}/ready/#{@name}")
+      FileUtils.mkdir_p("#{@base_dir}/ready/#{@name}", 777)
     end
 
     def move_ready_to_reserved(job : Job)
@@ -184,7 +184,7 @@ module AllQ
       return unless SERIALIZE
 
       @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
-      FileUtils.mkdir_p("#{@base_dir}/delayed/#{@name}")
+      FileUtils.mkdir_p("#{@base_dir}/delayed/#{@name}", 777)
     end
 
     def serialize(delayed : T)
