@@ -89,7 +89,7 @@ module AllQ
 
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_buried(job))
+      AllQ::FileWrapper.rm(build_buried(job))
     end
 
     def load(cache : Hash(String, T))
@@ -104,7 +104,7 @@ module AllQ
           end
         rescue ex
           puts "Failed to load #{file}, #{{ex.message}}"
-          FileUtils.rm(file) if File.exists?(file)
+          AllQ::FileWrapper.rm(file) if File.exists?(file)
         end
       end
     end

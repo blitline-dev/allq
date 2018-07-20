@@ -161,19 +161,19 @@ module AllQ
       return unless SERIALIZE
       reserved = build_reserved(job)
       ready = build_ready(job)
-      FileUtils.mv(reserved, ready) if File.exists?(reserved)
+      AllQ::FileWrapper.mv(reserved, ready)
     end
 
     def move_reserved_to_buried(job : Job)
       return unless SERIALIZE
       reserved = build_reserved(job)
       buried = build_buried(job)
-      FileUtils.mv(reserved, buried) if File.exists?(reserved)
+      AllQ::FileWrapper.mv(reserved, buried)
     end
 
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_reserved(job)) if File.exists?(build_reserved(job))
+      AllQ::FileWrapper.rm(build_reserved(job)) if File.exists?(build_reserved(job))
     end
 
     def load(cache : Hash(String, T))
@@ -188,7 +188,7 @@ module AllQ
           end
         rescue ex
           puts "Failed to load #{file}, #{{ex.message}}"
-          FileUtils.rm(file) if File.exists?(file)
+          AllQ::FileWrapper.rm(file)
         end
       end
     end

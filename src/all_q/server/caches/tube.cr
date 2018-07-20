@@ -134,14 +134,14 @@ module AllQ
       return unless SERIALIZE
       ready = build_ready(job)
       reserved = build_reserved(job)
-      FileUtils.mv(ready, reserved)
+      FileUtils.mv(ready, reserved) if File.exists?(ready)
     end
 
     def move_delayed_to_ready(job : Job)
       return unless SERIALIZE
       delayed = build_delayed(job)
       ready = build_ready(job)
-      FileUtils.mv(delayed, ready)
+      FileUtils.mv(delayed, ready) if File.exists?(delayed)
     end
 
     def serialize(ready_job : T)
@@ -197,7 +197,7 @@ module AllQ
 
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_delayed(job))
+      AllQ::FileWrapper.rm(build_delayed(job))
     end
 
     def load(cache : Hash(String, T))
@@ -216,7 +216,7 @@ module AllQ
           end
         rescue ex
           puts "Failed to load #{file}, #{{ex.message}}"
-          FileUtils.rm(file) if File.exists?(file)
+          AllQ::FileWrapper.rm(file) if File.exists?(file)
         end
       end
     end
