@@ -208,10 +208,15 @@ module AllQ
       return unless SERIALIZE
       base_path = "#{@base_dir}/delayed/#{@name}/*"
       Dir[base_path].each do |file|
-        File.open(file, "r") do |f|
-          puts file
-          job = Cannon.decode f, T
-          cache << job
+        begin
+          File.open(file, "r") do |f|
+            puts file
+            job = Cannon.decode f, T
+            cache << job
+          end
+        rescue ex
+          puts "Failed to load #{file}, #{{ex.message}}"
+          FileUtils.rm(file) if File.exists?(file)
         end
       end
     end

@@ -169,10 +169,15 @@ module AllQ
       return unless SERIALIZE
       base_path = "#{@base_dir}/parents/*"
       Dir[base_path].each do |file|
-        File.open(file, "r") do |f|
-          puts file
-          job = Cannon.decode f, ParentCache::ParentJob
-          cache[job.job.id] = job
+        begin
+          File.open(file, "r") do |f|
+            puts file
+            job = Cannon.decode f, ParentCache::ParentJob
+            cache[job.job.id] = job
+          end
+        rescue ex
+          puts "Failed to load #{file}, #{{ex.message}}"
+          FileUtils.rm(file) if File.exists?(file)
         end
       end
     end
