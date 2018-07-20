@@ -150,19 +150,19 @@ module AllQ
       return unless SERIALIZE
       parent = build_parent(job)
       ready = build_ready(job)
-      FileUtils.mv(parent, ready)
+      AllQ::FileWrapper.mv(parent, ready)
     end
 
     def move_parent_to_buried(job : Job)
       return unless SERIALIZE
       parent = build_parent(job)
       buried = build_buried(job)
-      FileUtils.mv(parent, buried)
+      AllQ::FileWrapper.mv(parent, buried)
     end
 
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_parent(job))
+      AllQ::FileWrapper.rm(build_parent(job))
     end
 
     def load(cache : Hash(String, T))
@@ -177,7 +177,7 @@ module AllQ
           end
         rescue ex
           puts "Failed to load #{file}, #{{ex.message}}"
-          FileUtils.rm(file) if File.exists?(file)
+          AllQ::FileWrapper.rm(file) if File.exists?(file)
         end
       end
     end
