@@ -72,11 +72,11 @@ module AllQ
     end
 
     def ensure_dirs
-      FileUtils.mkdir_p("#{@base_dir}/buried", 0o1411)
-      FileUtils.mkdir_p("#{@base_dir}/reserved", 0o1411)
-      FileUtils.mkdir_p("#{@base_dir}/parents", 0o1411)
-      FileUtils.mkdir_p("#{@base_dir}/ready", 0o1411)
-      FileUtils.mkdir_p("#{@base_dir}/delayed", 0o1411)
+      FileUtils.mkdir_p("#{@base_dir}/buried", File::Permissions::All.to_i)
+      FileUtils.mkdir_p("#{@base_dir}/reserved", File::Permissions::All.to_i)
+      FileUtils.mkdir_p("#{@base_dir}/parents", File::Permissions::All.to_i)
+      FileUtils.mkdir_p("#{@base_dir}/ready", File::Permissions::All.to_i)
+      FileUtils.mkdir_p("#{@base_dir}/delayed", File::Permissions::All.to_i)
     end
 
     def prep_tubes
