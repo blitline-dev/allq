@@ -1,5 +1,4 @@
 require "json"
-require "cannon"
 require "random"
 
 class JobFactory
@@ -16,6 +15,20 @@ class JobFactory
   property releases : Int32
 
   TTL = ENV["DEFAULT_TTL"]? || 3600
+
+  def self.build_job_factory_from_hash(data : JSON::Any)
+    priority = data["priority"]? ? data["priority"] : 5
+
+    JobFactory.new(normalize_json_hash(data), data["tube"].to_s, priority.to_s.to_i)
+  end
+
+  def self.normalize_json_hash(json_hash : JSON::Any)
+    h = Hash(String, String).new
+    json_hash.as_h.each do |k, v|
+      h[k.to_s] = v.to_s
+    end
+    return h
+  end
 
   def initialize(data : Hash(String, String), @tube : String, priority : Int32)
     @ttl = data["ttl"]? ? data["ttl"].to_i : TTL.to_i
@@ -51,8 +64,7 @@ class JobFactory
 end
 
 struct Job
-  include Cannon::Auto
-
+  include JSON::Serializable
   property id : String
   property parent_id : String | Nil
   property body : String

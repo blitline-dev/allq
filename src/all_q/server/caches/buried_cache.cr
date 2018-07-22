@@ -97,9 +97,8 @@ module AllQ
       base_path = "#{@base_dir}/buried/*"
       Dir[base_path].each do |file|
         begin
-          File.open(file, "r") do |f|
-            puts file
-            job = Cannon.decode f, Job
+          job = Cannon.decode_to_job? file
+          if job
             cache[job.id] = job
           end
         rescue ex

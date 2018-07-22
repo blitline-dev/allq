@@ -1,7 +1,7 @@
 module AllQ
   class CacheStore
     property :tubes, :buried, :reserved, :parents, :redirect_info
-    BASE_DIR = ENV["SERIALIZER_DIR"]? || "/tmp"
+    BASE_DIR = EnvConstants::SERIALIZER_DIR
 
     def initialize
       @tubes = ServerTubeCache.new

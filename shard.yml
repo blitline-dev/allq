@@ -15,5 +15,3 @@ license: MIT
 dependencies:
   zeromq:
     github: benoist/zeromq-crystal
-  cannon:
-    github: Papierkorb/cannon

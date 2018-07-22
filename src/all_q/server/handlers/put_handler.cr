@@ -14,11 +14,10 @@ module AllQ
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
 
-      priority = data["priority"]? ? data["priority"].to_s.to_i : 5
-      job = JobFactory.new(data, data["tube"].to_s, priority).get_job
+      job = JobFactory.build_job_factory_from_hash(json).get_job
       job.id = Random::Secure.urlsafe_base64(16)
       tube_name = data["tube"]
-
+      priority = job.priority
       delay = data["delay"]? ? data["delay"].to_s.to_i : 0
 
       @cache_store.tubes[tube_name].put(job, priority.to_i, delay)

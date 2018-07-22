@@ -50,7 +50,6 @@ module AllQ
     def check_parent_job(job_id, increment_child_count = false)
       parent_job = @cache.fetch(job_id)
       parent_job.child_count += 1 if increment_child_count
-      puts
       if parent_job.limit > 0
         if parent_job.limit <= parent_job.child_count
           start_parent_job(parent_job)
@@ -114,7 +113,8 @@ module AllQ
     end
 
     class ParentJob
-      include Cannon::Auto
+      include JSON::Serializable
+
       property :start, :job, :child_count, :timeout, :limit, :run_on_timeout, :started_count
 
       def initialize(@start : Int32, @job : Job, @child_count : Int32, @timeout : Int32, @limit : Int32, @run_on_timeout : Bool, @started_count : Int32)
@@ -142,7 +142,7 @@ module AllQ
     def serialize(parent_job : T)
       return unless SERIALIZE
       File.open(build_parent(parent_job.job), "w") do |f|
-        Cannon.encode f, parent_job.job
+        Cannon.encode f, parent_job
       end
     end
 
@@ -170,9 +170,8 @@ module AllQ
       base_path = "#{@base_dir}/parents/*"
       Dir[base_path].each do |file|
         begin
-          File.open(file, "r") do |f|
-            puts file
-            job = Cannon.decode f, ParentCache::ParentJob
+          job = Cannon.decode_to_parent_job file
+          if job
             cache[job.job.id] = job
           end
         rescue ex
