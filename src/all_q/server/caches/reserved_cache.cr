@@ -135,8 +135,7 @@ module AllQ
     end
 
     struct ReservedJob
-      include Cannon::Auto
-
+      include JSON::Serializable
       property start, job
 
       def initialize(@start : Int32, @job : Job)
@@ -181,9 +180,8 @@ module AllQ
       base_path = "#{@base_dir}/reserved/*"
       Dir[base_path].each do |file|
         begin
-          File.open(file, "r") do |f|
-            puts file
-            job = Cannon.decode f, ReservedCache::ReservedJob
+          job = Cannon.decode_to_reserved_job file
+          if job
             cache[job.job.id] = job
           end
         rescue ex

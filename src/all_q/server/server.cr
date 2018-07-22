@@ -3,7 +3,6 @@ require "./handlers/*"
 require "./*"
 require "../lib/*"
 require "./caches/*"
-require "cannon"
 require "base64"
 
 module AllQ

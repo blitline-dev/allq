@@ -111,7 +111,7 @@ module AllQ
     end
 
     struct DelayedJob
-      include Cannon::Auto
+      include JSON::Serializable
       property time_to_start, job, priority
 
       def initialize(@time_to_start : Int32, @job : Job, @priority : Int32)
@@ -126,7 +126,7 @@ module AllQ
   class ReadyCacheSerDe(T) < BaseSerDe(T)
     def initialize(@name : String)
       return unless SERIALIZE
-      @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
+      @base_dir = EnvConstants::SERIALIZER_DIR
       FileUtils.mkdir_p("#{@base_dir}/ready/#{@name}", File::Permissions::All.to_i)
     end
 
@@ -166,9 +166,8 @@ module AllQ
       return unless SERIALIZE
       base_path = "#{@base_dir}/ready/#{@name}/*"
       Dir[base_path].each do |file|
-        File.open(file, "r") do |f|
-          puts file
-          job = Cannon.decode f, Job
+        job = Cannon.decode_to_job? file
+        if job
           priority_queue.put(job, job.priority)
         end
       end
@@ -183,7 +182,7 @@ module AllQ
     def initialize(@name : String)
       return unless SERIALIZE
 
-      @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
+      @base_dir = EnvConstants::SERIALIZER_DIR
       FileUtils.mkdir_p("#{@base_dir}/delayed/#{@name}", File::Permissions::All.to_i)
     end
 
@@ -209,9 +208,8 @@ module AllQ
       base_path = "#{@base_dir}/delayed/#{@name}/*"
       Dir[base_path].each do |file|
         begin
-          File.open(file, "r") do |f|
-            puts file
-            job = Cannon.decode f, T
+          job = Cannon.decode_to_delayed_job file
+          if job
             cache << job
           end
         rescue ex

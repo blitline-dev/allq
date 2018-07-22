@@ -64,7 +64,7 @@ module AllQ
     # Serializer Init
     # --------------------------------------------
     def prep_serializers
-      @base_dir = ENV["SERIALIZER_DIR"]? || "/tmp"
+      @base_dir = EnvConstants::SERIALIZER_DIR
       return unless (ENV["SERIALIZE"]?.to_s == "true")
 
       ensure_dirs

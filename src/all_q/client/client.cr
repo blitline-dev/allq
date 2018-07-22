@@ -150,7 +150,7 @@ module AllQ
         port = ENV["CL_PORT"]? || CLIENT_PORT
         listen = ENV["CL_LISTEN"]? || "0.0.0.0"
         debug = ENV["CL_DEBUG"]?.to_s == "true"
-        allq_dir = "/tmp"
+        allq_dir = EnvConstants::SERIALIZER_DIR
 
         server = Tcp.new(listen, port.to_i, allq_dir, debug, raw_server)
         server.listen
