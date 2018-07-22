@@ -35,6 +35,10 @@ module AllQ
           client_peek_handler = AllQ::ClientPeekHandler.new(@server_connections)
           results = client_peek_handler.process(parsed_data)
         end
+        if parsed_data["action"].to_s == "ping"
+          client_ping_handler = AllQ::PingAggregator.new(@server_connections)
+          results = client_ping_handler.process(parsed_data)
+        end
       end
       results
     end
@@ -150,9 +154,8 @@ module AllQ
         port = ENV["CL_PORT"]? || CLIENT_PORT
         listen = ENV["CL_LISTEN"]? || "0.0.0.0"
         debug = ENV["CL_DEBUG"]?.to_s == "true"
-        allq_dir = EnvConstants::SERIALIZER_DIR
 
-        server = Tcp.new(listen, port.to_i, allq_dir, debug, raw_server)
+        server = Tcp.new(listen, port.to_i, debug, raw_server)
         server.listen
       end
     end
@@ -165,5 +168,5 @@ client = AllQ::Client.new(server_string.split(","))
 puts "version= #{ENV["version"]?}"
 
 loop do
-  sleep(1000)
+  sleep(10)
 end
