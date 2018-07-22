@@ -3,7 +3,7 @@ require "socket"
 class Tcp
   TOTAL_FIBERS = 5
 
-  def initialize(@host : String, @port : Int32, @base_dir : String, @debug : Bool, @sender : AllQ::Client)
+  def initialize(@host : String, @port : Int32, @debug : Bool, @sender : AllQ::Client)
     @connections = 0
     @version = ENV["CL_VERSION"]? || "0.0.0.0"
   end
