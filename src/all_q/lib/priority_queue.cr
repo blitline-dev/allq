@@ -13,7 +13,7 @@ class PriorityQueue(T)
 
   def put(item : Job, priority : Int32)
     queue = @prioritized_queues[priority]
-    if @prioritized_queues.size < priority
+    if priority < @prioritized_queues.size
       @min_priority = priority if priority < @min_priority
     end
     queue << item

@@ -44,8 +44,8 @@ module AllQ
               result = redirect_handler.process(in_string)
             else
               result = request_handler.process(in_string)
-              server.send_string(result.to_s)
             end
+            server.send_string(result.to_s)
           end
           Fiber.yield
           sleep(0.0001)
