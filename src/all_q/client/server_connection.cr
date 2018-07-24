@@ -98,7 +98,6 @@ module AllQ
 
     def reconnect
       return if @restart = true
-      puts "Reconnecting..."
       sleep_time = @reconnect_count
       unless sleep_time == 0
         sleep_time += 1
@@ -112,6 +111,7 @@ module AllQ
       return unless server_ip.size > 0 && port.size > 0
       @server = server_ip
       @port = port
+      @id = Random::Secure.urlsafe_base64(6)
       reconnect
     end
 
