@@ -6,11 +6,7 @@ module AllQ
     # -------------------------------------------------
     def process(parsed_data) : String
       result_hash = Hash(String, JSON::Any).new
-      @server_connections.values.each do |server_client|
-        output = server_client.send_string(parsed_data)
-        result_hash[server_client.id] = JSON.parse(output)
-      end
-      result_hash.to_json
+      @server_connections.aggregate_stats(parsed_data)
     end
   end
 end

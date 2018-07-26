@@ -1,5 +1,5 @@
 module AllQ
-  class ClientPeekHandler < BaseClientHandler
+  class KickHandler < BaseClientHandler
     # -------------------------------------------------
     # Peek needs to look through all queues, not just a
     # sampled one. It should iterator until it finds

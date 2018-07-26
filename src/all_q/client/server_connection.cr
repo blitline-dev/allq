@@ -14,6 +14,8 @@ module AllQ
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
+      @poller_in = ZMQ::Poller.new
+      @poller_out = ZMQ::Poller.new
       context = ZMQ::Context.new
       @server_client = build_socket(context)
       start_server_connection(@server_client)
@@ -47,14 +49,29 @@ module AllQ
       end
     end
 
-    def ping?
+    def final_send_string(string, timeout)
+      if @poller_out.poll(timeout) > 0
+        val = @server_client.send_string(string)
+      else
+        raise "Timeout processing poll out request"
+      end
+
+      if @poller_in.poll(timeout) > 0
+        val = @server_client.receive_string
+      else
+        raise "Timeout processing poll in request"
+      end
+
+      return val
+    end
+
+    def ping?(timeout = 5000)
       good = false
       begin
-        @server_client.send_string("ping")
-        result_string = @server_client.receive_string
+        result_string = final_send_string("ping", timeout)
         good = true if result_string == "pong"
       rescue ex
-        puts ex.inspect_with_backtrace
+        puts ex.inspect_with_backtrace if @debug
       end
       return good
     end
@@ -67,14 +84,13 @@ module AllQ
         string_to_send = string_to_send.gsub(/\"parent_id\"\s*:\s*\".*?\,(.*?)\"/, "\"parent_id\":\"\\1\"")
 
         puts "Sending #{string_to_send}" if @debug
-        @server_client.send_string(string_to_send)
       rescue ex
         puts "Exception1 is send_string"
         puts ex.inspect_with_backtrace
       end
 
       begin
-        result_string = @server_client.receive_string.strip
+        result_string = final_send_string(string_to_send, 5000).strip
         puts "Got #{result_string}" if @debug
 
         if result_string.blank?
@@ -122,6 +138,7 @@ module AllQ
         server_client.set_socket_option(::ZMQ::REQ_CORRELATE, 1)
         server_client.set_socket_option(::ZMQ::IMMEDIATE, 1)
         server_client.set_socket_option(::ZMQ::RCVTIMEO, 5000)
+        server_client.set_socket_option(::ZMQ::LINGER, 0)
         # server_client.set_socket_option(::ZMQ::RECONNECT_IVL, 1000)
         # server_client.set_socket_option(::ZMQ::RECONNECT_IVL_MAX, 60000)
         server_client.set_socket_option(::ZMQ::CURVE_SERVERKEY, Base64.decode_string(A_CURVE_SERVER_PUBLIC_KEY))
@@ -131,6 +148,9 @@ module AllQ
         puts "Connecting tcp://#{@server}:#{@port}"
         server_client.connect("tcp://#{@server}:#{@port}")
         @restart = false
+
+        @poller_in.register(server_client, ::ZMQ::POLLIN)
+        @poller_out.register(server_client, ::ZMQ::POLLOUT)
         while !@restart
           sleep(0.5)
         end

@@ -4,22 +4,20 @@ require "uri"
 require "./*"
 require "./handlers/*"
 require "./server_connection"
+require "./server_connection_cache"
 
 module AllQ
   class Client
-    CLIENT_PORT        = ENV["TCP_CLIENT_PORT"]? || "7766"
-    JOB_ID_DIVIDER     = ","
-    ALL_SERVER_ACTIONS = ["clear"]
+    CLIENT_PORT           = ENV["TCP_CLIENT_PORT"]? || "7766"
+    JOB_ID_DIVIDER        = ","
+    ALL_SERVER_ACTIONS    = ["clear"]
+    MUST_FIND_ONE_OR_NONE = ["kick", "peek"]
 
     def initialize(servers : Array(String))
-      @server_connections = Hash(String, ServerConnection).new
-
-      servers.each do |server|
-        server_uri = server.split(":")
-        server_path = server_uri[0].to_s
-        port = server_uri[1].to_s
-        new_server_connection = ServerConnection.new(server_path.to_s, port.to_s)
-        @server_connections[new_server_connection.id] = new_server_connection
+      @server_connection_cache = ServerConnectionCache.new(servers)
+      if ENV["USE_SWEEPER"]? && ENV["USE_SWEEPER"].to_s == "true"
+        puts "Sweeping server connections for sickness..."
+        @server_connection_cache.start_sweeping
       end
       start_local_proxy(self)
     end
@@ -28,28 +26,27 @@ module AllQ
       results = nil
       if parsed_data["action"]?
         if parsed_data["action"].to_s == "stats"
-          stats_aggregator = AllQ::StatsAggregator.new(@server_connections)
+          stats_aggregator = AllQ::StatsAggregator.new(@server_connection_cache)
           results = stats_aggregator.process(parsed_data)
         end
         if parsed_data["action"].to_s == "peek"
-          client_peek_handler = AllQ::ClientPeekHandler.new(@server_connections)
+          client_peek_handler = AllQ::ClientPeekHandler.new(@server_connection_cache)
           results = client_peek_handler.process(parsed_data)
         end
         if parsed_data["action"].to_s == "ping"
-          client_ping_handler = AllQ::PingAggregator.new(@server_connections)
+          client_ping_handler = AllQ::PingAggregator.new(@server_connection_cache)
           results = client_ping_handler.process(parsed_data)
+        end
+        if parsed_data["action"].to_s == "kick"
+          client_kick_handler = AllQ::KickHandler.new(@server_connection_cache)
+          results = client_kick_handler.process(parsed_data)
         end
       end
       results
     end
 
     def aggregate_stats(parsed_data) : String
-      result_hash = Hash(String, JSON::Any).new
-      @server_connections.values.each do |server_client|
-        output = server_client.send_string(parsed_data)
-        result_hash[server_client.id] = JSON.parse(output)
-      end
-      result_hash.to_json
+      @server_connection_cache.aggregate_stats(parsed_data)
     end
 
     def get_job_id(hash) : Nil | JSON::Any
@@ -66,9 +63,7 @@ module AllQ
     end
 
     def send_all(str)
-      @server_connections.values.each do |server_client|
-        server_client.send_string(str)
-      end
+      @server_connection_cache.send_all(str)
     end
 
     def send(data : String)
@@ -79,7 +74,7 @@ module AllQ
         return special_result
       end
       hash_action_name = hash["action"]?
-      server_client = @server_connections.values.sample
+      server_client = @server_connection_cache.sample
 
       # ------------------------------------------------------------
       # The server connection handles appending server ID to
@@ -96,7 +91,7 @@ module AllQ
           if size == 2
             q_server = vals[0]
             job_id = vals[1]
-            server_client = @server_connections[q_server]
+            server_client = @server_connection_cache.get(q_server)
             forced_connection = true
           elsif size == 1
             job_id = vals[0]
@@ -129,11 +124,10 @@ module AllQ
           val = wrapped_send(server_client, hash)
           return val unless val.nil?
         else
-          @server_connections.values.each do |server_client|
-            if server_client.ping?
-              val = wrapped_send(server_client, hash)
-              return val unless val.nil?
-            end
+          alt_server_client = @server_connection_cache.sample
+          if alt_server_client && alt_server_client.ping?
+            val = wrapped_send(alt_server_client, hash)
+            return val unless val.nil?
           end
         end
         sleep(i)
@@ -165,6 +159,7 @@ end
 server_string = ENV["SERVER_STRING"]? || "127.0.0.1:5555"
 
 client = AllQ::Client.new(server_string.split(","))
+
 puts "version= #{ENV["version"]?}"
 
 loop do

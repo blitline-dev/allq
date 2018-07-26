@@ -6,7 +6,7 @@ module AllQ
     # -------------------------------------------------
     def process(parsed_data) : String
       result_hash = Hash(String, String).new
-      @server_connections.values.each do |server_client|
+      @server_connections.well_connections.values.each do |server_client|
         output = server_client.ping?.to_s
         result_hash[server_client.id] = output
       end
