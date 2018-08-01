@@ -19,6 +19,17 @@ module AllQ
       end
     end
 
+    def restart_connection(id)
+      bad_server_connection = @server_connections[id]
+      server = bad_server_connection.server
+      port = bad_server_connection.port
+      @server_connections[id].close
+      new_server_connection = ServerConnection.new(server, port)
+      new_server_connection.id = id
+      @server_connections[new_server_connection.id] = new_server_connection
+      return @server_connections[new_server_connection.id]
+    end
+
     def start_sweeping
       return if @sweeping
       @sweeping = true
