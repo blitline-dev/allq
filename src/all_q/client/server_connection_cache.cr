@@ -15,7 +15,14 @@ module AllQ
         server_path = server_uri[0].to_s
         port = server_uri[1].to_s
         new_server_connection = ServerConnection.new(server_path.to_s, port.to_s)
+        wait_for_ready(new_server_connection)
         @server_connections[new_server_connection.id] = new_server_connection
+      end
+    end
+
+    def wait_for_ready(new_server_connection)
+      while !new_server_connection.ready?
+        sleep(0.1)
       end
     end
 
@@ -25,8 +32,11 @@ module AllQ
       port = bad_server_connection.port
       @server_connections[id].close
       new_server_connection = ServerConnection.new(server, port)
+      wait_for_ready(new_server_connection)
       new_server_connection.id = id
       @server_connections[new_server_connection.id] = new_server_connection
+      puts "New Ping = #{new_server_connection.ping?}"
+
       return @server_connections[new_server_connection.id]
     end
 
