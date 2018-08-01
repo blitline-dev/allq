@@ -12,6 +12,7 @@ module AllQ
 
     def initialize(@server : String, @port : String)
       @exit = false
+      @ready = false
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
@@ -25,6 +26,10 @@ module AllQ
       puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
       puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
       puts "A_CURVE_SERVER_PUBLIC_KEY = #{A_CURVE_SERVER_PUBLIC_KEY[0..4]}..."
+    end
+
+    def ready?
+      @ready
     end
 
     def build_socket(context) : ZMQ::Socket
@@ -160,6 +165,7 @@ module AllQ
 
         @poller_in.register(server_client, ::ZMQ::POLLIN)
         @poller_out.register(server_client, ::ZMQ::POLLOUT)
+        @ready = true
         while !@restart
           sleep(0.5)
         end

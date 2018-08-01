@@ -1,0 +1,5 @@
+export A_CURVE_PUBLICKEY=WyVIWUN5KS8yXUJyLlRCfTMqRjplMDd2IS5LQiQlaiY6ekJZVS1SawA=
+export A_CURVE_SECRETKEY=NCQvdGJ3cHl1ZihjIzlpYmdeXShIdClnOmpNSns1Ni5pJWliSmVSMAA=
+export A_CURVE_SERVER_PUBLICKEY=N21kJChibWV6TCsjLTNWdTp2Wj5INzJWdDQ1NVAoREhAYyZRIyFIagA=
+export SERVER_STRING="ec2-35-176-215-255.eu-west-2.compute.amazonaws.com:7788"
+crystal src/all_q/client/client.cr
