@@ -8,9 +8,10 @@ module AllQ
     A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "a0EzOjdjcX1QdistI2o5Yk5MWkl3a1dEYlswXTcxRUBrVlBsOWhnfQ=="
     A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "cmlteTAwRU13MldPPnNjdFNJZTVydyY5YzgqcXoqamVnKzpTLj8hbg=="
 
-    property id
+    property id, server, port
 
     def initialize(@server : String, @port : String)
+      @exit = false
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
@@ -19,7 +20,7 @@ module AllQ
       context = ZMQ::Context.new
       @server_client = build_socket(context)
       start_server_connection(@server_client)
-      @reconnect_count = 0
+      @reconnect_count = 1
       @id = Random::Secure.urlsafe_base64(6)
       puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
       puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
@@ -28,6 +29,12 @@ module AllQ
 
     def build_socket(context) : ZMQ::Socket
       return context.socket(ZMQ::REQ)
+    end
+
+    def close
+      @exit = true
+      @restart = true
+      @server_client.close
     end
 
     def redirect(server_ip : String, port : String)
@@ -113,7 +120,7 @@ module AllQ
     end
 
     def reconnect
-      return if @restart = true
+      return if @restart
       sleep_time = @reconnect_count
       unless sleep_time == 0
         sleep_time += 1
@@ -148,18 +155,21 @@ module AllQ
         puts "Connecting tcp://#{@server}:#{@port}"
         server_client.connect("tcp://#{@server}:#{@port}")
         @restart = false
+        @poller_in = ZMQ::Poller.new
+        @poller_out = ZMQ::Poller.new
 
         @poller_in.register(server_client, ::ZMQ::POLLIN)
         @poller_out.register(server_client, ::ZMQ::POLLOUT)
         while !@restart
           sleep(0.5)
         end
-
-        # Close and restart
-        server_client.close
-        context = ZMQ::Context.new
-        @server_client = build_socket(context)
-        start_server_connection(@server_client)
+        unless @exit
+          # Close and restart
+          server_client.close
+          context = ZMQ::Context.new
+          @server_client = build_socket(context)
+          start_server_connection(@server_client)
+        end
       end
     end
   end
