@@ -8,7 +8,6 @@ module AllQ
       @sweeping = false
       @sweep_duration = 10
       @sweep_duration = SWEEP_DURATION.to_i
-      @sick_connections = Hash(String, ServerConnection).new
       @server_connections = Hash(String, ServerConnection).new
       servers.each do |server|
         server_uri = server.split(":")
@@ -76,10 +75,7 @@ module AllQ
     def sick_server(id)
       begin
         puts "Setting sick server #{id}" if @debug
-        sick_server_connection = @server_connections.delete(id)
-        if sick_server_connection
-          @sick_connections[id] = sick_server_connection
-        end
+        restart_connection(id)
       rescue ex
         puts ex.inspect_with_backtrace
       end
@@ -105,7 +101,6 @@ module AllQ
         loop do
           begin
             sweep_for_sick
-            sweep_for_well
             sleep(@sweep_duration)
           rescue ex
             puts "ServerConnectionCache Sweeper Exception..."
@@ -123,20 +118,6 @@ module AllQ
           sick_server(id) unless sc.ping?(10000)
         rescue ex
           sick_server(id)
-        end
-      end
-    end
-
-    def sweep_for_well
-      @sick_connections.each do |id, sc|
-        begin
-          puts "Checking sick servers"
-          if sc.ping?(1000)
-            puts "Readding server #{id}"
-            well_server(id)
-          end
-        rescue ex
-          # Not well apparently
         end
       end
     end
