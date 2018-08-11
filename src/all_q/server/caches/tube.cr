@@ -36,13 +36,13 @@ module AllQ
       @throttle = AllQ::Throttle.new(per_second)
     end
 
-    def put(job, priority = 5, delay = 0)
+    def put(job, priority = 5, delay : Int32 = 0)
       touch
-      if delay.to_i < 1
+      if delay < 1
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else
-        time_to_start = Time.now.to_s("%s").to_i + delay.to_i
+        time_to_start = Time.now.to_s("%s").to_i + delay
         @delayed << DelayedJob.new(time_to_start, job, priority)
       end
     end

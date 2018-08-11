@@ -60,9 +60,10 @@ module AllQ
       job.reserved = false
 
       if job.expireds > job.expired_limit
+        puts "Burying job -> #{job.id}" if @debug
         @buried_cache.set_job_buried(job)
-        delete(job.id)
         @serializer.move_reserved_to_buried(job)
+        delete(job.id)
         return
       end
 
@@ -86,8 +87,8 @@ module AllQ
       if @cache[job_id]?
         job = @cache[job_id].job
         @buried_cache.set_job_buried(job)
-        delete(job.id)
         @serializer.move_reserved_to_buried(job)
+        delete(job.id)
       end
       return nil
     end
@@ -106,7 +107,7 @@ module AllQ
       return nil
     end
 
-    def release(job_id, delay = 0)
+    def release(job_id, delay : Int32 = 0)
       reserverd_job = @cache[job_id]?
       if reserverd_job
         job = reserverd_job.job
