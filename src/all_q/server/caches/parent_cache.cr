@@ -13,6 +13,10 @@ module AllQ
       @cache.clear
     end
 
+    def get_all_jobs
+      return @cache.values
+    end
+
     def set_job_as_parent(job : Job, timeout : Int32, run_on_timeout = false)
       now = Time.now.to_s("%s").to_i
       parent_job = ParentJob.new(now, job, 0, timeout, -1, run_on_timeout, 0)

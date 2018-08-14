@@ -14,6 +14,13 @@ module AllQ
     A_CURVE_PUBLICKEY = ENV["A_CURVE_PUBLICKEY"]? || "V31ALyp7czhUOCYvaiVINT4+L20rTz9NZEpPXSRWYm8yRkMwcEFTQA=="
     A_ZAP_DOMAIN      = ENV["A_ZAP_DOMAIN"]? || "roger"
 
+    def initialize
+      @kind_exit = false
+      Signal::ABRT.trap do |x|
+        @kind_exit = true
+      end
+    end
+
     def listen
       puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
       puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
@@ -49,6 +56,13 @@ module AllQ
           end
           Fiber.yield
           sleep(0.0001)
+          if @kind_exit
+            r_size = (cache_store.reserved.get_all_jobs.size == 0)
+            t_size = (cache_store.tubes.all.size == 0)
+            p_size = (cache_store.parents.get_all_jobs.size == 0)
+            puts "KINDLY Exit..." if r_size && t_size && p_size
+            exit 0
+          end
         rescue ex
           p "Error in main_loop:allqserver"
           p ex.message
