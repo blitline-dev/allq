@@ -39,6 +39,7 @@ module AllQ
     def put(job, priority = 5, delay : Int32 = 0)
       touch
       if delay < 1
+        job.created_time = Time.now.epoch_ms
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else
@@ -96,6 +97,7 @@ module AllQ
               if delayed_job.time_to_start < time_now
                 put(delayed_job.job, delayed_job.priority)
                 @ready_serde.move_delayed_to_ready(delayed_job.job)
+
                 true
               else
                 false

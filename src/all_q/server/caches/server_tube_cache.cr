@@ -6,6 +6,8 @@ module AllQ
       @cache = Hash(String, AllQ::Tube).new
       prep_serializers
       start_sweeper
+      @debug = false
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
     end
 
     def clear_all
@@ -39,6 +41,7 @@ module AllQ
 
     def put(job, priority = 5, delay = 0)
       tube = get(job.tube)
+      puts "Adding to tube #{job.id} #{priority} #{delay}" if @debug
       tube.put(job, priority, delay)
     end
 
