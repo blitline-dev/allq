@@ -24,6 +24,7 @@ module AllQ
       now = Time.now.to_s("%s").to_i
       @cache[job.id] = ReservedJob.new(now, job)
       @serializer.serialize(@cache[job.id])
+      puts "Time in ready(#{Time.now.epoch_ms - job.created_time})" if @debug
     end
 
     def start_sweeper

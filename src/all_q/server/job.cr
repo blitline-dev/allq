@@ -13,6 +13,7 @@ class JobFactory
   property expired_limit : Int32
   property priority : Int32
   property releases : Int32
+  property created_time : Int64
 
   TTL = ENV["DEFAULT_TTL"]? || 3600
 
@@ -37,6 +38,7 @@ class JobFactory
     @body = data["body"]? || ""
     @expireds = 0
     @releases = 0
+    @created_time = Time.now.epoch_ms
     @priority = priority
     @priority = 1 if @priority == 0
     @expired_limit = data["expired_limit"]? ? data["expired_limit"].to_i : 3
@@ -48,7 +50,7 @@ class JobFactory
   end
 
   def get_job
-    job = Job.new(@id, @parent_id, @body, @tube, @reserved, @noop, @ttl, @expireds, @expired_limit, @priority, @releases)
+    job = Job.new(@id, @parent_id, @body, @tube, @reserved, @noop, @ttl, @expireds, @expired_limit, @priority, @releases, @created_time)
     return job
   end
 
@@ -76,7 +78,8 @@ struct Job
   property expired_limit : Int32
   property priority : Int32
   property releases : Int32
+  property created_time : Int64
 
-  def initialize(@id, @parent_id, @body, @tube, @reserved, @noop, @ttl, @expireds, @expired_limit, @priority, @releases)
+  def initialize(@id, @parent_id, @body, @tube, @reserved, @noop, @ttl, @expireds, @expired_limit, @priority, @releases, @created_time)
   end
 end
