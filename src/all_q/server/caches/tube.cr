@@ -10,6 +10,8 @@ module AllQ
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
       @touched = Time.now
       @paused = false
+      @debug = false
+      @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       touch
       start_sweeper
     end
@@ -38,6 +40,8 @@ module AllQ
 
     def put(job, priority = 5, delay : Int32 = 0)
       touch
+      puts "tube_#{@name}: Adding to tube #{job.id} #{priority} #{delay} #{@debug}"
+
       if delay < 1
         job.created_time = Time.now.epoch_ms
         @priority_queue.put(job, priority)
