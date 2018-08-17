@@ -40,7 +40,7 @@ module AllQ
 
     def put(job, priority = 5, delay : Int32 = 0)
       touch
-      puts "tube_#{@name}: Adding to tube #{job.id} #{priority} #{delay} #{@debug}"
+      puts "tube: #{@name}: Adding to tube #{job.id} #{priority} delay: #{delay}" if @debug
 
       if delay < 1
         job.created_time = Time.now.epoch_ms
