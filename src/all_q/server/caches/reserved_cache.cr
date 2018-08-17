@@ -61,10 +61,7 @@ module AllQ
       job.reserved = false
 
       if job.expireds > job.expired_limit
-        puts "Burying job -> #{job.id}" if @debug
-        @buried_cache.set_job_buried(job)
-        @serializer.move_reserved_to_buried(job)
-        delete(job.id)
+        bury(job.id)
         return
       end
 
@@ -76,10 +73,14 @@ module AllQ
 
     def delete(job_id)
       if @cache[job_id]?
-        job = @cache[job_id]
-        @serializer.remove(job.job)
+        reserved_job = @cache[job_id]
+        parent_job_id = reserved_job.job.parent_id
+        if !parent_job_id.to_s.blank?
+          @parent_cache.child_completed(parent_job_id)
+        end
+        @serializer.remove(reserved_job.job)
         @cache.delete(job_id)
-        return job.job
+        return reserved_job.job
       end
       return nil
     end
@@ -96,11 +97,6 @@ module AllQ
 
     def done(job_id)
       if @cache[job_id]?
-        reserved_job = @cache[job_id]
-        parent_job_id = reserved_job.job.parent_id
-        if !parent_job_id.to_s.blank?
-          @parent_cache.child_completed(parent_job_id)
-        end
         job = @cache[job_id].job
         delete(job_id)
         return job
