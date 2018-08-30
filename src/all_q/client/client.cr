@@ -118,7 +118,7 @@ module AllQ
     end
 
     def progressive_backoff(hash, forced_connection, server_client)
-      1.upto(3) do |i|
+      1.upto(4) do |i|
         puts "Retrying send..."
         server_client = @server_connection_cache.restart_connection(server_client.id)
         if forced_connection

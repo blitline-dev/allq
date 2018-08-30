@@ -1,6 +1,7 @@
 module AllQ
   class BuriedCache
     def initialize(tube_cache : ServerTubeCache)
+      @serializer = BuriedCacheSerDe(Job).new
       @cache = Hash(String, Job).new
       @tube_cache = tube_cache
     end
@@ -25,6 +26,7 @@ module AllQ
       if @cache[job_id]?
         job = @cache[job_id]
         @cache.delete(job_id)
+        @serializer.remove(job)
         return job
       end
       return nil
@@ -45,7 +47,6 @@ module AllQ
       return get_burieds.first?
     end
 
-    # Not sure about kick functionality
     def kick(tube)
       jobs = get_buried_by_tube(tube)
       job = jobs.shift?
@@ -56,14 +57,6 @@ module AllQ
       end
       return nil
     end
-
-    # def kick
-    #   first = @cache.shift?
-    #   if first
-    #     job = first[1]
-    #     @tube_cache[job.tube].put(job)
-    #   end
-    # end
 
     def buried_jobs_by_tube
       tubes = Hash(String, Int32).new
@@ -89,7 +82,7 @@ module AllQ
 
     def remove(job : Job)
       return unless SERIALIZE
-      AllQ::FileWrapper.rm(build_buried(job))
+      AllQ::FileWrapper.rm(build_buried(job)) if File.exists?(build_buried(job))
     end
 
     def load(cache : Hash(String, T))
