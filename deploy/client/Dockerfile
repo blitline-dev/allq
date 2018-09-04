@@ -14,7 +14,7 @@ RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 RUN apt-get install -y socat
 
-ENV version=70
+ENV version=71
 
 COPY stats.sh stats.sh
 RUN chmod 777 stats.sh
