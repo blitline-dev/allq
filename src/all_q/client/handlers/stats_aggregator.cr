@@ -5,7 +5,6 @@ module AllQ
     # and aggregate them.
     # -------------------------------------------------
     def process(parsed_data) : String
-      result_hash = Hash(String, JSON::Any).new
       @server_connections.aggregate_stats(parsed_data)
     end
   end

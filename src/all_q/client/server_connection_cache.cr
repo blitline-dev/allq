@@ -1,6 +1,8 @@
 module AllQ
   class ServerConnectionCache
     SWEEP_DURATION = ENV["SWEEP_DURATION"]? || "10"
+    STATS_STRING = "{\"action\":\"stats\",\"params\":{}}"
+    STATS_HASH = JSON.parse(STATS_STRING)
 
     def initialize(servers : Array(String))
       @debug = false # INFER TYPE
@@ -9,6 +11,7 @@ module AllQ
       @sweep_duration = 10
       @sweep_duration = SWEEP_DURATION.to_i
       @server_connections = Hash(String, ServerConnection).new
+      @draining_connection_ids = Array(String).new
       servers.each do |server|
         server_uri = server.split(":")
         server_path = server_uri[0].to_s
@@ -17,6 +20,33 @@ module AllQ
         wait_for_ready(new_server_connection)
         @server_connections[new_server_connection.id] = new_server_connection
       end
+    end
+
+    def drain(server_id : String)
+      # Handles both URL and ID based server lookup
+      if server_id.includes?(":")
+        @server_connections.values.each do |server_connection|
+          url = server_id.split(":")[0]
+          port = server_id.split(":")[1]
+          if server_connection.server == url && server_connection.port.to_s == port.to_s
+            @draining_connection_ids << server_connection.id
+            return
+          end
+        end
+      else
+        server = @server_connections[server_id]
+        @draining_connection_ids << server_id if server_id
+      end
+    end
+
+    def add_server(server : String)
+      server_uri = server.split(":")
+      server_path = server_uri[0].to_s
+      port = server_uri[1].to_s
+      new_server_connection = ServerConnection.new(server_path.to_s, port.to_s)
+      wait_for_ready(new_server_connection)
+      @server_connections[new_server_connection.id] = new_server_connection
+      puts "Added #{server}"
     end
 
     def wait_for_ready(new_server_connection)
@@ -81,18 +111,6 @@ module AllQ
       end
     end
 
-    def well_server(id)
-      begin
-        puts "Setting well server #{id}" if @debug
-        well_server_connection = @sick_connections.delete(id)
-        if well_server_connection
-          @server_connections[id] = well_server_connection
-        end
-      rescue ex
-        puts ex.inspect_with_backtrace
-      end
-    end
-
     # ------------------------------------
     # --    private
     # ------------------------------------
@@ -101,12 +119,40 @@ module AllQ
         loop do
           begin
             sweep_for_sick
+            sweep_for_draining
             sleep(@sweep_duration)
           rescue ex
             puts "ServerConnectionCache Sweeper Exception..."
             puts ex.inspect_with_backtrace
           end
         end
+      end
+    end
+
+    def sweep_for_draining
+      begin
+        @draining_connection_ids.select! do |id|
+          empty = true
+          server_client = @server_connections[id]
+          output = JSON.parse(server_client.send_string(STATS_HASH)).as_h
+          output.select! do |tube, val|
+            if tube != "global"
+              puts tube + "->" + val.inspect
+              if val["ready"].to_s.to_i > 0 && val["reserved"].to_s.to_i > 0
+                empty = false
+              end
+            end
+          end
+          if empty
+            @server_connections.delete(id)
+            puts "Removing Drained Server" if @debug
+            false
+          else
+            true
+          end
+        end
+      rescue ex
+        puts ex.inspect_with_backtrace
       end
     end
 

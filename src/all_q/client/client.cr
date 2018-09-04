@@ -2,7 +2,13 @@ require "zeromq"
 require "json"
 require "uri"
 require "./*"
-require "./handlers/*"
+require "./handlers/base_client_handler"
+require "./handlers/add_server_handler"
+require "./handlers/client_peek_handler"
+require "./handlers/drain_handler"
+require "./handlers/kick_handler"
+require "./handlers/ping_aggregator"
+require "./handlers/stats_aggregator"
 require "./server_connection"
 require "./server_connection_cache"
 
@@ -40,6 +46,14 @@ module AllQ
         if parsed_data["action"].to_s == "kick"
           client_kick_handler = AllQ::KickHandler.new(@server_connection_cache)
           results = client_kick_handler.process(parsed_data)
+        end
+        if parsed_data["action"].to_s == "drain"
+          drain_handler = AllQ::DrainHandler.new(@server_connection_cache)
+          results = drain_handler.process(parsed_data)
+        end
+        if parsed_data["action"].to_s == "add_server"
+          add_server_handler = AllQ::AddServerHandler.new(@server_connection_cache)
+          results = add_server_handler.process(parsed_data)
         end
       end
       results
