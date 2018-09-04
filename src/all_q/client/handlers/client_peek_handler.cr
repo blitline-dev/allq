@@ -6,7 +6,6 @@ module AllQ
     # one and return in. Otherwise nothing to return
     # -------------------------------------------------
     def process(parsed_data)
-      result_hash = Hash(String, JSON::Any)
       output = "{}"
       # -- Run through connections...
       @server_connections.well_connections.values.each do |server_client|

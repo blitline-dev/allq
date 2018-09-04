@@ -7,7 +7,6 @@ module AllQ
     # one and return in. Otherwise nothing to return
     # -------------------------------------------------
     def process(parsed_data)
-      result_hash = Hash(String, JSON::Any)
       full_job_id = parsed_data["params"]["job_id"]
       tube = parsed_data["params"]["tube"]
       vals = full_job_id.to_s.split(JOB_ID_DIVIDER)
