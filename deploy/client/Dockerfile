@@ -19,12 +19,13 @@ RUN wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install
 RUN tar -xzvf ruby-install-0.7.0.tar.gz
 RUN  cd ruby-install-0.7.0/ &&  make install
 RUN ruby-install ruby 2.5
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin;/opt/rubies/ruby-2.5.1/lib:/opt/rubies/ruby-2.5.1/bin
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubies/ruby-2.5.1/lib:/opt/rubies/ruby-2.5.1/bin
 RUN ruby -v
 RUN gem install bundler
 
-ENV version=72
+ENV version=76
 
+RUN cd /
 COPY stats.sh stats.sh
 RUN chmod 777 stats.sh
 RUN git clone https://blitline-dev:***REMOVED***@github.com/blitline-dev/allq.git
