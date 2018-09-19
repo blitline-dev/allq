@@ -1,6 +1,6 @@
 module AllQ
   class ServerConnectionCache
-    SWEEP_DURATION = ENV["SWEEP_DURATION"]? || "10"
+    SWEEP_DURATION = ENV["SWEEP_DURATION"]? || "20"
     STATS_STRING = "{\"action\":\"stats\",\"params\":{}}"
     STATS_HASH = JSON.parse(STATS_STRING)
 
@@ -8,7 +8,7 @@ module AllQ
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @sweeping = false
-      @sweep_duration = 10
+      @sweep_duration = 10 # Needed to force cystal to typecast
       @sweep_duration = SWEEP_DURATION.to_i
       @server_connections = Hash(String, ServerConnection).new
       @draining_connection_ids = Array(String).new
@@ -76,7 +76,7 @@ module AllQ
     end
 
     def well_connections
-      @server_connections
+      @server_connections.select {|n,v| !v.sick }
     end
 
     def get(id)
@@ -85,7 +85,7 @@ module AllQ
 
     def aggregate_stats(parsed_data) : String
       result_hash = Hash(String, JSON::Any).new
-      @server_connections.values.each do |server_client|
+      well_connections.values.each do |server_client|
         output = server_client.send_string(parsed_data)
         result_hash[server_client.id] = JSON.parse(output)
       end
@@ -93,19 +93,14 @@ module AllQ
     end
 
     def send_all(str)
-      @server_connections.values.each do |server_client|
+      well_connections.values.each do |server_client|
         server_client.send_string(str)
       end
     end
 
     def sample
       count = 0
-      server_connection = @server_connections.values.sample
-      # Keep smapling until non-sick server
-      while !server_connection.sick && count < 100
-        count += 1
-        server_connection = @server_connections.values.sample
-      end
+      server_connection = well_connections.values.sample
       server_connection
     end
 
@@ -168,7 +163,7 @@ module AllQ
 
       @server_connections.each do |id, sc|
         begin
-          sick_server(id) unless sc.ping?(10000)
+          sick_server(id) unless sc.ping?(1000)
         rescue ex
           sick_server(id)
         end

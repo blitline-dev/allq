@@ -147,7 +147,7 @@ module AllQ
         end
         sleep(i)
       end
-      raise "Faild send to server"
+      raise "Failed send to server"
     end
 
     def wrapped_send(server_client, hash)
