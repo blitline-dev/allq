@@ -13,7 +13,7 @@ module AllQ
     def initialize(@server : String, @port : String)
       @exit = false
       @ready = false
-      @sick = false
+      @sick = true
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
@@ -74,7 +74,7 @@ module AllQ
       else
         raise "Timeout processing poll in request"
       end
-
+      @reconnect_count = 0
       return val
     end
 
