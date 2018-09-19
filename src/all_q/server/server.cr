@@ -4,6 +4,7 @@ require "./*"
 require "../lib/*"
 require "./caches/*"
 require "base64"
+require "socket"
 
 module AllQ
   class Server
@@ -13,11 +14,34 @@ module AllQ
     A_CURVE_SECRETKEY = ENV["A_CURVE_SECRETKEY"]? || "SExNOWMxVlQpY0pmM15lN0prcC54OmZLMnJ2QSE1Zl1YbzcxQjhuSQ=="
     A_CURVE_PUBLICKEY = ENV["A_CURVE_PUBLICKEY"]? || "V31ALyp7czhUOCYvaiVINT4+L20rTz9NZEpPXSRWYm8yRkMwcEFTQA=="
     A_ZAP_DOMAIN      = ENV["A_ZAP_DOMAIN"]? || "roger"
+    UNIX_SOCKET_PATH  = "/tmp/allq_server.sock"
 
     def initialize
       @kind_exit = false
       Signal::ABRT.trap do |x|
         @kind_exit = true
+      end
+      local_socket
+    end
+
+    def handle_client(client)
+      message = client.gets
+      if message = "PING"
+        client.puts "PONG"
+      elsif message = "RESTART"
+        @kind_exit = true
+      else
+        client.puts "Unkown command"
+      end
+    end
+    
+    def local_socket
+      FileUtils.rm(UNIX_SOCKET_PATH) if File.exists?(UNIX_SOCKET_PATH)
+      server = UNIXServer.new(UNIX_SOCKET_PATH)
+      spawn do
+        while client = server.accept?
+         handle_client(client)
+        end
       end
     end
 

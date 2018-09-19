@@ -99,7 +99,14 @@ module AllQ
     end
 
     def sample
+      count = 0
       server_connection = @server_connections.values.sample
+      # Keep smapling until non-sick server
+      while !server_connection.sick && count < 100
+        count += 1
+        server_connection = @server_connections.values.sample
+      end
+      server_connection
     end
 
     def sick_server(id)
