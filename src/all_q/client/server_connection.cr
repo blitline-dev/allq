@@ -8,11 +8,12 @@ module AllQ
     A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "a0EzOjdjcX1QdistI2o5Yk5MWkl3a1dEYlswXTcxRUBrVlBsOWhnfQ=="
     A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "cmlteTAwRU13MldPPnNjdFNJZTVydyY5YzgqcXoqamVnKzpTLj8hbg=="
 
-    property id, server, port
+    property id, server, port, sick
 
     def initialize(@server : String, @port : String)
       @exit = false
       @ready = false
+      @sick = false
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
@@ -85,6 +86,7 @@ module AllQ
       rescue ex
         puts ex.inspect_with_backtrace if @debug
       end
+      @sick = !good
       return good
     end
 
