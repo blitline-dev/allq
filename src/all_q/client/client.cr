@@ -21,10 +21,7 @@ module AllQ
 
     def initialize(servers : Array(String))
       @server_connection_cache = ServerConnectionCache.new(servers)
-      if ENV["USE_SWEEPER"]? && ENV["USE_SWEEPER"].to_s == "true"
-        puts "Sweeping server connections for sickness..."
-        @server_connection_cache.start_sweeping
-      end
+      @server_connection_cache.start_sweeping
       start_local_proxy(self)
     end
 
