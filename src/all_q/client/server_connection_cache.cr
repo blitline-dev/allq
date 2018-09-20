@@ -120,7 +120,6 @@ module AllQ
       spawn do
         loop do
           begin
-            sweep_for_sick
             sweep_for_draining
             sleep(@sweep_duration)
           rescue ex
@@ -129,6 +128,19 @@ module AllQ
           end
         end
       end
+
+      spawn do
+        loop do
+          begin
+            sweep_for_sick
+            sleep(120)
+          rescue ex
+            puts "Sick Sweeper Exception..."
+            puts ex.inspect_with_backtrace
+          end          
+        end
+      end
+
     end
 
     def sweep_for_draining
