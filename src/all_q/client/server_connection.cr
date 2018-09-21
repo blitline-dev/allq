@@ -86,6 +86,7 @@ module AllQ
       rescue ex
         puts ex.inspect_with_backtrace if @debug
       end
+      puts "Failed ping...#{@id}" unless good
       @sick = !good
       return good
     end
@@ -168,6 +169,7 @@ module AllQ
         @poller_in.register(server_client, ::ZMQ::POLLIN)
         @poller_out.register(server_client, ::ZMQ::POLLOUT)
         @ready = true
+        @sick = false
         while !@restart
           sleep(0.5)
         end
