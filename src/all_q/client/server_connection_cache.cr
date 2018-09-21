@@ -104,6 +104,7 @@ module AllQ
         server_connection = well_connections.values.sample
       end
       unless server_connection
+        puts "No server connections values to sample.."
         server_connection = @server_connections.values[0]
       end
       server_connection
