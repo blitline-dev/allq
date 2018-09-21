@@ -23,7 +23,7 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubie
 RUN ruby -v
 RUN gem install bundler
 
-ENV version=78
+ENV version=79
 
 RUN cd /
 COPY stats.sh stats.sh
