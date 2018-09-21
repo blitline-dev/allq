@@ -156,10 +156,16 @@ module AllQ
     end
 
     def start_local_proxy(raw_server)
+      debug = ENV["CL_DEBUG"]?.to_s == "true"
+
+      spawn do
+        server = AllQSocket.new(debug, raw_server)
+        server.listen
+      end
+
       spawn do
         port = ENV["CL_PORT"]? || CLIENT_PORT
         listen = ENV["CL_LISTEN"]? || "0.0.0.0"
-        debug = ENV["CL_DEBUG"]?.to_s == "true"
 
         server = Tcp.new(listen, port.to_i, debug, raw_server)
         server.listen
