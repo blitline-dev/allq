@@ -100,7 +100,12 @@ module AllQ
 
     def sample
       count = 0
-      server_connection = well_connections.values.sample
+      unless well_connections.values.empty?
+        server_connection = well_connections.values.sample
+      end
+      unless server_connection
+        server_connection = @server_connections.values[0]
+      end
       server_connection
     end
 
