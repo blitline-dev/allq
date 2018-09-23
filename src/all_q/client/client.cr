@@ -28,6 +28,14 @@ module AllQ
     def special_cased(parsed_data) : Nil | String
       results = nil
       if parsed_data["action"]?
+        if parsed_data["action"].to_s == "reload_servers"
+          servers_urls = parsed_data["params"]["servers"].to_s
+          servers = servers_urls.split(",")
+          @server_connection_cache = ServerConnectionCache.new(servers)
+          @server_connection_cache.start_sweeping
+          results = "{}"
+        end
+
         if parsed_data["action"].to_s == "stats"
           stats_aggregator = AllQ::StatsAggregator.new(@server_connection_cache)
           results = stats_aggregator.process(parsed_data)
@@ -159,8 +167,13 @@ module AllQ
       debug = ENV["CL_DEBUG"]?.to_s == "true"
 
       spawn do
-        server = AllQSocket.new(debug, raw_server)
-        server.listen
+        begin
+          server = AllQSocket.new(debug, raw_server)
+          server.listen
+        rescue ex
+          puts "Error with socket"
+          puts ex.inspect_with_backtrace
+        end    
       end
 
       spawn do
