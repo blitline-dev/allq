@@ -1,4 +1,5 @@
 require "base64"
+require "digest"
 
 module AllQ
   class ServerConnection
@@ -23,7 +24,7 @@ module AllQ
       @server_client = build_socket(context)
       start_server_connection(@server_client)
       @reconnect_count = 1
-      @id = Random::Secure.urlsafe_base64(6)
+      @id = Digest::SHA1.base64digest(@server)[0..6]
       puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
       puts "A_CURVE_PUBLICKEY = #{A_CURVE_PUBLICKEY[0..4]}..."
       puts "A_CURVE_SERVER_PUBLIC_KEY = #{A_CURVE_SERVER_PUBLIC_KEY[0..4]}..."
