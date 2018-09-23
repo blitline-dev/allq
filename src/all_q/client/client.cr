@@ -28,7 +28,7 @@ module AllQ
     def special_cased(parsed_data) : Nil | String
       results = nil
       if parsed_data["action"]?
-        if parsed_data["action"].to_s == "reload_servers"
+        if parsed_data["action"].to_s == "update_servers"
           servers_urls = parsed_data["params"]["servers"].to_s
           servers = servers_urls.split(",")
           @server_connection_cache = ServerConnectionCache.new(servers)
