@@ -5,7 +5,7 @@ RUN which ruby
 
 RUN gem install etcdv3
 
-ENV version=27
+ENV version=28
 COPY ruby_updater.rb ruby_updater.rb
 
 ENTRYPOINT ["/opt/rubies/ruby-2.5.1/bin/ruby", "ruby_updater.rb"]

@@ -26,7 +26,7 @@ end
 
 def send_to_socket(socket_location, data)
     s = UNIXSocket.new(socket_location)
-    socket = UNIXSocket.new('/tmp/simple.sock')
+    socket = UNIXSocket.new(socket_location)
     socket.write("#{data}\n")    
     socket.close
 end
