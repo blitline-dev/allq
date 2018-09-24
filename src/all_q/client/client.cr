@@ -29,6 +29,7 @@ module AllQ
       results = nil
       if parsed_data["action"]?
         if parsed_data["action"].to_s == "update_servers"
+          puts "Updating servers #{parsed_data.to_s}"
           servers_urls = parsed_data["params"]["servers"].to_s
           servers = servers_urls.split(",")
           @server_connection_cache = ServerConnectionCache.new(servers)
