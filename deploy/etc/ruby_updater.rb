@@ -35,9 +35,12 @@ conn.watch(watch_tag) do |events|
     events.each do |event|
         begin
             v = event.kv.value
-            json = build_json(v)
-            puts json
-            send_to_socket(socket_location, json)
+            if event.type.to_s == "PUT"
+                json = build_json(v)
+                puts json
+                STDOUT.flush
+                send_to_socket(socket_location, json)
+            end
         rescue => ex
             puts ex.message
             STDOUT.flush
