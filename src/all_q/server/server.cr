@@ -36,11 +36,20 @@ module AllQ
     end
     
     def local_socket
-      FileUtils.rm(UNIX_SOCKET_PATH) if File.exists?(UNIX_SOCKET_PATH)
-      server = UNIXServer.new(UNIX_SOCKET_PATH)
       spawn do
-        while client = server.accept?
-         handle_client(client)
+        loop do
+          begin
+            FileUtils.rm(UNIX_SOCKET_PATH) if File.exists?(UNIX_SOCKET_PATH)
+            server = UNIXServer.new(UNIX_SOCKET_PATH)    
+            while client = server.accept?
+              handle_client(client)
+            end
+          rescue ex
+            puts "Error in local_unix_socket:allqserver...resetting, should work..."
+            puts ex.message
+            puts ex.inspect_with_backtrace
+            sleep(2)
+          end
         end
       end
     end
