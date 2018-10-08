@@ -66,6 +66,8 @@ module AllQ
         result = KickHandler.new(@cacheStore).process(params)
       when "release"
         result = ReleaseHandler.new(@cacheStore).process(params)
+      when "throttle"
+        result = ThrottleHandler.new(@cacheStore).process(params)
       else
         puts "illegal action"
       end

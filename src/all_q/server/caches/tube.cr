@@ -35,7 +35,11 @@ module AllQ
     end
 
     def set_throttle(per_second : Int32)
-      @throttle = AllQ::Throttle.new(per_second)
+      if per_second <= 0
+        @throttle = nil
+      else
+        @throttle = AllQ::Throttle.new(per_second)
+      end
     end
 
     def put(job, priority = 5, delay : Int32 = 0)
