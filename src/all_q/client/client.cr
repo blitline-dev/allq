@@ -9,6 +9,7 @@ require "./handlers/drain_handler"
 require "./handlers/kick_handler"
 require "./handlers/ping_aggregator"
 require "./handlers/stats_aggregator"
+require "./handlers/throttle_aggregator"
 require "./server_connection"
 require "./server_connection_cache"
 
@@ -16,7 +17,7 @@ module AllQ
   class Client
     CLIENT_PORT           = ENV["TCP_CLIENT_PORT"]? || "7766"
     JOB_ID_DIVIDER        = ","
-    ALL_SERVER_ACTIONS    = ["clear"]
+    ALL_SERVER_ACTIONS    = ["clear", "throttle"]
     MUST_FIND_ONE_OR_NONE = ["kick", "peek"]
 
     def initialize(servers : Array(String))
@@ -37,29 +38,28 @@ module AllQ
           results = "{}"
         end
 
-        if parsed_data["action"].to_s == "stats"
+        case parsed_data["action"].to_s
+        when "stats"
           stats_aggregator = AllQ::StatsAggregator.new(@server_connection_cache)
           results = stats_aggregator.process(parsed_data)
-        end
-        if parsed_data["action"].to_s == "peek"
+        when "peek"
           client_peek_handler = AllQ::ClientPeekHandler.new(@server_connection_cache)
           results = client_peek_handler.process(parsed_data)
-        end
-        if parsed_data["action"].to_s == "ping"
+        when "ping"
           client_ping_handler = AllQ::PingAggregator.new(@server_connection_cache)
           results = client_ping_handler.process(parsed_data)
-        end
-        if parsed_data["action"].to_s == "kick"
-          client_kick_handler = AllQ::KickHandler.new(@server_connection_cache)
-          results = client_kick_handler.process(parsed_data)
-        end
-        if parsed_data["action"].to_s == "drain"
+        when "drain"
           drain_handler = AllQ::DrainHandler.new(@server_connection_cache)
           results = drain_handler.process(parsed_data)
-        end
-        if parsed_data["action"].to_s == "add_server"
+        when "kick"
+          client_kick_handler = AllQ::KickHandler.new(@server_connection_cache)
+          results = client_kick_handler.process(parsed_data)
+        when "add_server"
           add_server_handler = AllQ::AddServerHandler.new(@server_connection_cache)
           results = add_server_handler.process(parsed_data)
+        when "throttle"
+          throttle_aggregator = AllQ::ThrottleAggregator.new(@server_connection_cache)
+          results = throttle_aggregator.process(parsed_data)
         end
       end
       results
