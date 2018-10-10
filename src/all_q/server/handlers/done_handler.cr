@@ -9,19 +9,19 @@ require "./base_handler"
 module AllQ
   class DoneHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]?
-      output = Hash(String, String).new
+      handler_response = HandlerResponse.new("done")
+
       if job_id
         job = @cache_store.reserved.done(job_id)
-        output["done"] = job_id
-        return_data["job"] = output
+        handler_response.job_id = job_id
+        handler_response.error = "Couldn't find job job_id = #{job_id} to set done" unless job
       else
         raise "Job ID not found in reserved"
       end
 
-      return return_data
+      return handler_response
     end
   end
 end

@@ -1,19 +1,17 @@
 module AllQ
   class TouchHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]?
-      output = Hash(String, String).new
+      handler_response = HandlerResponse.new("touch")
       if job_id
         @cache_store.reserved.touch(job_id)
-        output["job_id"] = job_id.to_s
-        return_data["touch"] = output
+        handler_response.job_id = job_id
       else
         raise "Job ID not found in reserved"
       end
 
-      return return_data
+      return handler_response
     end
   end
 end

@@ -13,19 +13,19 @@ module AllQ
     end
 
     def process(json : JSON::Any)
-      all_tubes = Hash(String, Hash(String, String)).new
+      handler_response = HandlerResponse.new("pause")
+
       data = normalize_json_hash(json)
       name = ""
       if data["tube"]?
         name = data["tube"]
       end
-
       @cache_store.tubes.all.each do |tube|
         if tube.name == name
           tube.pause(status)
         end
       end
-      return all_tubes
+      return handler_response
     end
   end
 

@@ -11,7 +11,7 @@ require "./base_handler"
 module AllQ
   class PutHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
+      handler_response = HandlerResponse.new("put")
       data = normalize_json_hash(json)
 
       job = JobFactory.build_job_factory_from_hash(json).get_job
@@ -25,10 +25,9 @@ module AllQ
         @cache_store.parents.child_started(job.parent_id)
       end
 
-      result = Hash(String, String).new
-      result["job_id"] = job.id
-      return_data["job"] = result
-      return return_data
+      handler_response.job_id = job.id
+      handler_response.job = JobFactory.to_hash(job)
+      return handler_response
     end
   end
 end

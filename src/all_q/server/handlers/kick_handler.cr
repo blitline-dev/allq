@@ -9,15 +9,14 @@ require "./base_handler"
 module AllQ
   class KickHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = @cache_store.buried.kick(data["tube"])
-      output = Hash(String, String).new
+      handler_response = HandlerResponse.new("kick")
+
       if job_id
-        output["job_id"] = job_id
-        return_data["kick"] = output
+        handler_response.job_id = job_id
       end
-      return return_data
+      return handler_response
     end
   end
 end

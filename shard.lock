@@ -1,6 +1,5 @@
 version: 1.0
 shards:
-
   zeromq:
     github: benoist/zeromq-crystal
     commit: a92be120b21743e17c9103630890b36329f819bb

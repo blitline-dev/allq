@@ -184,6 +184,10 @@ module AllQ
         server = Tcp.new(listen, port.to_i, debug, raw_server)
         server.listen
       end
+
+      spawn do
+        server = AllQHttpClient.new(debug, raw_server)
+      end
     end
   end
 end
