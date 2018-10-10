@@ -16,8 +16,8 @@ module AllQ
     def process(body : String)
       begin
         return PONG if body == PING
-        return AllQ::VERSION if body == VERSION
-        
+        return ENV["VERSION"]?.to_s if body == VERSION
+
         body_hash = JSON.parse(body)
         result = action(body_hash["action"], body_hash["params"])
         puts "results from #{body_hash["action"]?.to_s} #{result}" if @debug
