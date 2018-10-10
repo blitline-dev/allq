@@ -1,6 +1,6 @@
 module AllQ
   class StatsHandler < BaseHandler
-    def process(json : JSON::Any)
+    def process(json : JSON::Any) : Hash(String, Hash(String, String))
       all_tubes = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       @cache_store.tubes.all.each do |tube|

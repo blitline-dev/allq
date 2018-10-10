@@ -2,7 +2,7 @@ require "./base_handler"
 
 module AllQ
   class AdminHandler < BaseHandler
-    def process(json : JSON::Any)
+    def process(json : JSON::Any) : Hash(String, Hash(String, String))
       return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       output = Hash(String, String).new

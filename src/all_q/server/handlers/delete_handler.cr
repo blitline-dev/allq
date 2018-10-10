@@ -9,19 +9,13 @@ require "./base_handler"
 module AllQ
   class DeleteHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]? || "Job ID not found in reserved or buried. #{data.inspect}"
       found = find_and_delete(job_id)
-      output = Hash(String, String).new
-      if found
-        output["deleted"] = job_id
-      else
-        output["job_id"] = job_id
-        output["error"] = "Job ID not found in reserved or buried."
-      end
-      return_data["delete"] = output
-      return return_data
+      handler_response = HandlerResponse.new("delete")
+      handler_response.job_id = job_id
+      handler_response.error = "Job ID not found in reserved or buried." unless found
+      return handler_response
     end
 
     def find_and_delete(job_id)

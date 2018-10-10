@@ -1,11 +1,12 @@
 module AllQ
   class SetChildrenStartedHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
       data = normalize_json_hash(json)
       job_id = data["job_id"]
       @cache_store.parents.children_started!(job_id)
-      return return_data
+      handler_response = HandlerResponse.new("set_children_started")
+      handler_response.job_id = job_id
+      return handler_response
     end
   end
 end

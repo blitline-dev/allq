@@ -8,16 +8,17 @@ require "./base_handler"
 module AllQ
   class GetHandler < BaseHandler
     def process(json : JSON::Any)
-      return_data = Hash(String, Hash(String, String)).new
+      handler_response = HandlerResponse.new("get")
+
       data = normalize_json_hash(json)
       job = @cache_store.tubes[data["tube"]].get
       if job
         @cache_store.reserved.set_job_reserved(job)
-        return_data["job"] = JobFactory.to_hash(job)
+        handler_response.job = JobFactory.to_hash(job)
       else
-        return_data["job"] = Hash(String, String).new
+        handler_response.job  = Hash(String, String).new
       end
-      return return_data
+      return handler_response
     end
   end
 end
