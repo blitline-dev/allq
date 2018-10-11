@@ -35,6 +35,12 @@ module AllQ
       case name
       when "put"
         result = PutHandler.new(@cacheStore).process(params)
+        # Currently the gem looks for "job" node, but in the future it will
+        # look for response.job_id. For right now, we need to hack a response
+        # that won't break existing functionality
+        job_id = result.job_id
+        hack_output = "{\"response\": {\"action\": \"put\",\"job_id\": \"#{job_id}\"},\"job\": {\"job_id\": \"#{job_id}\"}}"
+        return hack_output
       when "get"
         result = GetHandler.new(@cacheStore).process(params)
       when "stats"
