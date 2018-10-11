@@ -26,7 +26,6 @@ module AllQ
       end
 
       handler_response.job_id = job.id
-      handler_response.job = JobFactory.to_hash(job)
       return handler_response
     end
   end

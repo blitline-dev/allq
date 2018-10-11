@@ -38,7 +38,9 @@ class AllQHttpClient
       action = resource
       body_io = context.request.body
       if body_io
-        params = body_io.gets_to_end
+        body_data = body_io.gets_to_end
+        parse_data = JSON.parse(body_data)
+        params = parse_data["data"].to_json
       else
         params = "{}"
       end
