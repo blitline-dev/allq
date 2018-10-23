@@ -62,8 +62,8 @@ class AllQHttpClient
       process(ap, context)
     end
 
-    server.bind_tcp "127.0.0.1", HTTP_SERVER_PORT
-    puts "Listening on http://127.0.0.1:#{HTTP_SERVER_PORT}"
+    server.bind_tcp "0.0.0.0", HTTP_SERVER_PORT
+    puts "Listening on http://0.0.0.0:#{HTTP_SERVER_PORT}"
     server.listen
 
   end
