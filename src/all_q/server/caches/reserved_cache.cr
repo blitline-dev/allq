@@ -35,7 +35,7 @@ module AllQ
           rescue ex
             puts ex.inspect_with_backtrace
           end
-          sleep(5)
+          sleep(3)
         end
       end
     end

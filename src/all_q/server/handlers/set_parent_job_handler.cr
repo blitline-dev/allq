@@ -12,7 +12,7 @@ module AllQ
 
       @cache_store.parents.set_job_as_parent(job, timeout, run_on_timeout)
       if data["limit"]?
-        @cache_store.parents.set_limit(job.id, data["limit"].to_i)
+        @cache_store.parents.set_limit(job.id, data["limit"].to_i) unless data["limit"].to_s.empty?
       end
 
       handler_response.job_id = job.id
