@@ -1,5 +1,6 @@
 class PriorityQueue(T)
   def initialize(priority_limit = 10)
+    @priority_limit = priority_limit
     @prioritized_queues = Array(Deque(T)).new
     @min_priority = priority_limit / 2
     1.upto(priority_limit) do
@@ -9,10 +10,31 @@ class PriorityQueue(T)
 
   def clear
     @prioritized_queues.clear
+    1.upto(@priority_limit) do
+      @prioritized_queues << Deque(T).new
+    end
+  end
+
+  def delete_if_exists(job_id : String)
+    @prioritized_queues.each do |dqueue|
+      delete_item = nil
+      dqueue.each do |item|
+        delete_item = item if item.id == job_id
+      end
+      if delete_item
+        dqueue.delete(delete_item) 
+        return # Short-circuit out of here
+      end
+    end
   end
 
   def put(item : Job, priority : Int32)
     queue = @prioritized_queues[priority]
+
+    if priority < 1 || priority > @priority_limit
+      raise "Illegal Priority of #{priority}"
+    end
+
     if priority < @prioritized_queues.size
       @min_priority = priority if priority < @min_priority
     end
