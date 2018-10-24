@@ -234,12 +234,16 @@ class AllQHttpClient
 
     if results_job_data["job"]?
       output = results_job_data["job"]
-      job = AllQJob.new(output["job_id"].to_s)
-      job.body = output["body"].to_s
-      job.tube = output["tube"].to_s
-      job.expireds = output["expireds"].to_s.to_i
-      job.releases = output["releases"].to_s.to_i
-      context.response.print(job.to_json)
+      if output["job_id"]?
+        job = AllQJob.new(output["job_id"].to_s)
+        job.body = output["body"].to_s
+        job.tube = output["tube"].to_s
+        job.expireds = output["expireds"].to_s.to_i
+        job.releases = output["releases"].to_s.to_i
+        context.response.print(job.to_json)
+      else
+        context.response.print("{}")
+      end
     else
       raise "Failed to build job in client"
     end
@@ -266,7 +270,7 @@ class AllQHttpClient
           return
       end
     rescue exception
-      puts "Failed to parse results from server: #{exception}"
+      puts "Failed to parse results from server: #{exception.inspect_with_backtrace} #{action_params.action}"
     end
     json_results = JSON.parse(result)
     context.response.print(json_results["response"].to_json)
