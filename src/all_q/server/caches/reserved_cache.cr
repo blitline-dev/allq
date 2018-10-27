@@ -108,6 +108,13 @@ module AllQ
       reserverd_job = @cache[job_id]?
       if reserverd_job
         job = reserverd_job.job
+        job.releases += 1
+        
+        if job.releases > job.expired_limit * 2
+          bury(job.id)
+          return
+        end
+
         tube = @tube_cache[job.tube]
         tube.put(job, job.priority, delay)
         @serializer.move_reserved_to_ready(job)
