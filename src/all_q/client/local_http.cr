@@ -203,6 +203,9 @@ class AllQHttpClient
       allq_stats_server = AllQStatsServer.new(server_hash)
       tube_hash_as_hash.each do |tube_name, metrics|
         allq_stats_server.stats << build_server_stats(tube_name, metrics)
+        if global
+          allq_stats_server.action_count = global["action_count"]? ? global["action_count"].to_s.to_i : 0
+        end
       end
       servers << allq_stats_server
     end
