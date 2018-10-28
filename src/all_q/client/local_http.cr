@@ -31,11 +31,11 @@ end
 
 struct AllQStatsServer
   include JSON::Serializable
-  property server_id : String = ""
+  property server_name : String = ""
   property action_count : Int32 = 0
   property stats : Array(AllQStats) = Array(AllQStats).new
 
-  def initialize(@server_id)
+  def initialize(@server_name)
   end
 end
 
