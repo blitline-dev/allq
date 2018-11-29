@@ -1,4 +1,4 @@
-FROM crystallang/crystal
+FROM crystallang/crystal:0.26.1
 RUN echo "touch5"
 RUN apt-get update
 RUN apt-get install -y git nano wget
