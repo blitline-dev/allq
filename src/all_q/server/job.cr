@@ -38,7 +38,7 @@ class JobFactory
     @body = data["body"]? || ""
     @expireds = 0
     @releases = 0
-    @created_time = Time.now.epoch_ms
+    @created_time = Time.now.to_unix_ms
     @priority = priority
     @priority = 1 if @priority == 0
     @expired_limit = data["expired_limit"]? ? data["expired_limit"].to_i : 3

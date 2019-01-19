@@ -24,7 +24,7 @@ module AllQ
       now = Time.now.to_s("%s").to_i
       @cache[job.id] = ReservedJob.new(now, job)
       @serializer.serialize(@cache[job.id])
-      puts "Time in ready(#{job.id} #{Time.now.epoch_ms - job.created_time})" if @debug
+      puts "Time in ready(#{job.id} #{Time.now.to_unix_ms - job.created_time})" if @debug
     end
 
     def start_sweeper
@@ -109,7 +109,7 @@ module AllQ
       if reserverd_job
         job = reserverd_job.job
         job.releases += 1
-        
+
         if job.releases > job.expired_limit * 2
           bury(job.id)
           return
