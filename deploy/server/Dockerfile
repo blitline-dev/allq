@@ -1,5 +1,6 @@
-FROM crystallang/crystal:0.26.1
-RUN echo "touch5"
+FROM crystallang/crystal
+RUN echo "touch2"
+
 RUN apt-get update
 RUN apt-get install -y git nano wget
 
@@ -14,7 +15,7 @@ RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 RUN apt-get install -y socat
 
-ENV VERSION=105
+ENV VERSION=106
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && shards
 RUN cd allq && sed -i 's/FFI::MemoryPointer.*$/" " * 41/g' lib/zeromq/src/zeromq/util.cr && sed -i 's/\.read_string//g' lib/zeromq/src/zeromq/util.cr
