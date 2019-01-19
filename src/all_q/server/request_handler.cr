@@ -29,7 +29,7 @@ module AllQ
     end
 
     def action(name, params : JSON::Any) : String
-      result : HandlerResponse | Nil
+      result : HandlerResponse | HandlerResponseMultiple | Nil
       @action_count += 1
       @action_count = 0 if @action_count > LOCAL_MAX
       case name
@@ -84,8 +84,13 @@ module AllQ
       end
 
       if result
-        response = JSONResponse.new(result)      
-        return response.to_json
+        if result.is_a?(HandlerResponse)
+          response = JSONResponse.new(result)
+          return response.to_json
+        else
+          response = JSONResponseMultiple.new(result)
+          return response.to_json
+        end
       else
         return "{}"
       end

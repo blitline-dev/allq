@@ -12,7 +12,7 @@ RUN cat /etc/apt/sources.list
 RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
 RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
-RUN apt-get install -y socat
+RUN apt-get install -y socat libcurl4-openssl-dev curl
 
 # install ruby
 RUN wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
@@ -24,6 +24,7 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubie
 RUN ruby -v
 
 RUN gem install bundler
+
 
 ENV version=98
 

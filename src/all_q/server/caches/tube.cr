@@ -51,7 +51,7 @@ module AllQ
       puts "tube: #{@name}: Adding to tube #{job.id} priority: #{priority} delay: #{delay}" if @debug
 
       if delay < 1
-        job.created_time = Time.now.epoch_ms
+        job.created_time = Time.now.to_unix_ms
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else

@@ -51,7 +51,7 @@ module AllQ
     end
 
     def get(job_id)
-      parent_job = @cache.fetch(job_id)
+      parent_job = @cache[job_id]
       return parent_job
     end
 
