@@ -23,14 +23,16 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubie
 
 RUN ruby -v
 
-RUN gem install bundler
+RUN gem install bundler && gem update --system
 
 
-ENV version=98
+ENV version=105
 
 RUN cd /
 COPY stats.sh stats.sh
+COPY cli.sh cli.sh
 RUN chmod 777 stats.sh
+RUN chmod 777 cli.sh
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/client/client.cr --release -o allq_client
 RUN cd allq && chmod 777 allq_client && mv allq_client /usr/bin/allq_client

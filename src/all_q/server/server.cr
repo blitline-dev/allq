@@ -34,13 +34,13 @@ module AllQ
         client.puts "Unkown command"
       end
     end
-    
+
     def local_socket
       spawn do
         loop do
           begin
             FileUtils.rm(UNIX_SOCKET_PATH) if File.exists?(UNIX_SOCKET_PATH)
-            server = UNIXServer.new(UNIX_SOCKET_PATH)    
+            server = UNIXServer.new(UNIX_SOCKET_PATH)
             while client = server.accept?
               handle_client(client)
             end
@@ -132,4 +132,4 @@ puts "version= #{ENV["version"]?}"
 puts "--------------------------------------"
 puts "-- Running in #{BaseSerDe::SERIALIZE ? "serialize" : "non-serialized"} mode"
 puts "--------------------------------------"
-AllQ::Server.new.listen
+AllQ::Server.new.listen unless ENV["CONFIG_ONLY"]?.to_s == "true"
