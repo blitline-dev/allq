@@ -13,6 +13,19 @@ module AllQ
       @cache.clear
     end
 
+    def clear_by_tube(tube)
+      job_ids = Array(String).new
+      @cache.values.each do |parent_job|
+        job_ids.push(parent_job.job.id) if parent_job.job.tube == tube
+      end
+      job_ids.each do |job_id|
+        parent_job = @cache.delete(job_id)
+        if parent_job
+          @serializer.remove(parent_job.job)
+        end
+      end
+    end
+
     def get_all_jobs
       return @cache.values
     end

@@ -10,6 +10,13 @@ module AllQ
       @cache.clear
     end
 
+    def clear_by_tube(tube)
+      jobs = get_buried_by_tube(tube)
+      jobs.each do |job|
+        delete(job.id)
+      end
+    end
+
     def set_job_buried(job : Job)
       @cache[job.id] = job
     end
