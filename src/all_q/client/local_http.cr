@@ -1,7 +1,6 @@
 require "http/server"
 require "json"
 
-
 struct AllQJob
   include JSON::Serializable
   property id : String = ""
@@ -9,7 +8,7 @@ struct AllQJob
   property tube : String = ""
   property expireds : Int32 = 0
   property releases : Int32 = 0
-  
+
   def initialize(@id)
   end
 end
@@ -39,7 +38,6 @@ struct AllQStatsServer
   end
 end
 
-
 struct AllQHttpClientActionParams
   property action, params
 
@@ -49,8 +47,7 @@ end
 
 class AllQHttpClient
   HTTP_SERVER_PORT = 8090
-  SUPPORTED_GET = ["stats"]
-
+  SUPPORTED_GET    = ["stats"]
 
   def initialize(@debug : Bool, @sender : AllQ::Client)
     @connections = 0
@@ -65,7 +62,6 @@ class AllQHttpClient
     server.bind_tcp "0.0.0.0", HTTP_SERVER_PORT
     puts "Listening on http://0.0.0.0:#{HTTP_SERVER_PORT}"
     server.listen
-
   end
 
   def handle_post(url_base, body, context) : AllQHttpClientActionParams
@@ -158,7 +154,6 @@ class AllQHttpClient
     return ap
   end
 
-
   def handle_context(context)
     resource = context.request.path.downcase.delete('/')
     method = context.request.method.upcase
@@ -169,17 +164,17 @@ class AllQHttpClient
       body = body_io.gets_to_end
     end
 
-    case(method)
-      when "POST"
-        ap = handle_post(resource, body, context)
-      when "PUT"
-        ap = handle_put(resource, body, context)
-      when "GET"
-        ap = handle_get(resource, body, context)
-      when "DELETE"
-        ap = handle_delete(resource, body, context)
-      else
-        raise "Unhandled http method = #{method}"
+    case (method)
+    when "POST"
+      ap = handle_post(resource, body, context)
+    when "PUT"
+      ap = handle_put(resource, body, context)
+    when "GET"
+      ap = handle_get(resource, body, context)
+    when "DELETE"
+      ap = handle_delete(resource, body, context)
+    else
+      raise "Unhandled http method = #{method}"
     end
 
     return ap
@@ -255,22 +250,22 @@ class AllQHttpClient
   def do_stuff(data, context, action_params)
     result = @sender.send(data)
     begin
-      case(action_params.action)
-        when "stats"
-          remap_stats(result, context)
-          return
-        when "throttle"
-          remap_throttle(result, context)
-          return
-        when "get", "peek"
-          remap_job(result, context)
-          return
-        when "clear"
-          context.response.print("{}")
-          return
-        when "set_parent_job", "put"
-          return_job_id(result, context)
-          return
+      case (action_params.action)
+      when "stats"
+        remap_stats(result, context)
+        return
+      when "throttle"
+        remap_throttle(result, context)
+        return
+      when "get", "peek"
+        remap_job(result, context)
+        return
+      when "clear"
+        context.response.print("{}")
+        return
+      when "set_parent_job", "put"
+        return_job_id(result, context)
+        return
       end
     rescue exception
       puts "Failed to parse results from server: #{exception.inspect_with_backtrace} #{action_params.action}"
@@ -283,17 +278,15 @@ class AllQHttpClient
     s = AllQStats.new(tube_name)
     begin
       s.tube = tube_name
-      s.ready =  metrics["ready"].to_s.to_i 
-      s.reserved = metrics["reserved"].to_s.to_i 
-      s.delayed = metrics["delayed"].to_s.to_i  
-      s.buried = metrics["buried"].to_s.to_i 
-      s.parents = metrics["parents"].to_s.to_i 
+      s.ready = metrics["ready"].to_s.to_i
+      s.reserved = metrics["reserved"].to_s.to_i
+      s.delayed = metrics["delayed"].to_s.to_i
+      s.buried = metrics["buried"].to_s.to_i
+      s.parents = metrics["parents"].to_s.to_i
       s.throttle_size = metrics["throttle_size"].to_s.to_i if metrics["throttle_size"]?
     rescue ex
       puts ex.inspect_with_backtrace
     end
     return s
   end
-
 end
-

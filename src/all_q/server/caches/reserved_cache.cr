@@ -20,6 +20,16 @@ module AllQ
       @cache.clear
     end
 
+    def clear_by_tube(tube : String)
+      job_ids = Array(String).new
+      @cache.values.each do |reserved_job|
+        job_ids.push(reserved_job.job.id) if reserved_job.job.tube == tube
+      end
+      job_ids.each do |job_id|
+        delete(job_id)
+      end
+    end
+
     def set_job_reserved(job : Job)
       now = Time.now.to_s("%s").to_i
       @cache[job.id] = ReservedJob.new(now, job)

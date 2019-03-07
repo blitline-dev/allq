@@ -25,8 +25,15 @@ module AllQ
     end
 
     def clear
-      @priority_queue.clear
+      # Delete ready
+      job = get
+      while job
+        delete_job(job.id)
+        job = get
+      end
+      # Delete delayed
       @delayed.clear
+      @delayed_serde.empty_folder
     end
 
     def touch
@@ -206,6 +213,12 @@ module AllQ
       File.open(file_path, "w") do |f|
         Cannon.encode f, delayed
       end
+    end
+
+    def empty_folder
+      return unless SERIALIZE
+      folder = build_delayed_folder(@name)
+      FileUtils.rm_r(folder)
     end
 
     def remove(job : Job)

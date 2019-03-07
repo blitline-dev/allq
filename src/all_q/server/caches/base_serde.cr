@@ -25,6 +25,10 @@ class BaseSerDe(T)
     "#{@base_dir}/delayed/#{job.tube}/#{job.id}"
   end
 
+  def build_delayed_folder(tube)
+    "#{@base_dir}/delayed/#{tube}/"
+  end
+
   # abstract def remove(job : Job)
   # end
 

@@ -14,14 +14,13 @@ module AllQ
       data = normalize_json_hash(json)
       handler_response = HandlerResponse.new("clear")
 
-      cache_type = data["cache_type"]?
       tube_name = data["tube"]?
 
-      if cache_type.to_s == "all"
-        @cache_store.clear_all
-        handler_response.action = "clear_all"
-      elsif tube_name
+      if tube_name
         @cache_store.tubes[tube_name].clear
+        @cache_store.reserved.clear_by_tube(tube_name)
+        @cache_store.buried.clear_by_tube(tube_name)
+        @cache_store.parents.clear_by_tube(tube_name)
       end
       return handler_response
     end
