@@ -84,6 +84,16 @@ class AllQHttpClient
     query_params = context.request.query_params
     ap = AllQHttpClientActionParams.new("noop", "")
     case url_base
+    when "multiple_job"
+      tube = query_params["tube"]? || query_params["tube_name"]?
+      count = query_params["count"].to_i
+      count = 1 if count < 1
+      if tube
+        body = %({ "tube" : "#{tube}", "count" : "#{count}" })
+        ap = AllQHttpClientActionParams.new("get", body)
+      else
+        raise "Tube name required for get"
+      end
     when "job"
       tube = query_params["tube"]? || query_params["tube_name"]?
       if tube
