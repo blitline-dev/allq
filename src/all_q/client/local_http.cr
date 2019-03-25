@@ -90,7 +90,7 @@ class AllQHttpClient
       count = 1 if count < 1
       if tube
         body = %({ "tube" : "#{tube}", "count" : "#{count}" })
-        ap = AllQHttpClientActionParams.new("get", body)
+        ap = AllQHttpClientActionParams.new("get_multiple_jobs", body)
       else
         raise "Tube name required for get"
       end
@@ -237,6 +237,25 @@ class AllQHttpClient
     end
   end
 
+  def remap_multiple_jobs(result, context)
+    puts "-" * 90
+    puts result.inspect
+    multiple_jobs_response = JSON.parse(result)
+    jobs = multiple_jobs_response["jobs"].as_a
+    job_object_array = Array(AllQJob).new
+    jobs.each do |output|
+      job = AllQJob.new(output["job_id"].to_s)
+      job.body = output["body"].to_s
+      job.tube = output["tube"].to_s
+      job.expireds = output["expireds"].to_s.to_i
+      job.releases = output["releases"].to_s.to_i
+      job_object_array << job
+    end
+    response_object = Hash(String, Array(AllQJob)).new
+    response_object["jobs"] = job_object_array
+    context.response.print(response_object.to_json)
+  end
+
   def remap_job(result, context)
     results_job_data = JSON.parse(result)
 
@@ -269,6 +288,9 @@ class AllQHttpClient
         return
       when "get", "peek"
         remap_job(result, context)
+        return
+      when "get_multiple_jobs"
+        remap_multiple_jobs(result, context)
         return
       when "clear"
         context.response.print("{}")

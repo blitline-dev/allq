@@ -41,7 +41,7 @@ module AllQ
         job_id = result.job_id
         hack_output = "{\"response\": {\"action\": \"put\",\"job_id\": \"#{job_id}\"},\"job\": {\"job_id\": \"#{job_id}\"}}"
         return hack_output
-      when "get"
+      when "get", "get_multiple_jobs"
         result = GetHandler.new(@cacheStore).process(params)
       when "stats"
         hash_output = StatsHandler.new(@cacheStore).process(params)
