@@ -238,8 +238,6 @@ class AllQHttpClient
   end
 
   def remap_multiple_jobs(result, context)
-    puts "-" * 90
-    puts result.inspect
     multiple_jobs_response = JSON.parse(result)
     jobs = multiple_jobs_response["jobs"].as_a
     job_object_array = Array(AllQJob).new
