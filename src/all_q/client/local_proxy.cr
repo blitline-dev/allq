@@ -61,7 +61,7 @@ class Tcp
           begin
             socket = socket_channel.receive
             socket.read_timeout = 3
-            socket.tcp_keepalive_count = 0
+            socket.tcp_keepalive_count = 1
             @connections += 1
             reader(socket)
             socket.close
