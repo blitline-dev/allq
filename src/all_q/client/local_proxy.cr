@@ -1,7 +1,7 @@
 require "socket"
 
 class Tcp
-  TOTAL_FIBERS = 5
+  TOTAL_FIBERS = 100
 
   def initialize(@host : String, @port : Int32, @debug : Bool, @sender : AllQ::Client)
     @connections = 0
@@ -9,29 +9,28 @@ class Tcp
   end
 
   def get_socket_data(socket : TCPSocket)
-    data = nil
     begin
-      data = socket.gets
+      socket.each_line do |line|
+        puts line.to_s if @debug
+        yield(line)
+      end
     rescue ex
       if @debug
         puts ex.inspect_with_backtrace
         puts "From Socket Address:" + socket.remote_address.to_s if socket.remote_address
       end
     end
-    return data
   end
 
   def reader(socket : TCPSocket)
-    data = get_socket_data(socket)
+    get_socket_data(socket) do |data|
+      if data == "stats\n"
+        p "Stats"
+        stats_response(socket)
+        return
+      end
 
-    if data == "stats\n"
-      p "Stats"
-      stats_response(socket)
-      return
-    end
-
-    puts "Received: #{data}" if @debug
-    while data
+      puts "Received: #{data}" if @debug
       if data && data.size > 3
         begin
           do_stuff(data, socket)
@@ -40,7 +39,6 @@ class Tcp
           p "Data:#{data}"
         end
       end
-      data = get_socket_data(socket)
     end
   end
 
@@ -62,7 +60,8 @@ class Tcp
         loop do
           begin
             socket = socket_channel.receive
-            socket.read_timeout = 10
+            socket.read_timeout = 3
+            socket.tcp_keepalive_count = 0
             @connections += 1
             reader(socket)
             socket.close

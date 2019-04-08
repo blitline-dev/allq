@@ -2,7 +2,7 @@ require "socket"
 require "file_utils"
 
 class AllQSocket
-  TOTAL_FIBERS = 20
+  TOTAL_FIBERS     = 200
   UNIX_SOCKET_PATH = "/tmp/allq_client.sock"
 
   def initialize(@debug : Bool, @sender : AllQ::Client)
@@ -62,7 +62,7 @@ class AllQSocket
         loop do
           begin
             socket = socket_channel.receive
-            socket.read_timeout = 10
+            socket.read_timeout = 3
             @connections += 1
             reader(socket)
             socket.close
