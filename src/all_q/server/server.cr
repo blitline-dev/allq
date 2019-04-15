@@ -88,7 +88,7 @@ module AllQ
             server.send_string(result.to_s)
           end
           Fiber.yield
-          sleep(0.0001)
+          sleep(0.0001) if in_string.blank?
           if @kind_exit
             r_size = (cache_store.reserved.get_all_jobs.size == 0)
             t_size = (cache_store.tubes.all.size == 0)
