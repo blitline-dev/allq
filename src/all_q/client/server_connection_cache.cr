@@ -119,7 +119,7 @@ module AllQ
         output = server_client.send_string(parsed_data)
 
         # Description containes local UID and tcp location
-        description = [server_client.id, server_client.server].join(",")
+        description = [server_client.id, server_client.full_path].join(",")
         result_hash[description] = JSON.parse(output)
       end
       result_hash.to_json
