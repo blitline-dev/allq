@@ -3,8 +3,8 @@ require "json"
 module AllQ
   class ServerConnectionCache
     SWEEP_DURATION = ENV["SWEEP_DURATION"]? || "20"
-    STATS_STRING = "{\"action\":\"stats\",\"params\":{}}"
-    STATS_HASH = JSON.parse(STATS_STRING)
+    STATS_STRING   = "{\"action\":\"stats\",\"params\":{}}"
+    STATS_HASH     = JSON.parse(STATS_STRING)
 
     def initialize(servers : Array(String))
       @debug = false # INFER TYPE
@@ -78,7 +78,7 @@ module AllQ
     end
 
     def well_connections
-      @server_connections.select {|n,v| !v.sick }
+      @server_connections.select { |n, v| !v.sick }
     end
 
     def get(id)
@@ -117,7 +117,10 @@ module AllQ
       result_hash = Hash(String, JSON::Any).new
       well_connections.values.each do |server_client|
         output = server_client.send_string(parsed_data)
-        result_hash[server_client.id] = JSON.parse(output)
+
+        # Description containes local UID and tcp location
+        description = [server_client.id, server_client.server].join(",")
+        result_hash[description] = JSON.parse(output)
       end
       result_hash.to_json
     end
@@ -173,10 +176,9 @@ module AllQ
           rescue ex
             puts "Sick Sweeper Exception..."
             puts ex.inspect_with_backtrace
-          end          
+          end
         end
       end
-
     end
 
     def sweep_for_draining

@@ -1,7 +1,7 @@
 require "socket"
 
 class Tcp
-  TOTAL_FIBERS = 100
+  TOTAL_FIBERS = 200
 
   def initialize(@host : String, @port : Int32, @debug : Bool, @sender : AllQ::Client)
     @connections = 0
