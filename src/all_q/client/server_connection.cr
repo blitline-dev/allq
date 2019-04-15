@@ -24,6 +24,7 @@ module AllQ
       @server_client = build_socket(context)
       start_server_connection(@server_client)
       @reconnect_count = 1
+      @full_path = ""
       @full_path = @server + @port
       @id = Digest::SHA1.base64digest(@server)[0..6]
       puts "A_CURVE_SECRETKEY = #{A_CURVE_SECRETKEY[0..4]}..."
