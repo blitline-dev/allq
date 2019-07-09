@@ -74,6 +74,24 @@ module AllQ
       prep_tubes
     end
 
+    def delete_tube_folders(tube)
+      Dir.rmdir("#{@base_dir}/buried/#{tube}")
+      Dir.rmdir("#{@base_dir}/reserved/#{tube}")
+      Dir.rmdir("#{@base_dir}/parents/#{tube}")
+      Dir.rmdir("#{@base_dir}/ready/#{tube}")
+      Dir.rmdir("#{@base_dir}/delayed/#{tube}")
+    end
+
+    def count_for_all_folders(tube)
+      count = 0
+      count += Dir.children("#{@base_dir}/buried/#{tube}").size
+      count += Dir.children("#{@base_dir}/reserved/#{tube}").size
+      count += Dir.children("#{@base_dir}/parents/#{tube}").size
+      count += Dir.children("#{@base_dir}/ready/#{tube}").size
+      count += Dir.children("#{@base_dir}/delayed/#{tube}").size
+      return count
+    end
+
     def ensure_dirs
       FileUtils.mkdir_p("#{@base_dir}/buried", File::Permissions::All.to_i)
       FileUtils.mkdir_p("#{@base_dir}/reserved", File::Permissions::All.to_i)
@@ -89,8 +107,16 @@ module AllQ
       tubes.map! { |t| t.split('/').last }
       tubes.uniq!
       tubes.each do |tube|
-        tube = get(tube)
-        tube.load_serialized
+        count = count_for_all_folders(tube)
+        if count > 0
+          tube = get(tube)
+          tube.load_serialized
+        else
+          # All empty, so delete
+          # We don't want these showing up
+          # on restart
+          delete_tube_folders(tube)
+        end
       end
     end
   end
