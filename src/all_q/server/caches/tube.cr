@@ -63,8 +63,9 @@ module AllQ
         @ready_serde.serialize(job)
       else
         time_to_start = Time.now.to_s("%s").to_i + delay
-        @delayed << DelayedJob.new(time_to_start, job, priority)
-        @delayed_serde.serialize(job)
+        delayed_job = DelayedJob.new(time_to_start, job, priority)
+        @delayed << delayed_job
+        @delayed_serde.serialize(delayed_job)
       end
     end
 
@@ -209,7 +210,8 @@ module AllQ
 
     def serialize(delayed : T)
       return unless SERIALIZE
-      file_path = build_delayed(delayed)
+      file_path = build_delayed(delayed.job)
+
       File.open(file_path, "w") do |f|
         Cannon.encode f, delayed
       end
@@ -218,7 +220,7 @@ module AllQ
     def empty_folder
       return unless SERIALIZE
       folder = build_delayed_folder(@name)
-      FileUtils.rm_r(folder)
+      FileUtils.rm_rf("#{folder}/.")
     end
 
     def remove(job : Job)
