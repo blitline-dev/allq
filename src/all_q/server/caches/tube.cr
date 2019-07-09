@@ -64,6 +64,7 @@ module AllQ
       else
         time_to_start = Time.now.to_s("%s").to_i + delay
         @delayed << DelayedJob.new(time_to_start, job, priority)
+        @delayed_serde.serialize(job)
       end
     end
 
@@ -116,7 +117,6 @@ module AllQ
               if delayed_job.time_to_start < time_now
                 put(delayed_job.job, delayed_job.priority)
                 @ready_serde.move_delayed_to_ready(delayed_job.job)
-
                 true
               else
                 false
