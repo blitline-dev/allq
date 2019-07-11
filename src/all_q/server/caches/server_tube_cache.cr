@@ -75,20 +75,33 @@ module AllQ
     end
 
     def delete_tube_folders(tube)
-      Dir.rmdir("#{@base_dir}/buried/#{tube}")
-      Dir.rmdir("#{@base_dir}/reserved/#{tube}")
-      Dir.rmdir("#{@base_dir}/parents/#{tube}")
-      Dir.rmdir("#{@base_dir}/ready/#{tube}")
-      Dir.rmdir("#{@base_dir}/delayed/#{tube}")
+      begin
+        delete_if_exists("#{@base_dir}/buried/#{tube}")
+        delete_if_exists("#{@base_dir}/reserved/#{tube}")
+        delete_if_exists("#{@base_dir}/parents/#{tube}")
+        delete_if_exists("#{@base_dir}/ready/#{tube}")
+        delete_if_exists("#{@base_dir}/delayed/#{tube}")
+      rescue ex
+        puts ex.message
+        puts ex.inspect_with_backtrace
+      end
+    end
+
+    def size_if_exists(path)
+      Dir.exists?(path) ? Dir.children(path).size : 0
+    end
+
+    def delete_if_exists(path)
+      Dir.rmdir(path) if Dir.exists?(path)
     end
 
     def count_for_all_folders(tube)
       count = 0
-      count += Dir.children("#{@base_dir}/buried/#{tube}").size
-      count += Dir.children("#{@base_dir}/reserved/#{tube}").size
-      count += Dir.children("#{@base_dir}/parents/#{tube}").size
-      count += Dir.children("#{@base_dir}/ready/#{tube}").size
-      count += Dir.children("#{@base_dir}/delayed/#{tube}").size
+      count += size_if_exists("#{@base_dir}/buried/#{tube}")
+      count += size_if_exists("#{@base_dir}/reserved/#{tube}")
+      count += size_if_exists("#{@base_dir}/parents/#{tube}")
+      count += size_if_exists("#{@base_dir}/ready/#{tube}")
+      count += size_if_exists("#{@base_dir}/delayed/#{tube}")
       return count
     end
 
@@ -106,16 +119,18 @@ module AllQ
       tubes += Dir.glob("#{@base_dir}/delayed/*").reject { |e| !File.directory?(e) }
       tubes.map! { |t| t.split('/').last }
       tubes.uniq!
-      tubes.each do |tube|
+      tubes.select! do |tube|
         count = count_for_all_folders(tube)
         if count > 0
           tube = get(tube)
           tube.load_serialized
+          true
         else
           # All empty, so delete
           # We don't want these showing up
           # on restart
           delete_tube_folders(tube)
+          false
         end
       end
     end
