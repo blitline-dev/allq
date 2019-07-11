@@ -3,6 +3,7 @@ require "file_utils"
 module AllQ
   class ServerTubeCache
     def initialize
+      @expire_hours = ENV["ALLQ_TUBE_EXPIRE_HOURS"]? ? ENV["ALLQ_TUBE_EXPIRE_HOURS"].to_i : 1
       @cache = Hash(String, AllQ::Tube).new
       prep_serializers
       start_sweeper
@@ -52,7 +53,7 @@ module AllQ
             puts "Sweeping for dead tubes..."
             time_now = Time.now
             @cache.delete_if do |key, value|
-              value.size == 0 && value.touched < time_now - 1.hour
+              value.size == 0 && value.touched < time_now - @expire_hours.hour && value.throttle_size.nil?
             end
           rescue ex
             puts "Server Tube Cache Sweeper Exception"
