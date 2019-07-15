@@ -15,7 +15,7 @@ RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq3-dev
 RUN apt-get install -y socat
 
-ENV VERSION=114
+ENV VERSION=115
 RUN apt-get update && apt-get -y upgrade
 RUN git clone https://blitline-dev:***REMOVED***@github.com/blitline-dev/allq.git
 RUN cd allq && shards

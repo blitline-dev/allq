@@ -36,7 +36,7 @@ class Cannon
       job = AllQ::ReservedCache::ReservedJob.from_json(txt)
       return job
     rescue ex
-      puts "Failed to decode_to_reserved_job(#{filename}) in custom Cannon decode"
+      puts "Failed to decode_to_reserved_job(#{filename}) in custom Cannon decode: #{ex.message}"
       puts filename.to_s
       puts txt if txt
       File.delete(filename) if File.exists?(filename)
@@ -50,7 +50,7 @@ class Cannon
       job = AllQ::Tube::DelayedJob.from_json(txt)
       return job
     rescue ex
-      puts "Failed to decode_to_delayed_job(#{filename}) in custom Cannon decode"
+      puts "Failed to decode_to_delayed_job(#{filename}) in custom Cannon decode #{ex.message}"
       puts filename.to_s
       puts txt if txt
       File.delete(filename) if File.exists?(filename)
@@ -64,7 +64,7 @@ class Cannon
       job = AllQ::ParentCache::ParentJob.from_json(txt)
       return job
     rescue ex
-      puts "Failed to decode_to_parent_job(#{filename}) in custom Cannon decode"
+      puts "Failed to decode_to_parent_job(#{filename}) in custom Cannon decode #{ex.message}"
       puts filename.to_s
       puts txt if txt
       File.delete(filename) if File.exists?(filename)
@@ -77,7 +77,7 @@ class Cannon
       txt = File.read(filename)
       return JSON.parse(txt)
     rescue ex
-      puts "Failed to decode(#{filename}) in custom Cannon decode"
+      puts "Failed to decode(#{filename}) in custom Cannon decode #{ex.message}"
       puts filename.to_s
       File.delete(filename) if File.exists?(filename)
 
@@ -87,6 +87,7 @@ class Cannon
 
   def self.decode_to_job?(filename : String) : Job | Nil
     json_hash = decode(filename)
+
     if json_hash.size == 0
       return nil
     else
@@ -94,7 +95,8 @@ class Cannon
         job = JobFactory.build_job_factory_from_hash(json_hash).get_job
         return job
       rescue ex
-        puts "Failed to decode_to_job(#{filename}) in custom Cannon decode"
+        puts json_hash.to_s if json_hash
+        puts "Failed to decode_to_job(#{filename}) in custom Cannon decode #{ex.message}"
         puts filename.to_s
         File.delete(filename) if File.exists?(filename)
       end

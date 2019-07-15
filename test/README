@@ -1,0 +1,1 @@
+You need to either run raw crystal, or go up one directory and run docker-allq-server.sh and docker-allq-client.sh to run specs

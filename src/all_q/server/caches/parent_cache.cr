@@ -11,6 +11,7 @@ module AllQ
 
     def clear_all
       @cache.clear
+      @serializer.empty_folder
     end
 
     def clear_by_tube(tube)
@@ -24,6 +25,10 @@ module AllQ
           @serializer.remove(parent_job.job)
         end
       end
+    end
+
+    def size
+      @cache.size
     end
 
     def get_all_jobs
@@ -103,7 +108,6 @@ module AllQ
         @serializer.remove(job)
         return
       end
-      #  @serializer.move_from_parent_to_ready(job)
       @serializer.move_parent_to_ready(parent_job.job)
       @tubes.put(job)
     end
@@ -183,6 +187,12 @@ module AllQ
       parent = build_parent(job)
       buried = build_buried(job)
       AllQ::FileWrapper.mv(parent, buried)
+    end
+
+    def empty_folder
+      return unless SERIALIZE
+      folder = build_parents_folder
+      FileUtils.rm_rf("#{folder}/.")
     end
 
     def remove(job : Job)
