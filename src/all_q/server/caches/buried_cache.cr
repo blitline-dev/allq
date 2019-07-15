@@ -8,17 +8,20 @@ module AllQ
 
     def clear_all
       @cache.clear
+      @serializer.empty_folder
     end
 
     def clear_by_tube(tube)
       jobs = get_buried_by_tube(tube)
       jobs.each do |job|
         delete(job.id)
+        @serializer.remove(job)
       end
     end
 
     def set_job_buried(job : Job)
       @cache[job.id] = job
+      @serializer.serialize(job)
     end
 
     def count
@@ -85,6 +88,12 @@ module AllQ
       File.open(build_buried(buried_job), "w") do |f|
         Cannon.encode f, buried_job
       end
+    end
+
+    def empty_folder
+      return unless SERIALIZE
+      folder = build_buried_folder
+      FileUtils.rm_rf("#{folder}/.")
     end
 
     def remove(job : Job)

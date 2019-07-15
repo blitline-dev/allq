@@ -8,6 +8,7 @@ module AllQ
       @delayed = Array(DelayedJob).new
       @ready_serde = ReadyCacheSerDe(Job).new(@name)
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
+      @throttle_serde = ThrottleSerDe(String).new(@name)
       @touched = Time.now
       @paused = false
       @debug = false
@@ -33,6 +34,7 @@ module AllQ
       end
       # Delete delayed
       @delayed.clear
+      @ready_serde.empty_folder
       @delayed_serde.empty_folder
     end
 
@@ -43,13 +45,21 @@ module AllQ
     def load_serialized
       @ready_serde.load_special(@priority_queue)
       @delayed_serde.load_special(@delayed)
+      throttle_val = @throttle_serde.load
+      unless throttle_val.nil?
+        puts "Throttle for #{@name} set to #{throttle_val}"
+        set_throttle(throttle_val)
+      end
     end
 
     def set_throttle(per_second : Int32)
       if per_second <= 0
         @throttle = nil
+        puts "Throttle is null"
+        @throttle_serde.remove
       else
         @throttle = AllQ::Throttle.new(per_second)
+        @throttle_serde.serialize(per_second)
       end
     end
 
@@ -85,7 +95,7 @@ module AllQ
         job = @priority_queue.get
         if job
           job.reserved = true
-          @ready_serde.move_ready_to_reserved(job)
+          @ready_serde.remove(job)
         end
       else
         return nil
@@ -117,7 +127,7 @@ module AllQ
             @delayed.reject! do |delayed_job|
               if delayed_job.time_to_start < time_now
                 put(delayed_job.job, delayed_job.priority)
-                @ready_serde.move_delayed_to_ready(delayed_job.job)
+                @delayed_serde.remove(delayed_job.job)
                 true
               else
                 false
@@ -145,25 +155,46 @@ module AllQ
   # Serializer
   # ----------------------------------------
 
+  class ThrottleSerDe(T) < BaseSerDe(T)
+    def initialize(@name : String)
+      return unless SERIALIZE
+      @base_dir = EnvConstants::SERIALIZER_DIR
+      FileUtils.mkdir_p("#{@base_dir}/throttles/", File::Permissions::All.to_i)
+    end
+
+    def serialize(throttle_value)
+      return unless SERIALIZE
+      file_path = build_throttle_filepath(@name)
+      if throttle_value.to_i < 0
+        remove
+        return
+      end
+      File.open(file_path, "w") do |f|
+        f.puts(throttle_value.to_s)
+      end
+    end
+
+    def remove
+      return unless SERIALIZE
+      FileWrapper.rm(build_throttle_filepath(@name))
+    end
+
+    def load
+      return unless SERIALIZE
+      return nil unless File.exists?(build_throttle_filepath(@name))
+      File.read(build_throttle_filepath(@name)).strip.to_i
+    end
+  end
+
+  # ----------------------------------------
+  # Serializer
+  # ----------------------------------------
+
   class ReadyCacheSerDe(T) < BaseSerDe(T)
     def initialize(@name : String)
       return unless SERIALIZE
       @base_dir = EnvConstants::SERIALIZER_DIR
       FileUtils.mkdir_p("#{@base_dir}/ready/#{@name}", File::Permissions::All.to_i)
-    end
-
-    def move_ready_to_reserved(job : Job)
-      return unless SERIALIZE
-      ready = build_ready(job)
-      reserved = build_reserved(job)
-      FileUtils.mv(ready, reserved) if File.exists?(ready)
-    end
-
-    def move_delayed_to_ready(job : Job)
-      return unless SERIALIZE
-      delayed = build_delayed(job)
-      ready = build_ready(job)
-      FileUtils.mv(delayed, ready) if File.exists?(delayed)
     end
 
     def serialize(ready_job : T)
@@ -174,9 +205,16 @@ module AllQ
       end
     end
 
+    def empty_folder
+      return unless SERIALIZE
+      folder = build_ready_folder(@name)
+      FileUtils.rm_rf("#{folder}/.")
+    end
+
     def remove(job : Job)
       return unless SERIALIZE
-      FileUtils.rm(build_ready(job))
+      filepath = build_ready(job)
+      FileUtils.rm(filepath) if File.exists?(filepath)
     end
 
     def load(cache : Hash(String, T))
@@ -190,6 +228,7 @@ module AllQ
       Dir[base_path].each do |file|
         job = Cannon.decode_to_job? file
         if job
+          remove(job)
           priority_queue.put(job, job.priority)
         end
       end
@@ -225,7 +264,8 @@ module AllQ
 
     def remove(job : Job)
       return unless SERIALIZE
-      AllQ::FileWrapper.rm(build_delayed(job))
+      filepath = build_delayed(job)
+      AllQ::FileWrapper.rm(filepath) if File.exists?(filepath)
     end
 
     def load(cache : Hash(String, T))

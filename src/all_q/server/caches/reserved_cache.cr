@@ -18,12 +18,14 @@ module AllQ
 
     def clear_all
       @cache.clear
+      @serializer.empty_folder
     end
 
     def clear_by_tube(tube : String)
       job_ids = Array(String).new
       @cache.values.each do |reserved_job|
         job_ids.push(reserved_job.job.id) if reserved_job.job.tube == tube
+        @serializer.remove(reserved_job.job)
       end
       job_ids.each do |job_id|
         delete(job_id)
@@ -77,8 +79,12 @@ module AllQ
 
       tube = @tube_cache[job.tube]
       tube.put(job)
-      @serializer.move_reserved_to_ready(job)
+      move_reserved_to_ready(job)
       delete(job.id)
+    end
+
+    def move_reserved_to_ready(job)
+      @serializer.remove(job)
     end
 
     def delete(job_id)
@@ -91,6 +97,8 @@ module AllQ
         @serializer.remove(reserved_job.job)
         @cache.delete(job_id)
         return reserved_job.job
+      else
+        puts "Missed delete #{job_id}"
       end
       return nil
     end
@@ -98,8 +106,8 @@ module AllQ
     def bury(job_id)
       if @cache[job_id]?
         job = @cache[job_id].job
-        @buried_cache.set_job_buried(job)
         @serializer.move_reserved_to_buried(job)
+        @buried_cache.set_job_buried(job)
         delete(job.id)
       end
       return nil
@@ -127,7 +135,7 @@ module AllQ
 
         tube = @tube_cache[job.tube]
         tube.put(job, job.priority, delay)
-        @serializer.move_reserved_to_ready(job)
+        move_reserved_to_ready(job)
         @cache.delete(job_id)
       end
     end
@@ -151,7 +159,7 @@ module AllQ
 
     struct ReservedJob
       include JSON::Serializable
-      property start, job
+      property start = Time.now.to_s("%s").to_i, job
 
       def initialize(@start : Int32, @job : Job)
       end
@@ -171,13 +179,6 @@ module AllQ
       end
     end
 
-    def move_reserved_to_ready(job : Job)
-      return unless SERIALIZE
-      reserved = build_reserved(job)
-      ready = build_ready(job)
-      AllQ::FileWrapper.mv(reserved, ready)
-    end
-
     def move_reserved_to_buried(job : Job)
       return unless SERIALIZE
       reserved = build_reserved(job)
@@ -188,6 +189,12 @@ module AllQ
     def remove(job : Job)
       return unless SERIALIZE
       AllQ::FileWrapper.rm(build_reserved(job)) if File.exists?(build_reserved(job))
+    end
+
+    def empty_folder
+      return unless SERIALIZE
+      folder = build_reserved_folder
+      FileUtils.rm_rf("#{folder}/.")
     end
 
     def load(cache : Hash(String, T))
