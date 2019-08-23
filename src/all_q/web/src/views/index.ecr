@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>AllQ Stats</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+</head>
+<body>
+	
+	<div class="limiter">
+		<div class="container-table100">
+			<div class="wrap-table100">
+				<div class="table">
+
+					<div class="row header">
+						<div class="cell">&nbsp;</div>
+						<%- stats.keys.each do |tube_name| -%>
+						<div class="cell"><%= tube_name %></div>
+						<%- end -%>
+					</div>
+
+					<div class="row">
+						<div class="cell tube" data-title="Ready">Ready</div>
+						<%- stats.each do |tube_name, stats| -%>
+							<div class="cell" data-title="<%= tube_name %>"><%= stats["ready"] %></div>
+						<%- end -%>
+					</div>
+
+					<div class="row">
+						<div class="cell tube" data-title="Reserved">Reserved</div>
+						<%- stats.each do |tube_name, stats| -%>
+							<div class="cell" data-title="<%= tube_name %>"><%= stats["reserved"] %></div>
+						<%- end -%>
+					</div>
+					<div class="row">
+						<div class="cell tube" data-title="Delayed">Delayed</div>
+
+						<%- stats.each do |tube_name, stats| -%>
+							<div class="cell" data-title="<%= tube_name %>"><%= stats["delayed"] %></div>
+						<%- end -%>
+					</div>
+					<div class="row">
+						<div class="cell tube" data-title="Buried">Buried</div>
+						<%- stats.each do |tube_name, stats| -%>
+							<div class="cell" data-title="<%= tube_name %>"><%= stats["buried"] %></div>
+						<%- end -%>
+					</div>
+					<div class="row">
+						<div class="cell tube" data-title="Parents">Parents</div>
+						<%- stats.each do |tube_name, stats| -%>
+							<div class="cell" data-title="<%= tube_name %>"><%= stats["parents"] %></div>
+						<%- end -%>
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+		<div class="header">&nbsp;&nbsp;Actions: <%= action_count.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse %>
+	</div>
+
+
+	
+
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+</html>
