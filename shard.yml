@@ -15,3 +15,5 @@ license: MIT
 dependencies:
   zeromq:
     github: benoist/zeromq-crystal
+  kemal:
+    github: kemalcr/kemal
