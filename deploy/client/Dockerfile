@@ -26,7 +26,7 @@ RUN ruby -v
 RUN gem install bundler && gem update --system
 
 
-ENV version=121
+ENV version=122
 
 RUN cd /
 COPY stats.sh stats.sh
