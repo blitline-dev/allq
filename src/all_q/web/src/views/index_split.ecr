@@ -2,9 +2,10 @@
 <div class="limiter">
 	<div class="container-table100">
 		<div class="wrap-table100">
+		    <%- root_stats.each do |root_stat| -%>
+		    <br/>
+		    <div><small style="color: #6c7ae0; float: right;"><b>Server:</b> <%= root_stat.server_name %></small></div>
 			<div class="table">
-
-
 				<div class="row header">
 					<div class="cell "><i>Tube</i></div>
 					<div class="cell text-center">Ready</div>	
@@ -13,7 +14,8 @@
 					<div class="cell text-center">Buried</div>
 					<div class="cell text-center">Parents</div>
 				</div>
-				<%- stats.each do |tube_name, stats| -%>
+				<%- root_stat.stat.keys.sort.each do |tube_name| -%>
+				    <% stats = root_stat.stat[tube_name] %>
 					<div class="row">
 						<div class="cell tube" data-title="Name"><%= tube_name %></div>
 						<div class="cell text-center" data-title="Read"><%= stats["ready"] %></div>
@@ -24,6 +26,8 @@
 					</div>
 				<%- end -%>
 			</div>
+
+			<%- end -%>
 		</div>
 	</div>
 	<div class="header">&nbsp;&nbsp;Actions: <%= action_count.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse %>
