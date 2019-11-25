@@ -1,8 +1,10 @@
 class PriorityQueue(T)
-  def initialize(priority_limit = 10)
+  @min_priority : Int32
+
+  def initialize(priority_limit : Int32 = 10)
     @priority_limit = priority_limit
     @prioritized_queues = Array(Deque(T)).new
-    @min_priority = priority_limit / 2
+    @min_priority = priority_limit // 2
     1.upto(priority_limit) do
       @prioritized_queues << Deque(T).new
     end
@@ -22,7 +24,7 @@ class PriorityQueue(T)
         delete_item = item if item.id == job_id
       end
       if delete_item
-        dqueue.delete(delete_item) 
+        dqueue.delete(delete_item)
         return # Short-circuit out of here
       end
     end
@@ -82,7 +84,7 @@ class PriorityQueue(T)
     if index < @prioritized_queues.size
       @min_priority = index
     else
-      @min_priority = @prioritized_queues.size / 2
+      @min_priority = @prioritized_queues.size // 2
     end
   end
 end
