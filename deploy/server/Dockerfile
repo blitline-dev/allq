@@ -1,5 +1,5 @@
 FROM crystallang/crystal
-RUN echo "touch2"
+RUN echo "touch4"
 
 RUN apt-get update
 RUN apt-get install -y git nano wget
@@ -12,8 +12,9 @@ RUN cat /etc/apt/sources.list
 
 RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
 RUN apt-key add - < Release.key
-RUN apt-get install -y libzmq3-dev
+RUN apt-get install -y libzmq5-dev
 RUN apt-get install -y socat
+RUN apt-get -y upgrade
 
 ENV VERSION=116
 RUN apt-get update && apt-get -y upgrade

@@ -1,5 +1,5 @@
 FROM crystallang/crystal
-RUN echo "touch"
+RUN echo "touch2"
 RUN apt-get update
 RUN apt-get install -y git nano wget
 
@@ -11,8 +11,9 @@ RUN cat /etc/apt/sources.list
 
 RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
 RUN apt-key add - < Release.key
-RUN apt-get install -y libzmq3-dev
+RUN apt-get install -y libzmq5-dev
 RUN apt-get install -y socat libcurl4-openssl-dev curl
+RUN apt-get update
 
 # install ruby
 RUN wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
@@ -23,10 +24,10 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubie
 
 RUN ruby -v
 
-RUN gem install bundler && gem update --system
+RUN gem install bundler -v 1.16.3 && gem update --system
 
 
-ENV version=122
+ENV version=125
 
 RUN cd /
 COPY stats.sh stats.sh
