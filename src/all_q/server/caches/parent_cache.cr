@@ -59,7 +59,7 @@ module AllQ
     end
 
     def set_limit(job_id : String, limit : Int32)
-      parent_job = @cache[job_id]
+      parent_job = @cache[job_id]?
       if parent_job
         parent_job.limit = limit
         check_parent_job(job_id)
@@ -83,7 +83,7 @@ module AllQ
           end
         end
       else
-        puts "Missing parent job #{job_id}"
+        puts "Missing parent job in check_parent_job - #{job_id}"
       end
     end
 
