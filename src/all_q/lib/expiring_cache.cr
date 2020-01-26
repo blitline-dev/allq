@@ -18,7 +18,7 @@ class ExpiringCache(T)
   end
 
   def put(name : String, item : T)
-    now = Time.now.to_s("%s").to_i
+    now = Time.utc.to_s("%s").to_i
     new_item = CacheItem(T).new(now, item)
     @cache[name] = new_item
   end
@@ -64,7 +64,7 @@ class ExpiringCache(T)
 
   def sweep
     puts "Sweeping Expiring Cache..."
-    now = Time.now.to_s("%s").to_i
+    now = Time.utc.to_s("%s").to_i
     @cache.delete_if do |k, v|
       if v.start < now - @expiration
         puts "deleting #{k}"

@@ -7,7 +7,7 @@ module AllQ
     end
 
     def check_and_add?
-      t = Time.now
+      t = Time.utc
       check(t)
       if @deque.size < @size
         add
@@ -25,7 +25,7 @@ module AllQ
     end
 
     def add
-      @deque << Time.now
+      @deque << Time.utc
     end
 
     def remove

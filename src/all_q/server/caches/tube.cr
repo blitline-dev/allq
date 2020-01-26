@@ -9,7 +9,7 @@ module AllQ
       @ready_serde = ReadyCacheSerDe(Job).new(@name)
       @delayed_serde = DelayedCacheSerDe(DelayedJob).new(@name)
       @throttle_serde = ThrottleSerDe(String).new(@name)
-      @touched = Time.now
+      @touched = Time.utc
       @paused = false
       @debug = false
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
@@ -39,7 +39,7 @@ module AllQ
     end
 
     def touch
-      @touched = Time.now
+      @touched = Time.utc
     end
 
     def load_serialized
@@ -68,11 +68,11 @@ module AllQ
       puts "tube: #{@name}: Adding to tube #{job.id} priority: #{priority} delay: #{delay}" if @debug
 
       if delay < 1
-        job.created_time = Time.now.to_unix_ms
+        job.created_time = Time.utc.to_unix_ms
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else
-        time_to_start = Time.now.to_s("%s").to_i + delay
+        time_to_start = Time.utc.to_s("%s").to_i + delay
         delayed_job = DelayedJob.new(time_to_start, job, priority)
         @delayed << delayed_job
         @delayed_serde.serialize(delayed_job)
@@ -123,7 +123,7 @@ module AllQ
       spawn do
         loop do
           begin
-            time_now = Time.now.to_s("%s").to_i
+            time_now = Time.utc.to_s("%s").to_i
             @delayed.reject! do |delayed_job|
               if delayed_job.time_to_start < time_now
                 put(delayed_job.job, delayed_job.priority)

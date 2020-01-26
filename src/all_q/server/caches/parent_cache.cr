@@ -36,7 +36,7 @@ module AllQ
     end
 
     def set_job_as_parent(job : Job, timeout : Int32, run_on_timeout = false)
-      now = Time.now.to_s("%s").to_i
+      now = Time.utc.to_s("%s").to_i
       parent_job = ParentJob.new(now, job, 0, timeout, -1, run_on_timeout, 0)
       @cache[job.id] = parent_job
       @serializer.serialize(parent_job)
@@ -127,7 +127,7 @@ module AllQ
     end
 
     def sweep
-      now = Time.now.to_s("%s").to_i
+      now = Time.utc.to_s("%s").to_i
       @cache.values.each do |parent_job|
         if parent_job.start + parent_job.timeout < now
           if parent_job.run_on_timeout

@@ -13,11 +13,11 @@ describe AllQ do
     JobSpec.build_alot_of_jobs(cache_store)
     tube = cache_store.tubes[TEST_TUBE_NAME]
     tube.set_throttle(11)
-    time_now = Time.now
+    time_now = Time.utc
     1.upto(10000) do
       tube.get
     end
-    time_newer = Time.now
+    time_newer = Time.utc
     done = 10_000 - tube.size
     done.should eq(11)
 
@@ -35,11 +35,11 @@ describe AllQ do
     JobSpec.build_alot_of_jobs(cache_store)
     tube = cache_store.tubes[TEST_TUBE_NAME]
     tube.pause(true)
-    time_now = Time.now
+    time_now = Time.utc
     1.upto(10000) do
       tube.get
     end
-    time_newer = Time.now
+    time_newer = Time.utc
     done = 10_000 - tube.size
     done.should eq(0)
 

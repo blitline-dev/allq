@@ -51,7 +51,7 @@ module AllQ
         loop do
           begin
             puts "Sweeping for dead tubes..."
-            time_now = Time.now
+            time_now = Time.utc
             @cache.delete_if do |key, value|
               value.size == 0 && value.touched < time_now - @expire_hours.hour && value.throttle_size.nil?
             end

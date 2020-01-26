@@ -33,10 +33,10 @@ module AllQ
     end
 
     def set_job_reserved(job : Job)
-      now = Time.now.to_s("%s").to_i
+      now = Time.utc.to_s("%s").to_i
       @cache[job.id] = ReservedJob.new(now, job)
       @serializer.serialize(@cache[job.id])
-      puts "Time in ready(#{job.id} #{Time.now.to_unix_ms - job.created_time})" if @debug
+      puts "Time in ready(#{job.id} #{Time.utc.to_unix_ms - job.created_time})" if @debug
     end
 
     def start_sweeper
@@ -54,7 +54,7 @@ module AllQ
 
     def sweep
       puts "Sweeping Reservered Cache" if @debug
-      now = Time.now.to_s("%s").to_i
+      now = Time.utc.to_s("%s").to_i
       @cache.values.each do |reserved_job|
         if reserved_job.start + reserved_job.job.ttl < now
           puts "Expiring Job From Reserved Cache" if @debug
@@ -143,7 +143,7 @@ module AllQ
     def touch(job_id)
       reserved_job = @cache[job_id]?
       if reserved_job
-        reserved_job.start = Time.now.to_s("%s").to_i
+        reserved_job.start = Time.utc.to_s("%s").to_i
       end
       return job_id
     end
@@ -159,7 +159,7 @@ module AllQ
 
     struct ReservedJob
       include JSON::Serializable
-      property start = Time.now.to_s("%s").to_i, job
+      property start = Time.utc.to_s("%s").to_i, job
 
       def initialize(@start : Int32, @job : Job)
       end
