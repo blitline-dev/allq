@@ -78,8 +78,8 @@ module AllQ
       end
 
       tube = @tube_cache[job.tube]
-      tube.put(job)
       move_reserved_to_ready(job)
+      tube.put(job)
       delete(job.id)
     end
 
@@ -134,8 +134,8 @@ module AllQ
         end
 
         tube = @tube_cache[job.tube]
-        tube.put(job, job.priority, delay)
         move_reserved_to_ready(job)
+        tube.put(job, job.priority, delay)
         @cache.delete(job_id)
       end
     end
