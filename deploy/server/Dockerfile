@@ -18,7 +18,7 @@ RUN apt-get install -y  libsodium-dev libzmq5-dev
 RUN apt-get install -y socat
 RUN apt-get -y upgrade
 
-ENV VERSION=124
+ENV VERSION=125
 RUN echo $(crystal -v)
 RUN apt-get update && apt-get -y upgrade
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git

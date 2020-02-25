@@ -18,5 +18,5 @@ shards:
 
   zeromq:
     github: blitline-dev/zeromq-crystal
-    commit: ec97b2d8ad95576f6a07b9a200364d8b6afc2348
+    commit: bf6831b007df56782fbc0a3726c6e51381f79780
 
