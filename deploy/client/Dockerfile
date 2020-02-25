@@ -1,5 +1,5 @@
-FROM crystallang/crystal
-RUN echo "touch2"
+FROM crystallang/crystal:latest
+RUN echo "touch4"
 RUN apt-get update
 RUN apt-get install -y git nano wget
 
@@ -14,6 +14,7 @@ RUN apt-key add - < Release.key
 RUN apt-get install -y libzmq5-dev
 RUN apt-get install -y socat libcurl4-openssl-dev curl
 RUN apt-get update
+RUN apt-get -y upgrade
 
 # install ruby
 RUN wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
@@ -27,7 +28,7 @@ RUN ruby -v
 RUN gem install bundler -v 1.16.3 && gem update --system
 
 
-ENV version=126
+ENV version=132
 
 RUN cd /
 COPY stats.sh stats.sh
