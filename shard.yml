@@ -14,8 +14,6 @@ license: MIT
 
 dependencies:
   zeromq:
-    github: crystal-community/zeromq-crystal
+    github: blitline-dev/zeromq-crystal
   kemal:
     github: kemalcr/kemal
-
-
