@@ -2,11 +2,11 @@ version: 1.0
 shards:
   exception_page:
     github: crystal-loot/exception_page
-    version: 0.1.2
+    version: 0.1.4
 
   kemal:
     github: kemalcr/kemal
-    version: 0.26.0
+    version: 0.26.1
 
   kilt:
     github: jeromegn/kilt
@@ -17,6 +17,6 @@ shards:
     version: 0.3.9
 
   zeromq:
-    github: benoist/zeromq-crystal
-    commit: a92be120b21743e17c9103630890b36329f819bb
+    github: crystal-community/zeromq-crystal
+    commit: 2c5c1337791a142c4012efc8d516b9bc2388fb27
 
