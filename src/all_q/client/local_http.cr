@@ -46,7 +46,7 @@ struct AllQHttpClientActionParams
 end
 
 class AllQHttpClient
-  HTTP_SERVER_PORT = 8090
+  HTTP_SERVER_PORT = (ENV["HTTP_SERVER_PORT"]? || "8090").to_i
   SUPPORTED_GET    = ["stats"]
 
   def initialize(@debug : Bool, @sender : AllQ::Client)
