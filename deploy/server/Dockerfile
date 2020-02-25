@@ -1,4 +1,5 @@
 FROM crystallang/crystal
+RUN apt-get update && apt-get -y upgrade
 RUN echo "touch5"
 
 RUN apt-get update
@@ -10,13 +11,15 @@ RUN apt-get install -y libtool pkg-config build-essential autoconf automake uuid
 RUN echo "deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-stable/Debian_9.0/ /" >> /etc/apt/sources.list
 RUN cat /etc/apt/sources.list
 
+RUN apt-get -y upgrade
 RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
 RUN apt-key add - < Release.key
-RUN apt-get install -y libzmq5-dev
+RUN apt-get install -y  libsodium-dev libzmq5-dev
 RUN apt-get install -y socat
 RUN apt-get -y upgrade
 
-ENV VERSION=118
+ENV VERSION=119
+RUN echo $(crystal -v)
 RUN apt-get update && apt-get -y upgrade
 RUN git clone https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && shards
