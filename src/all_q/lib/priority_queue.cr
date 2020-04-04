@@ -31,11 +31,13 @@ class PriorityQueue(T)
   end
 
   def put(item : Job, priority : Int32)
-    queue = @prioritized_queues[priority]
-
-    if priority < 1 || priority > @priority_limit
-      raise "Illegal Priority of #{priority}"
+    if priority < 0
+      priority = 1
+    elsif priority > (@priority_limit - 1)
+      priority = @priority_limit - 1
     end
+
+    queue = @prioritized_queues[priority]
 
     if priority < @prioritized_queues.size
       @min_priority = priority if priority < @min_priority
