@@ -20,7 +20,7 @@ RUN apt-get -y upgrade
 
 ENV VERSION=126
 RUN echo $(crystal -v)
-ENV VERSION=129
+ENV VERSION=130
 
 RUN git clone https://blitline-dev:***REMOVED***@github.com/blitline-dev/allq.git
 RUN cd allq && shards
