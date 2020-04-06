@@ -12,13 +12,14 @@ module AllQ
     property id, server, port, sick, full_path
 
     def initialize(@server : String, @port : String)
-      @mutex = Mutex.new
       @exit = false
       @ready = false
       @sick = true
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
+      @poller_in = ZMQ::Poller.new
+      @poller_out = ZMQ::Poller.new
       context = ZMQ::Context.new
       @server_client = build_socket(context)
       start_server_connection(@server_client)
@@ -65,10 +66,16 @@ module AllQ
     end
 
     def final_send_string(string, timeout)
-      val = ""
-      @mutex.synchronize do
-        @server_client.send_string(string)
+      if @poller_out.poll(timeout) > 0
+        val = @server_client.send_string(string)
+      else
+        raise "Timeout processing poll out request"
+      end
+
+      if @poller_in.poll(timeout) > 0
         val = @server_client.receive_string
+      else
+        raise "Timeout processing poll in request"
       end
       @reconnect_count = 0
       return val
@@ -159,6 +166,11 @@ module AllQ
         puts "Connecting tcp://#{@server}:#{@port}"
         server_client.connect("tcp://#{@server}:#{@port}")
         @restart = false
+        @poller_in = ZMQ::Poller.new
+        @poller_out = ZMQ::Poller.new
+
+        @poller_in.register(server_client, ::ZMQ::POLLIN)
+        @poller_out.register(server_client, ::ZMQ::POLLOUT)
         @ready = true
         @sick = false
         while !@restart
