@@ -1,5 +1,6 @@
 require "base64"
 require "digest"
+require "mutex"
 
 module AllQ
   class ServerConnection
@@ -66,16 +67,10 @@ module AllQ
     end
 
     def final_send_string(string, timeout)
-      if @poller_out.poll(timeout) > 0
+      val = ""
+      Mutex.synchronize do
         val = @server_client.send_string(string)
-      else
-        raise "Timeout processing poll out request"
-      end
-
-      if @poller_in.poll(timeout) > 0
         val = @server_client.receive_string
-      else
-        raise "Timeout processing poll in request"
       end
       @reconnect_count = 0
       return val

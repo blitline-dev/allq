@@ -1,4 +1,4 @@
-FROM crystallang/crystal:latest
+FROM crystallang/crystal:0.33.0
 RUN echo "touch4"
 RUN apt-get update
 RUN apt-get install -y git nano wget
@@ -6,15 +6,9 @@ RUN apt-get install -y git nano wget
 #install dependency
 RUN apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
 
-RUN echo "deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-stable/Debian_9.0/ /" >> /etc/apt/sources.list
-RUN cat /etc/apt/sources.list
 
-RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
-RUN apt-key add - < Release.key
-RUN apt-get install -y libzmq5-dev
-RUN apt-get install -y socat libcurl4-openssl-dev curl
-RUN apt-get update
-RUN apt-get -y upgrade
+RUN apt-get install -y  libsodium-dev libzmq3-dev
+RUN apt-get install -y socat
 
 # install ruby
 RUN wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
@@ -28,7 +22,7 @@ RUN ruby -v
 RUN gem install bundler -v 1.16.3 && gem update --system
 
 
-ENV version=132
+ENV version=133
 
 RUN cd /
 COPY stats.sh stats.sh
