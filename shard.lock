@@ -17,6 +17,6 @@ shards:
     version: 0.3.9
 
   zeromq:
-    github: Jaciones/zeromq-crystal
-    commit: 4e88991f6b28d62de24fe34d0a59505e275394d1
+    github: blitline-dev/zeromq-crystal
+    commit: bf6831b007df56782fbc0a3726c6e51381f79780
 
