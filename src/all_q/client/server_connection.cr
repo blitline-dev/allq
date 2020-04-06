@@ -16,6 +16,7 @@ module AllQ
       @exit = false
       @ready = false
       @sick = true
+      @mutex = Mutex.new
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       @restart = false
@@ -68,7 +69,7 @@ module AllQ
 
     def final_send_string(string, timeout)
       val = ""
-      Mutex.synchronize do
+      @mutex.synchronize do
         val = @server_client.send_string(string)
         val = @server_client.receive_string
       end
