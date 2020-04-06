@@ -1,22 +1,22 @@
-FROM crystallang/crystal
-RUN apt-get update && apt-get -y upgrade
+FROM crystallang/crystal:0.33.0
 RUN echo "touch5"
 
 RUN apt-get update
+
+
 RUN apt-get install -y git nano wget
 
+
 #install dependency
-RUN apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
 
-RUN echo "deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-stable/Debian_9.0/ /" >> /etc/apt/sources.list
-RUN cat /etc/apt/sources.list
+#RUN echo "deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-stable/Debian_9.0/ /" >> /etc/apt/sources.list
+#RUN cat /etc/apt/sources.list
 
-RUN apt-get -y upgrade
-RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
-RUN apt-key add - < Release.key
-RUN apt-get install -y  libsodium-dev libzmq5-dev
+#RUN wget -nv https://download.opensuse.org/repositories/network:messaging:zeromq:git-stable/Debian_Next/Release.key -O Release.key
+#RUN apt-key add - < Release.key
+#RUN apt-get update
+RUN apt-get install -y  libsodium-dev libzmq3-dev
 RUN apt-get install -y socat
-RUN apt-get -y upgrade
 
 ENV VERSION=126
 RUN echo $(crystal -v)
@@ -31,5 +31,6 @@ RUN cd allq && crystal build src/all_q/server/server.cr --release -o allq_server
 
 
 RUN cd allq && chmod 777 allq_server && mv allq_server /usr/bin/allq_server
+RUN apt-get -y upgrade
 
-ENTRYPOINT ["/usr/bin/allq_server"]
+#ENTRYPOINT ["/usr/bin/allq_server"]

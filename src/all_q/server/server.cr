@@ -87,15 +87,6 @@ module AllQ
             end
             server.send_string(result.to_s)
           end
-          Fiber.yield
-          sleep(0.0001) if in_string.blank?
-          if @kind_exit
-            r_size = (cache_store.reserved.get_all_jobs.size == 0)
-            t_size = (cache_store.tubes.all.size == 0)
-            p_size = (cache_store.parents.get_all_jobs.size == 0)
-            puts "KINDLY Exit..." if r_size && t_size && p_size
-            exit 0
-          end
         rescue ex
           p "Error in main_loop:allqserver"
           p ex.message
