@@ -68,7 +68,6 @@ module AllQ
       server.set_socket_option(::ZMQ::CURVE_PUBLICKEY, Base64.decode_string(A_CURVE_PUBLICKEY))
       server.set_socket_option(::ZMQ::REQ_CORRELATE, 1)
       server.set_socket_option(::ZMQ::IMMEDIATE, 1)
-
       server.bind("tcp://0.0.0.0:#{PORT}")
       puts "Listening tcp://0.0.0.0:#{PORT}"
 
