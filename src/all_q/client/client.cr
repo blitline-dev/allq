@@ -19,6 +19,8 @@ module AllQ
     JOB_ID_DIVIDER        = ","
     ALL_SERVER_ACTIONS    = ["clear", "throttle"]
     MUST_FIND_ONE_OR_NONE = ["kick", "peek"]
+    ENV_SIZE_LIMIT        = ENV["SIZE_LIMIT"]? || "600000"
+    SIZE_LIMIT            = ENV_SIZE_LIMIT.to_i
 
     def initialize(servers : Array(String))
       @server_connection_cache = ServerConnectionCache.new(servers)
@@ -87,6 +89,11 @@ module AllQ
     end
 
     def send(data : String)
+      if data.size > SIZE_LIMIT
+        puts "Size too large #{data.size}"
+        raise "Size too large #{data.size}"
+      end
+
       hash = AllQ::Parser.parse(data)
       special_result = special_cased(hash)
       forced_connection = false
@@ -174,7 +181,7 @@ module AllQ
         rescue ex
           puts "Error with socket"
           puts ex.inspect_with_backtrace
-        end    
+        end
       end
 
       spawn do
