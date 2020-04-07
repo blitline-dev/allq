@@ -9,7 +9,7 @@ module AllQ
     A_CURVE_SERVER_PUBLIC_KEY = ENV["A_CURVE_SERVER_PUBLICKEY"]? || "V31ALyp7czhUOCYvaiVINT4+L20rTz9NZEpPXSRWYm8yRkMwcEFTQA=="
     A_CURVE_PUBLICKEY         = ENV["A_CURVE_PUBLICKEY"]? || "a0EzOjdjcX1QdistI2o5Yk5MWkl3a1dEYlswXTcxRUBrVlBsOWhnfQ=="
     A_CURVE_SECRETKEY         = ENV["A_CURVE_SECRETKEY"]? || "cmlteTAwRU13MldPPnNjdFNJZTVydyY5YzgqcXoqamVnKzpTLj8hbg=="
-
+    SIZE_LIMIT                = (ENV["MSG_SIZE_LIMIT"]? || "600000").to_i
     property id, server, port, sick, full_path
 
     def initialize(@server : String, @port : String)
@@ -69,6 +69,11 @@ module AllQ
 
     def final_send_string(string, timeout)
       val = ""
+      if string && string.size > SIZE_LIMIT
+        puts "SIZE_LIMIT exceeded #{string.size}"
+        raise "SIZE_LIMIT exceeded #{string.size}"
+      end
+
       @mutex.synchronize do
         val = @server_client.send_string(string)
         val = @server_client.receive_string
