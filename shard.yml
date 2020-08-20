@@ -8,7 +8,7 @@ targets:
   all_q:
     main: src/all_q.cr
 
-crystal: 0.24.1
+crystal: 0.35.1
 
 license: MIT
 

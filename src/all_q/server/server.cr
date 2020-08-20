@@ -88,8 +88,13 @@ module AllQ
             server.send_string(result.to_s)
           end
         rescue ex
-          p "Error in main_loop:allqserver"
-          p ex.message
+          if !ex.message.to_s.includes?("Resource temporarily")
+            p "Error in main_loop:allqserver"
+            p ex.message
+            p ex.backtrace.inspect
+          else
+            sleep 0.01
+          end
         end
       end
     end

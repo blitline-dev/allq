@@ -9,6 +9,8 @@ module AllQ
 
     def initialize(@cacheStore : AllQ::CacheStore)
       @action_count = 0
+      @job_put_count = 0
+      @job_get_count = 0
       @debug = false # INFER TYPE
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
     end
@@ -32,8 +34,11 @@ module AllQ
       result : HandlerResponse | HandlerResponseMultiple | Nil
       @action_count += 1
       @action_count = 0 if @action_count > LOCAL_MAX
+
       case name
       when "put"
+        @job_put_count += 1
+        @job_put_count = 0 if @job_put_count > LOCAL_MAX
         result = PutHandler.new(@cacheStore).process(params)
         # Currently the gem looks for "job" node, but in the future it will
         # look for response.job_id. For right now, we need to hack a response
@@ -42,11 +47,15 @@ module AllQ
         hack_output = "{\"response\": {\"action\": \"put\",\"job_id\": \"#{job_id}\"},\"job\": {\"job_id\": \"#{job_id}\"}}"
         return hack_output
       when "get", "get_multiple_jobs"
+        @job_get_count += 1
+        @job_get_count = 0 if @job_get_count > LOCAL_MAX
         result = GetHandler.new(@cacheStore).process(params)
       when "stats"
         hash_output = StatsHandler.new(@cacheStore).process(params)
         hash_output["global"] = Hash(String, String).new
         hash_output["global"]["action_count"] = @action_count.to_s
+        hash_output["global"]["job_get"] = @job_get_count.to_s
+        hash_output["global"]["job_put"] = @job_put_count.to_s
         puts hash_output.inspect if @debug && hash_output.to_s.size > 0
         return hash_output.to_json
       when "delete"

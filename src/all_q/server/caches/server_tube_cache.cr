@@ -93,7 +93,7 @@ module AllQ
     end
 
     def delete_if_exists(path)
-      Dir.rmdir(path) if Dir.exists?(path)
+      Dir.delete(path) if Dir.exists?(path)
     end
 
     def count_for_all_folders(tube)
