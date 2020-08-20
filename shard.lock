@@ -1,22 +1,22 @@
-version: 1.0
+version: 2.0
 shards:
   exception_page:
-    github: crystal-loot/exception_page
+    git: https://github.com/crystal-loot/exception_page.git
     version: 0.1.4
 
   kemal:
-    github: kemalcr/kemal
+    git: https://github.com/kemalcr/kemal.git
     version: 0.26.1
 
   kilt:
-    github: jeromegn/kilt
+    git: https://github.com/jeromegn/kilt.git
     version: 0.4.0
 
   radix:
-    github: luislavena/radix
+    git: https://github.com/luislavena/radix.git
     version: 0.3.9
 
   zeromq:
-    github: blitline-dev/zeromq-crystal
-    commit: bf6831b007df56782fbc0a3726c6e51381f79780
+    git: https://github.com/blitline-dev/zeromq-crystal.git
+    version: 0.3.0+git.commit.5eba8dff45a69ec89b1f3d526fe8bde48eb22f2a
 
