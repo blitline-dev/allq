@@ -29,7 +29,7 @@ COPY stats.sh stats.sh
 COPY cli.sh cli.sh
 RUN chmod 777 stats.sh
 RUN chmod 777 cli.sh
-RUN git clone -b original_zero https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
+RUN git clone -b zero https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/client/client.cr --release -o allq_client
 RUN cd allq && chmod 777 allq_client && mv allq_client /usr/bin/allq_client
 RUN git clone https://github.com/blitline-dev/allq_cli.git
