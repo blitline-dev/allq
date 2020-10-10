@@ -17,6 +17,6 @@ shards:
     version: 0.3.9
 
   zeromq:
-    git: https://github.com/blitline-dev/zeromq-crystal.git
-    version: 0.3.0+git.commit.5eba8dff45a69ec89b1f3d526fe8bde48eb22f2a
+    git: https://github.com/crystal-community/zeromq-crystal.git
+    version: 0.3.0+git.commit.d6d25ace3376aa0f36a6432ed88d35930d3640fb
 
