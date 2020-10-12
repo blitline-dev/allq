@@ -20,9 +20,10 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/rubie
 RUN ruby -v
 
 RUN gem install bundler -v 1.16.3 && gem update --system
+RUN apt-get install -y curl
 
 
-ENV version=138
+ENV version=141
 
 RUN cd /
 COPY stats.sh stats.sh
@@ -33,8 +34,7 @@ RUN git clone -b zero https://blitline-dev:***REMOVED***@github.com/blitline-dev
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/client/client.cr --release -o allq_client
 RUN cd allq && chmod 777 allq_client && mv allq_client /usr/bin/allq_client
 RUN git clone https://github.com/blitline-dev/allq_cli.git
-RUN cd allq_cli && bundle install
-
+RUN cd allq_cli && bundle install && bundle update
 
 ENTRYPOINT ["/usr/bin/allq_client"]
 
