@@ -21,5 +21,9 @@ module AllQ
       end
       return h
     end
+
+    def fair_queue_from_put_shard(name, shard_key)
+      @cache_store.fair_queue.tube_name_from_shard_key(name, shard_key, @cache_store.tubes.all)
+    end
   end
 end

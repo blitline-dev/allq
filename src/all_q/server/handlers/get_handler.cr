@@ -22,7 +22,13 @@ module AllQ
     def build_single_job(data : Hash(String, String), delete_on_get) : HandlerResponse
       handler_response = HandlerResponse.new("get")
 
-      job = @cache_store.tubes[data["tube"]].get
+      name = data["tube"]
+      if @cache_store.fair_queue.is_fair_queue(name)
+        job = @cache_store.fair_queue.get(name, @cache_store.tubes)
+      else
+        job = @cache_store.tubes[data["tube"]].get
+      end
+
       if job
         @cache_store.reserved.set_job_reserved(job)
         if delete_on_get
@@ -39,7 +45,13 @@ module AllQ
       handler_response = HandlerResponseMultiple.new("get")
 
       count.times do
-        job = @cache_store.tubes[data["tube"]].get
+        name = data["tube"]
+        if @cache_store.fair_queue.is_fair_queue(name)
+          job = @cache_store.fair_queue.get(name, @cache_store.tubes)
+        else
+          job = @cache_store.tubes[data["tube"]].get
+        end
+
         if job
           @cache_store.reserved.set_job_reserved(job)
           if delete_on_get
