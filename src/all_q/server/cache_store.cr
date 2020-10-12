@@ -1,9 +1,10 @@
 module AllQ
   class CacheStore
-    property :tubes, :buried, :reserved, :parents, :redirect_info
+    property :tubes, :buried, :reserved, :parents, :fair_queue, :redirect_info
     BASE_DIR = EnvConstants::SERIALIZER_DIR
 
     def initialize
+      @fair_queue = FairQueueCache.new
       @tubes = ServerTubeCache.new
       @buried = BuriedCache.new(@tubes)
       @parents = ParentCache.new(@tubes, @buried)
