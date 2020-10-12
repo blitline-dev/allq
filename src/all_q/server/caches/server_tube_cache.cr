@@ -2,6 +2,8 @@ require "file_utils"
 
 module AllQ
   class ServerTubeCache
+    SERIALIZE = (ENV["SERIALIZE"]?.to_s == "true")
+
     def initialize
       @expire_hours = ENV["ALLQ_TUBE_EXPIRE_HOURS"]? ? ENV["ALLQ_TUBE_EXPIRE_HOURS"].to_i : 1
       @cache = Hash(String, AllQ::Tube).new
@@ -89,10 +91,14 @@ module AllQ
     end
 
     def size_if_exists(path)
+      return 0 unless SERIALIZE
+
       Dir.exists?(path) ? Dir.children(path).size : 0
     end
 
     def delete_if_exists(path)
+      return 0 unless SERIALIZE
+
       Dir.delete(path) if Dir.exists?(path)
     end
 
