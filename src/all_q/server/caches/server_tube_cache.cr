@@ -17,9 +17,9 @@ module AllQ
       @cache.clear
     end
 
-    def reserved_cache
-      return @reserved_cache
-    end
+    # def reserved_cache # Think this is legacy, can delete if it's working now
+    #   return @reserved_cache
+    # end
 
     def buried_cache
       return @buried_cache
@@ -29,8 +29,20 @@ module AllQ
       @cache.values
     end
 
+    def tube_names
+      @cache.keys
+    end
+
     def [](key)
       get(key)
+    end
+
+    def []?(key)
+      get(key)
+    end
+
+    def get_without_create(name)
+      return @cache[name]?
     end
 
     def get(name)
@@ -39,12 +51,12 @@ module AllQ
         tube = AllQ::Tube.new(name)
         @cache[name] = tube
       end
+
       return tube
     end
 
-    def put(job, priority = 5, delay = 0)
+    def put(job, priority = 5, delay = 0, shard_key = "")
       tube = get(job.tube)
-      puts "Adding to tube #{job.id} #{priority} #{delay}" if @debug
       tube.put(job, priority, delay)
     end
 
@@ -92,13 +104,11 @@ module AllQ
 
     def size_if_exists(path)
       return 0 unless SERIALIZE
-
       Dir.exists?(path) ? Dir.children(path).size : 0
     end
 
     def delete_if_exists(path)
-      return 0 unless SERIALIZE
-
+      return unless SERIALIZE
       Dir.delete(path) if Dir.exists?(path)
     end
 
