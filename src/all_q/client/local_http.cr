@@ -32,6 +32,8 @@ struct AllQStatsServer
   include JSON::Serializable
   property server_name : String = ""
   property action_count : Int32 = 0
+  property job_put : Int32 = 0
+  property job_get : Int32 = 0
   property stats : Array(AllQStats) = Array(AllQStats).new
 
   def initialize(@server_name)
@@ -54,9 +56,14 @@ class AllQHttpClient
     @version = ENV["CL_VERSION"]? || "0.0.0.0"
 
     server = HTTP::Server.new do |context|
-      context.response.content_type = "application/json"
-      ap = handle_context(context)
-      process(ap, context)
+      begin
+        context.response.content_type = "application/json"
+        ap = handle_context(context)
+        process(ap, context)
+      rescue ex
+        puts ex.inspect_with_backtrace
+        puts "OK...Continuing"
+      end
     end
 
     server.bind_tcp "0.0.0.0", HTTP_SERVER_PORT
@@ -87,17 +94,29 @@ class AllQHttpClient
     when "multiple_job"
       tube = query_params["tube"]? || query_params["tube_name"]?
       count = query_params["count"].to_i
+      delete = query_params["delete"]?
+
       count = 1 if count < 1
       if tube
-        body = %({ "tube" : "#{tube}", "count" : "#{count}" })
+        if delete
+          body = %({ "tube" : "#{tube}", "count" : "#{count}", "delete" : #{delete} })
+        else
+          body = %({ "tube" : "#{tube}", "count" : "#{count}" })
+        end
         ap = AllQHttpClientActionParams.new("get_multiple_jobs", body)
       else
         raise "Tube name required for get"
       end
     when "job"
       tube = query_params["tube"]? || query_params["tube_name"]?
+      delete = query_params["delete"]?
+
       if tube
-        body = %({ "tube" : "#{tube}" })
+        if delete
+          body = %({ "tube" : "#{tube}",  "delete" : #{delete} })
+        else
+          body = %({ "tube" : "#{tube}" })
+        end
         ap = AllQHttpClientActionParams.new("get", body)
       else
         raise "Tube name required for get"
@@ -210,6 +229,8 @@ class AllQHttpClient
         allq_stats_server.stats << build_server_stats(tube_name, metrics)
         if global
           allq_stats_server.action_count = global["action_count"]? ? global["action_count"].to_s.to_i : 0
+          allq_stats_server.job_put = global["job_put"]? ? global["job_put"].to_s.to_i : 0
+          allq_stats_server.job_get = global["job_get"]? ? global["job_get"].to_s.to_i : 0
         end
       end
       servers << allq_stats_server
@@ -300,7 +321,12 @@ class AllQHttpClient
     rescue exception
       puts "Failed to parse results from server: #{exception.inspect_with_backtrace} #{action_params.action}"
     end
-    json_results = JSON.parse(result)
+    begin
+      json_results = JSON.parse(result)
+    rescue ex
+      puts "Failed to pase JSON '#{result}'"
+      json_results = JSON.parse("{\"error\": \"Failed to parse #{result}\"}")
+    end
     context.response.print(json_results["response"].to_json)
   end
 
