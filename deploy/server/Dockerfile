@@ -11,7 +11,7 @@ RUN apt-get install -y socat
 
 ENV VERSION=127
 RUN echo $(crystal -v)
-ENV VERSION=128
+ENV VERSION=129
 
 RUN git clone -b zero https://blitline-dev:CHB4URXWTh@github.com/blitline-dev/allq.git
 RUN cd allq && shards install
