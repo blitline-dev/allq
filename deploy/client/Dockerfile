@@ -23,7 +23,7 @@ RUN gem install bundler -v 1.16.3 && gem update --system
 RUN apt-get install -y curl
 
 
-ENV version=142
+ENV version=143
 
 RUN cd /
 COPY stats.sh stats.sh
