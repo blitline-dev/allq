@@ -72,7 +72,7 @@ module AllQ
       job.expireds += 1
       job.reserved = false
 
-      if job.expireds > job.expired_limit
+      if job.expireds >= job.expired_limit
         bury(job.id)
         return
       end
