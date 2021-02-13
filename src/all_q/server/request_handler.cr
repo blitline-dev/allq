@@ -47,9 +47,11 @@ module AllQ
         hack_output = "{\"response\": {\"action\": \"put\",\"job_id\": \"#{job_id}\"},\"job\": {\"job_id\": \"#{job_id}\"}}"
         return hack_output
       when "get", "get_multiple_jobs"
-        @job_get_count += 1
-        @job_get_count = 0 if @job_get_count > LOCAL_MAX
         result = GetHandler.new(@cacheStore).process(params)
+        if result
+          @job_get_count += result.count
+          @job_get_count = 0 if @job_get_count > (LOCAL_MAX - 1000)
+        end
       when "stats"
         hash_output = StatsHandler.new(@cacheStore).process(params)
         hash_output["global"] = Hash(String, String).new
