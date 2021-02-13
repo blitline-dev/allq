@@ -50,7 +50,8 @@ module AllQ
         result = GetHandler.new(@cacheStore).process(params)
         if result
           @job_get_count += result.count
-          @job_get_count = 0 if @job_get_count > (LOCAL_MAX - 1000)
+          # Assumes multiple jobs returned in one request will never be more than 10,000
+          @job_get_count = 0 if @job_get_count > (LOCAL_MAX - 10000)
         end
       when "stats"
         hash_output = StatsHandler.new(@cacheStore).process(params)
