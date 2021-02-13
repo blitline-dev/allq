@@ -16,6 +16,10 @@ struct HandlerResponse
   def job=(job)
     @job = job
   end
+
+  def count
+    @job.nil? ? 0 : 1
+  end
 end
 
 struct HandlerResponseMultiple
@@ -33,6 +37,10 @@ struct HandlerResponseMultiple
 
   def add_job(job)
     @jobs << job
+  end
+
+  def count
+    @jobs.size.to_i
   end
 end
 
