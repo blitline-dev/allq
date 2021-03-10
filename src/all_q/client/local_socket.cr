@@ -99,7 +99,13 @@ class AllQSocket
   end
 
   def do_stuff(data, socket)
-    result = @sender.send(data)
-    socket.puts(result)
+    begin
+      result = @sender.send(data)
+      socket.puts(result)
+    rescue ex
+      if socket
+        socket.puts("{\"error\" : \"no_allq\"}")
+      end
+    end
   end
 end

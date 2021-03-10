@@ -35,6 +35,11 @@ class Tcp
         begin
           do_stuff(data, socket)
         rescue ex
+          if socket
+            puts "closing"
+            socket.puts("{}")
+          end
+          p "Send failure "
           p ex.inspect_with_backtrace
           p "Data:#{data}"
         end
