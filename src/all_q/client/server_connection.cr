@@ -157,6 +157,7 @@ module AllQ
         server_client.set_socket_option(::ZMQ::REQ_CORRELATE, 1)
         server_client.set_socket_option(::ZMQ::IMMEDIATE, 1)
         server_client.set_socket_option(::ZMQ::RCVTIMEO, 5000)
+        server_client.set_socket_option(::ZMQ::SNDTIMEO, 10000)
         server_client.set_socket_option(::ZMQ::LINGER, 0)
         # server_client.set_socket_option(::ZMQ::RECONNECT_IVL, 1000)
         # server_client.set_socket_option(::ZMQ::RECONNECT_IVL_MAX, 60000)
