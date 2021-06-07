@@ -33,3 +33,5 @@ module AllQ
     end
   end
 end
+
+alias ThrottleInstance = AllQ::Throttle | Nil

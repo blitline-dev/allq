@@ -64,9 +64,8 @@ module AllQ
       spawn do
         loop do
           begin
-            puts "Sweeping for dead tubes...#{Time.utc}"
             time_now = Time.utc
-            @cache.delete_if do |key, value|
+            @cache.reject! do |key, value|
               value.size == 0 && value.touched < time_now - @expire_hours.hour && value.throttle_size.nil?
             end
           rescue ex

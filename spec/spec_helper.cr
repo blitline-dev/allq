@@ -1,5 +1,16 @@
 require "spec"
-require "../src/all_q"
+require "zeromq"
+require "base64"
+require "socket"
+
+require "../src/all_q/server/cache_store"
+require "../src/all_q/server/job"
+require "../src/all_q/server/redirect_handler"
+require "../src/all_q/server/request_handler"
+require "../src/all_q/server/throttle"
+require "../src/all_q/server/handlers/*"
+require "../src/all_q/lib/*"
+require "../src/all_q/server/caches/*"
 
 TEST_TUBE_NAME = "test"
 

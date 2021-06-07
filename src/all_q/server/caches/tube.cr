@@ -3,6 +3,9 @@ module AllQ
     property :name, :priority_queue, :delayed, :touched
     PRIORITY_SIZE = ENV["PRIORITY_SIZE"]? || 10
 
+    property action : String | Nil = nil
+    property throttle : ThrottleInstance
+
     def initialize(@name : String)
       @priority_queue = PriorityQueue(Job).new(PRIORITY_SIZE.to_i)
       @delayed = Array(DelayedJob).new
@@ -55,7 +58,7 @@ module AllQ
     def set_throttle(per_second : Int32)
       if per_second <= 0
         @throttle = nil
-        puts "Throttle is null"
+        puts "Setting throttle to OFF"
         @throttle_serde.remove
       else
         @throttle = AllQ::Throttle.new(per_second)
