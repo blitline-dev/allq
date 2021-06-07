@@ -1,5 +1,4 @@
 require "./spec_helper"
-require "../src/all_q/server/server"
 
 describe AllQ do
   it "should clear a tube and buried" do
@@ -12,7 +11,7 @@ describe AllQ do
   end
 
   it "if serialized clear a tube a and buried should remove tube files" do
-    if ENV["SERIALIZE"] == "true"
+    if ENV["SERIALIZE"]? == "true"
       cache_store = AllQ::CacheStore.new
       JobSpec.build_jobs_for_each_state(cache_store)
       tube = cache_store.tubes[TEST_TUBE_NAME]

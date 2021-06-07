@@ -1,5 +1,4 @@
 require "./spec_helper"
-require "../src/all_q/server/server"
 
 describe AllQ do
   # -------------------------

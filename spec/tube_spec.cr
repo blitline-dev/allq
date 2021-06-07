@@ -1,5 +1,4 @@
 require "./spec_helper"
-require "../src/all_q/server/server"
 
 describe AllQ do
   it "should recover on restart as expected" do
@@ -92,7 +91,7 @@ describe AllQ do
   end
 
   it "if serialized clear a tube should remove tube files" do
-    if ENV["SERIALIZE"] == "true"
+    if ENV["SERIALIZE"]? == "true"
       tube = AllQ::Tube.new(TEST_TUBE_NAME)
       job = JobSpec.build_job(TEST_TUBE_NAME, nil)
       job2 = JobSpec.build_job(TEST_TUBE_NAME, nil)
