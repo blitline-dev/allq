@@ -30,9 +30,11 @@ Here is a list of features that AllQueue has:
 
 Docker has 2 components. An AllqClient and the AllqServer. Your app talks to the client, and the client talks to the server (fully encrypted), no TLS to setup or maintain.
 
+<img src=" http://blitline-web.s3.amazonaws.com/allq-flow.png"/>
 
 
 ### 🐳 Requires Docker
+
 
 Client
 
@@ -47,15 +49,14 @@ sudo docker run --rm=true blitline/allq:server
 ```
 
 
+### 📚 Documentation
+
+Check our out full documentation at https://allqueue.gitbook.io/allq/
+
 ## ⚠️ License
 
-`Create Go App CLI` is free and open-source software licensed under the [Apache 2.0 License](https://github.com/create-go-app/cli/blob/master/LICENSE). Official [logo](https://github.com/create-go-app/cli/wiki/Logo) was created by [Vic Shóstak](https://shostak.dev/) and distributed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/) license (CC BY-SA 4.0 International).
+AllQueue was created by [Blitline LLC](https://www.blitline.com) and distributed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/) license (CC BY-SA 4.0 International).
 
-
-
-echo '{"action" : "stats", "params" : {}}' | socat - tcp4-connect:localhost:7766
-
-https://allqueue.gitbook.io/allq/
 
 
 
