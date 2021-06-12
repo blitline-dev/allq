@@ -2,7 +2,7 @@
   <img src="https://blitline-web.s3.amazonaws.com/logos/allq-logo.svg" width="224px"/><br/>
   AllQueue Task Queue
 </h1>
-<p align="center">AllQueue is a modern job queue platform which incorporates many of the best features from other popular queues into a single full featured system.</p>
+<p align="center">AllQueue is a open source modern job queue platform which incorporates many of the best features from other popular queues into a single full featured system.</p>
 
 
 ## ❓ Why AllQueue
