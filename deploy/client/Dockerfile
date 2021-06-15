@@ -23,6 +23,7 @@ RUN gem install bundler -v 1.16.3 && gem update --system
 RUN apt-get install -y curl
 
 
+RUN apt-get dist-upgrade -y
 ENV version=150
 
 RUN cd /
