@@ -13,7 +13,7 @@ ENV VERSION=127
 RUN echo $(crystal -v)
 ENV VERSION=129
 
-RUN git clone -b zero https://blitline-dev:***REMOVED***@github.com/blitline-dev/allq.git
+RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && shards install
 RUN cd allq && sed -i 's/FFI::MemoryPointer.*$/" " * 41/g' lib/zeromq/src/zeromq/util.cr && sed -i 's/\.read_string//g' lib/zeromq/src/zeromq/util.cr
 
