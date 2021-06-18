@@ -24,7 +24,7 @@ RUN apt-get install -y curl
 
 
 RUN apt-get dist-upgrade -y
-ENV version=150
+ENV version=151
 
 RUN cd /
 COPY stats.sh stats.sh
