@@ -65,7 +65,7 @@ class JobFactory
   end
 end
 
-class Job
+struct Job
   include JSON::Serializable
   property id : String
   property parent_id : String | Nil
