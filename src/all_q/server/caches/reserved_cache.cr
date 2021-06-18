@@ -144,6 +144,8 @@ module AllQ
       reserved_job = @cache[job_id]?
       if reserved_job
         reserved_job.start = Time.utc.to_s("%s").to_i
+        # We must RECACHE this because it's a struct which was passed as a copy from the @cache
+        @cache[job_id] = reserved_job
       end
       return job_id
     end
