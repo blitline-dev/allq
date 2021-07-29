@@ -21,7 +21,11 @@ module AllQ
     end
 
     def delete_job(job_id)
+      build_job_stats(job_id)
       @priority_queue.delete_if_exists(job_id)
+    end
+
+    def build_job_stats(job_id)
     end
 
     def pause(paused : Bool)
@@ -152,6 +156,34 @@ module AllQ
       def initialize(@time_to_start : Int32, @job : Job, @priority : Int32)
       end
     end
+  end
+  # ----------------------------------------
+  # Stats
+  # ----------------------------------------
+  class Stats
+    SIZE_LIMIT = 5000
+
+    def initialize
+      @job_durations = Array(Int64).new
+    end
+
+    def add_job_durations(duration : Int64)
+      @job_durations << duration
+      # Don't let this get too long, arbitraty SIZE_LIMIT,
+      if @job_durations.size > SIZE_LIMIT
+        @job_durations.pop
+      end
+    end
+
+    def count
+      @job_durations.size
+    end
+
+    def avg
+      @job_durations.sum(0)
+    end
+
+
   end
 
   # ----------------------------------------
