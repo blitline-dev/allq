@@ -9,9 +9,10 @@ module AllQ
     ENV_FQ_SUFFIX      = ENV["FQ_SUFFIX"]?
     ENV_FQ_SUFFIX_SIZE = ENV_FQ_SUFFIX.to_s.size
 
-    def initialize
+    def initialize(reserved_cache : ReservedCache)
       @name_to_index = Hash(String, Int32).new
-      @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @name_to_index)
+      @reserved_queue = reserved_cache
+      @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @name_to_index, @reserved_queue)
     end
 
     def is_fair_queue(name : String)
@@ -52,6 +53,10 @@ module AllQ
       each_fq_tube do |raw_name|
         server_tube_cache[raw_name].clear
       end
+    end
+
+    def decorate_job(job, tubes)
+      @algorithm.decorate_job(job, tubes)
     end
 
     def pause(name, paused, server_tube_cache)

@@ -23,6 +23,8 @@ Spec.before_each do
   cache_store.reserved.clear_all
   cache_store.buried.clear_all
   cache_store.parents.clear_all
+  GuageStats.instance.delay_between_calc =1
+
 end
 
 class JobSpec

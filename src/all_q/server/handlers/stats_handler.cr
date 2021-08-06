@@ -11,6 +11,7 @@ module AllQ
         data_hash["reserved"] = "0"
         data_hash["buried"] = "0"
         data_hash["parents"] = "0"
+        data_hash["avg"] = GuageStats.get_avg(tube.name).to_s
         throttle_size = tube.throttle_size
         if throttle_size
           data_hash["throttle_size"] = throttle_size.to_s

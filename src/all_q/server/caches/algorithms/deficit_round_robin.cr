@@ -1,54 +1,60 @@
-# Simple round-robin fair queue implementation
+# Time-weighted_fair_queuing_algorithm
+# https://en.wikipedia.org/wiki/Fair_queuing#A_byte-weighted_fair_queuing_algorithm
+# (revamped for time weighted)
+# But with avg job duration as byte weight
+# ----------------------------------------------------
+# For this approximation we will use the AVG job duration
 module AllQ
   class FairQueueAlgorithm
-    class Generic
-      def initialize(name_to_index)
-        @name_to_index = name_to_index
+    class TimeWeightedFairQueue
+
+      @shard_count = 0
+
+      def initialize(shard_count)
+        @shard_count = shard_count
+      end
+
+      def calculate_departure_time_for_unscheduled(tube_name, server_tube_cache)
+        # Get average job duration
+        avg = GuageStats.get_avg(tube_name).to_i
+        # Virtual Departure time in the future = Now + (avg * queue size)
+        # Note: This is not exactly correct, it SHOULD be the avg + last job in queue departure time.
+        # But we don't have performant access to that info, so we will estimate with this.
+        Time.utc.to_unix_f + (server_tube_cache[tube_name].size * avg).to_f
       end
 
       def get(name, server_tube_cache)
-        if @name_to_index[name]?.nil?
-          @name_to_index[name] = 0
+        get_nearest_departure(name, server_tube_cache)
+      end
+
+      def get_nearest_departure(name, server_tube_cache)
+        job = nil
+        # Tubes by departure time
+        tubes_by_dt = Hash(String, String).new
+        1.upto(@shard_count) do |index|
+          tube = server_tube_cache[tube_name(name, index)]
+          next_job = tube.peek
+          if next_job && next_job.option && next_job.option[0..2] == "dt:"
+            tubes_by_dt[tube] = next_job.option 
+          end
         end
-
-        # Round robin until we find one or we cycle all the way through
-        count = 0
-
-        tube_index = @name_to_index[name]
-        raw_name = tube_name(name, tube_index)
-
-        job = check_tube_for_job(raw_name, server_tube_cache)
-        while job.nil?
-          count += 1
-          return nil if count == SHARD_COUNT
-          tube_index = next_tube_index(name, tube_index)
-          raw_name = tube_name(name, tube_index)
-          job = check_tube_for_job(raw_name, server_tube_cache)
+        # Find the min Departure Time
+        min_tube_name = tubes_by_dt.min_by? {|k,v| v }
+        if min_tube_name
+          job = server_tube_cache[min_tube_name].get
         end
-        @name_to_index[name] = next_tube_index(name, tube_index)
-        return job
+        job
       end
 
       def tube_name(name, index)
         "#{name}_#{index}"
       end
 
-      def next_tube_index(name, tube_index)
-        tube_index += 1
-        if tube_index > SHARD_COUNT - 1
-          tube_index = 0
-        end
-        @name_to_index[name] = tube_index
-        tube_index
+      def decorate_job(job, server_tube_cache)
+        dt = calculate_departure_time_for_unscheduled(job.tube, server_tube_cache)
+        job.options = "dt:#{dt}"
       end
 
-      def check_tube_for_job(raw_name, server_tube_cache)
-        tube = server_tube_cache.get_without_create(raw_name)
-        if tube
-          job = tube.get
-        end
-        job
-      end
 
     end
   end

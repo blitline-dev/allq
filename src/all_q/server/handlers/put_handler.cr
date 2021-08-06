@@ -20,12 +20,14 @@ module AllQ
       priority = job.priority
       delay = data["delay"]? ? data["delay"].to_s.to_i(strict: false) : 0
 
+      # Fair queue check
       if @cache_store.fair_queue.is_fair_queue(tube_name)
         shard_key = data["shard_key"]?
         if shard_key.nil?
           raise "Shard key required for Fair Queue (fq-) tubes"
         else
           tube_name = fair_queue_from_put_shard(tube_name, shard_key)
+          @cache_store.fair_queue.decorate_job(job, @cache_store.tubes )
           job.tube = tube_name
         end
       end

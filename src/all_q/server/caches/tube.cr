@@ -2,6 +2,7 @@ module AllQ
   class Tube
     property :name, :priority_queue, :delayed, :touched
     PRIORITY_SIZE = ENV["PRIORITY_SIZE"]? || 10
+    DURATION_LIMIT = ENV["DURATION_LIMIT"]? || 30
 
     property action : String | Nil = nil
     property throttle : ThrottleInstance
@@ -15,17 +16,15 @@ module AllQ
       @touched = Time.utc
       @paused = false
       @debug = false
+      @durations = Array(Int32).new
       @debug = (ENV["ALLQ_DEBUG"]?.to_s == "true")
       touch
       start_sweeper
     end
 
     def delete_job(job_id)
-      build_job_stats(job_id)
+      # This should be a RARE occurance. This is an expensive
       @priority_queue.delete_if_exists(job_id)
-    end
-
-    def build_job_stats(job_id)
     end
 
     def pause(paused : Bool)
@@ -79,7 +78,7 @@ module AllQ
         @priority_queue.put(job, priority)
         @ready_serde.serialize(job)
       else
-        time_to_start = Time.utc.to_s("%s").to_i + delay
+        time_to_start = Time.utc.to_unix + delay
         delayed_job = DelayedJob.new(time_to_start, job, priority)
         @delayed << delayed_job
         @delayed_serde.serialize(delayed_job)
@@ -130,7 +129,7 @@ module AllQ
       spawn do
         loop do
           begin
-            time_now = Time.utc.to_s("%s").to_i
+            time_now = Time.utc.to_unix
             @delayed.reject! do |delayed_job|
               if delayed_job.time_to_start < time_now
                 put(delayed_job.job, delayed_job.priority)
@@ -156,34 +155,6 @@ module AllQ
       def initialize(@time_to_start : Int32, @job : Job, @priority : Int32)
       end
     end
-  end
-  # ----------------------------------------
-  # Stats
-  # ----------------------------------------
-  class Stats
-    SIZE_LIMIT = 5000
-
-    def initialize
-      @job_durations = Array(Int64).new
-    end
-
-    def add_job_durations(duration : Int64)
-      @job_durations << duration
-      # Don't let this get too long, arbitraty SIZE_LIMIT,
-      if @job_durations.size > SIZE_LIMIT
-        @job_durations.pop
-      end
-    end
-
-    def count
-      @job_durations.size
-    end
-
-    def avg
-      @job_durations.sum(0)
-    end
-
-
   end
 
   # ----------------------------------------

@@ -33,7 +33,7 @@ module AllQ
     end
 
     def set_job_reserved(job : Job)
-      now = Time.utc.to_s("%s").to_i
+      now = Time.utc.to_unix
       @cache[job.id] = ReservedJob.new(now, job)
       @serializer.serialize(@cache[job.id])
       puts "Time in ready(#{job.id} #{Time.utc.to_unix_ms - job.created_time})" if @debug
@@ -54,7 +54,7 @@ module AllQ
 
     def sweep
       puts "Sweeping Reservered Cache" if @debug
-      now = Time.utc.to_s("%s").to_i
+      now = Time.utc.to_unix
       @cache.values.each do |reserved_job|
         if reserved_job.start + reserved_job.job.ttl < now
           puts "Expiring Job From Reserved Cache" if @debug
@@ -96,11 +96,22 @@ module AllQ
         end
         @serializer.remove(reserved_job.job)
         @cache.delete(job_id)
+        update_stats(reserved_job)
         return reserved_job.job
       else
         puts "Missed delete #{job_id}"
       end
       return nil
+    end
+
+    def update_stats(reserved_job)
+      begin
+        duration = Time.utc.to_unix - reserved_job.start
+        GuageStats.push(reserved_job.job.tube, duration)
+      rescue ex
+        puts "Error with update_stats"
+        puts ex.inspect_with_backtrace
+      end
     end
 
     def bury(job_id)
@@ -143,7 +154,7 @@ module AllQ
     def touch(job_id)
       reserved_job = @cache[job_id]?
       if reserved_job
-        reserved_job.start = Time.utc.to_s("%s").to_i
+        reserved_job.start = Time.utc.to_unix
         # We must RECACHE this because it's a struct which was passed as a copy from the @cache
         @cache[job_id] = reserved_job
       end
@@ -161,9 +172,9 @@ module AllQ
 
     struct ReservedJob
       include JSON::Serializable
-      property start = Time.utc.to_s("%s").to_i, job
+      property start : Int64, job
 
-      def initialize(@start : Int32, @job : Job)
+      def initialize(@start, @job : Job)
       end
     end
   end

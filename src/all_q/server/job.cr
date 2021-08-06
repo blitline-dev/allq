@@ -79,6 +79,7 @@ class Job
   property priority : Int32
   property releases : Int32
   property created_time : Int64
+  property option : String | Nil
 
   def initialize(@id, @parent_id, @body, @tube, @reserved, @noop, @ttl, @expireds, @expired_limit, @priority, @releases, @created_time)
   end

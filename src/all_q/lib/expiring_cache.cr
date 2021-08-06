@@ -2,7 +2,7 @@ class ExpiringCache(T)
   struct CacheItem(X)
     property start, item
 
-    def initialize(@start : Int32, @item : X)
+    def initialize(@start : Int64, @item : X)
     end
   end
 
@@ -18,7 +18,7 @@ class ExpiringCache(T)
   end
 
   def put(name : String, item : T)
-    now = Time.utc.to_s("%s").to_i
+    now = Time.utc.to_unix
     new_item = CacheItem(T).new(now, item)
     @cache[name] = new_item
   end
@@ -64,7 +64,7 @@ class ExpiringCache(T)
 
   def sweep
     puts "Sweeping Expiring Cache..."
-    now = Time.utc.to_s("%s").to_i
+    now = Time.utc.to_unix
     @cache.delete_if do |k, v|
       if v.start < now - @expiration
         puts "deleting #{k}"

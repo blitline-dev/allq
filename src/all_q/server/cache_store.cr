@@ -4,11 +4,11 @@ module AllQ
     BASE_DIR = EnvConstants::SERIALIZER_DIR
 
     def initialize
-      @fair_queue = FairQueueCache.new
       @tubes = ServerTubeCache.new
       @buried = BuriedCache.new(@tubes)
       @parents = ParentCache.new(@tubes, @buried)
       @reserved = ReservedCache.new(@tubes, @buried, @parents)
+      @fair_queue = FairQueueCache.new(@reserved)
       @redirect_info = nil
     end
 
