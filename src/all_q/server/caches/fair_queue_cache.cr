@@ -71,6 +71,5 @@ module AllQ
         yield(tube_name)
       end
     end
-
   end
 end

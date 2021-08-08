@@ -146,7 +146,7 @@ module AllQ
 
       property :start, :job, :child_count, :timeout, :limit, :run_on_timeout, :started_count
 
-      def initialize(@start : Int32, @job : Job, @child_count : Int32, @timeout : Int32, @limit : Int32, @run_on_timeout : Bool, @started_count : Int32)
+      def initialize(@start : Int64, @job : Job, @child_count : Int32, @timeout : Int32, @limit : Int32, @run_on_timeout : Bool, @started_count : Int32)
       end
 
       def set_limit(limit)

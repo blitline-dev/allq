@@ -1,7 +1,7 @@
 module AllQ
   class Tube
     property :name, :priority_queue, :delayed, :touched
-    PRIORITY_SIZE = ENV["PRIORITY_SIZE"]? || 10
+    PRIORITY_SIZE  = ENV["PRIORITY_SIZE"]? || 10
     DURATION_LIMIT = ENV["DURATION_LIMIT"]? || 30
 
     property action : String | Nil = nil
@@ -152,7 +152,7 @@ module AllQ
       include JSON::Serializable
       property time_to_start, job, priority
 
-      def initialize(@time_to_start : Int32, @job : Job, @priority : Int32)
+      def initialize(@time_to_start : Int64, @job : Job, @priority : Int32)
       end
     end
   end

@@ -12,7 +12,8 @@ require "../src/all_q/server/handlers/*"
 require "../src/all_q/lib/*"
 require "../src/all_q/server/caches/*"
 
-TEST_TUBE_NAME = "test"
+TEST_TUBE_NAME    = "test"
+FQ_TEST_TUBE_NAME = "fq-test"
 
 Spec.before_each do
   cache_store = AllQ::CacheStore.new
@@ -23,8 +24,7 @@ Spec.before_each do
   cache_store.reserved.clear_all
   cache_store.buried.clear_all
   cache_store.parents.clear_all
-  GuageStats.instance.delay_between_calc =1
-
+  GuageStats.instance.delay_between_calc = 1
 end
 
 class JobSpec

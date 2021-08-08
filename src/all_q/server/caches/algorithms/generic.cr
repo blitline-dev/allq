@@ -3,14 +3,14 @@ module AllQ
   class FairQueueAlgorithm
     class Generic
       @shard_count = 0
-      SHARD_RESERVATION_LIMIT = (ENV["SHARD_RESERVATION_LIMIT"]? || 0).to_i
-
       property reserved_cache : ReservedCache
+      property :shard_reservation_limit
+
       def initialize(shard_count : Int32, name_to_index : Hash(String, Int32), @reserved : ReservedCache)
         @name_to_index = name_to_index
         @shard_count = shard_count
         @reserved_cache = reserved
-        @shard_reservation_limit = Int32.new(SHARD_RESERVATION_LIMIT.to_i)
+        @shard_reservation_limit = Int32.new((ENV["SHARD_RESERVATION_LIMIT"]? || 0).to_i)
       end
 
       def get(name, server_tube_cache)
@@ -68,7 +68,6 @@ module AllQ
         end
         job
       end
-
     end
   end
 end
