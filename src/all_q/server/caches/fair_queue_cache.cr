@@ -9,10 +9,25 @@ module AllQ
     ENV_FQ_SUFFIX      = ENV["FQ_SUFFIX"]?
     ENV_FQ_SUFFIX_SIZE = ENV_FQ_SUFFIX.to_s.size
 
+    QUEUE_ALGORITHM_GENERIC                  = 0
+    QUEUE_ALGORITHM_TIME_WEIGHTED_FAIR_QUEUE = 1
+
     def initialize(reserved_cache : ReservedCache)
       @name_to_index = Hash(String, Int32).new
       @reserved_queue = reserved_cache
-      @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @name_to_index, @reserved_queue)
+      if (ENV["TWFQ"]? || "false").to_s.downcase == "true"
+        @algorithm = AllQ::FairQueueAlgorithm::TimeWeightedFairQueue.new(SHARD_COUNT)
+      else
+        @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @name_to_index, @reserved_queue)
+      end
+    end
+
+    def set_queuing_algorithm(val : Int32)
+      if val == QUEUE_ALGORITHM_GENERIC
+        @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @name_to_index, @reserved_queue)
+      elsif val == QUEUE_ALGORITHM_TIME_WEIGHTED_FAIR_QUEUE
+        @algorithm = AllQ::FairQueueAlgorithm::TimeWeightedFairQueue.new(SHARD_COUNT)
+      end
     end
 
     def is_fair_queue(name : String)

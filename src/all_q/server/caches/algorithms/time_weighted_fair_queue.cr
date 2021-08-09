@@ -7,7 +7,6 @@
 module AllQ
   class FairQueueAlgorithm
     class TimeWeightedFairQueue
-
       @shard_count = 0
 
       def initialize(shard_count)
@@ -16,7 +15,8 @@ module AllQ
 
       def calculate_departure_time_for_unscheduled(tube_name, server_tube_cache)
         # Get average job duration
-        avg = GuageStats.get_avg(tube_name).to_i
+        avg = GuageStats.get_avg(tube_name).to_i64
+        avg = 1 if avg == 0
         # Virtual Departure time in the future = Now + (avg * queue size)
         # Note: This is not exactly correct, it SHOULD be the avg + last job in queue departure time.
         # But we don't have performant access to that info, so we will estimate with this.
@@ -31,17 +31,22 @@ module AllQ
         job = nil
         # Tubes by departure time
         tubes_by_dt = Hash(String, String).new
-        1.upto(@shard_count) do |index|
-          tube = server_tube_cache[tube_name(name, index)]
+        (0...@shard_count).each do |index|
+          tn = tube_name(name, index)
+          tube = server_tube_cache[tn]
           next_job = tube.peek
-          if next_job && next_job.option && next_job.option[0..2] == "dt:"
-            tubes_by_dt[tube] = next_job.option 
+          if next_job && next_job.option
+            o = next_job.option
+            if !o.nil?
+              o[0..2] == "dt:"
+              tubes_by_dt[tn] = o
+            end
           end
         end
         # Find the min Departure Time
-        min_tube_name = tubes_by_dt.min_by? {|k,v| v }
+        min_tube_name = tubes_by_dt.min_by? { |k, v| v }
         if min_tube_name
-          job = server_tube_cache[min_tube_name].get
+          job = server_tube_cache[min_tube_name[0]].get
         end
         job
       end
@@ -52,10 +57,8 @@ module AllQ
 
       def decorate_job(job, server_tube_cache)
         dt = calculate_departure_time_for_unscheduled(job.tube, server_tube_cache)
-        job.options = "dt:#{dt}"
+        job.option = "dt:#{dt}"
       end
-
-
     end
   end
 end
