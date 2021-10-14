@@ -1,4 +1,4 @@
-FROM crystallang/crystal:0.35.1
+FROM crystallang/crystal:1.1.1
 RUN echo "touch6"
 
 RUN apt-get update

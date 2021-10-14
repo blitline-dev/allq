@@ -1,4 +1,4 @@
-FROM crystallang/crystal:0.35.1
+FROM crystallang/crystal:1.1.1
 RUN echo "touch4"
 RUN apt-get update
 RUN apt-get install -y git nano wget
@@ -24,7 +24,7 @@ RUN apt-get install -y curl
 
 
 RUN apt-get dist-upgrade -y
-ENV version=151
+ENV version=152
 
 RUN cd /
 COPY stats.sh stats.sh
