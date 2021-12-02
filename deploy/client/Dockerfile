@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.1.1
+FROM crystallang/crystal:1.2.2
 RUN echo "touch4"
 RUN apt-get update
 RUN apt-get install -y git nano wget
@@ -24,19 +24,27 @@ RUN apt-get install -y curl
 
 
 RUN apt-get dist-upgrade -y
-ENV version=152
+ENV version=161
 
 RUN cd /
-COPY stats.sh stats.sh
-COPY cli.sh cli.sh
-RUN chmod 777 stats.sh
-RUN chmod 777 cli.sh
+
 RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && /usr/bin/shards && crystal build src/all_q/client/client.cr --release -o allq_client
 RUN cd allq && chmod 777 allq_client && mv allq_client /usr/bin/allq_client
 RUN git clone https://github.com/blitline-dev/allq_cli.git
 RUN cd allq_cli && bundle install && bundle update
 
-ENTRYPOINT ["/usr/bin/allq_client"]
+ENV version=107
+
+COPY stats.sh stats.sh
+COPY up.sh up.sh
+COPY cli.sh cli.sh
+COPY healthcheck.sh healthcheck.sh
+RUN chmod 777 stats.sh
+RUN chmod 777 cli.sh
+RUN chmod 777 up.sh
+RUN chmod 777 healthcheck.sh 
+
+ENTRYPOINT ["/up.sh"]
 
 

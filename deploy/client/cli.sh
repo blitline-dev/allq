@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Attempting to run CLI"
 
 echo "A_CURVE_PUBLICKEY=$A_CURVE_PUBLICKEY"
