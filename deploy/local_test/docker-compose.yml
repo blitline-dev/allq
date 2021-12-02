@@ -10,8 +10,8 @@ services:
     environment:
       - SERVER_PORT=7788
       - ALLQ_DEBUG=true
-      - A_CURVE_SECRETKEY=SkgmWig0MzpHclo0dSoxSXZyeUsta05IbV1eKk1mW2liYy1kNlFGOAA=
-      - A_CURVE_PUBLICKEY=N21kJChibWV6TCsjLTNWdTp2Wj5INzJWdDQ1NVAoREhAYyZRIyFIagA=
+      - A_CURVE_PUBLICKEY=SF59dncubHJiT0xGZn1jK1B1dzZIbTNVOjBOJW12a0VrZTBsdT40KwA=
+      - A_CURVE_SECRETKEY=OnBALzBOKjxpW21SbEYqNXdkNG1IXVlvd1FYZyV9YjZzejhUcjVpaAA=
   us_queue:
     image: "docker.io/library/local_allq_client"
     init: true
@@ -21,9 +21,9 @@ services:
     environment:
       - SERVER_STRING=us-server:7788
       - MULTIPROCESS=true
-      - A_CURVE_PUBLICKEY=WyVIWUN5KS8yXUJyLlRCfTMqRjplMDd2IS5LQiQlaiY6ekJZVS1SawA=
-      - A_CURVE_SECRETKEY=NCQvdGJ3cHl1ZihjIzlpYmdeXShIdClnOmpNSns1Ni5pJWliSmVSMAA=
-      - A_CURVE_SERVER_PUBLICKEY=N21kJChibWV6TCsjLTNWdTp2Wj5INzJWdDQ1NVAoREhAYyZRIyFIagA=
+      -  A_CURVE_PUBLICKEY=QT5KKUdTdXFbTzZmSWQ8VzUxST1vNEVISFV9ZF5kdSlYLiUoR2FTPwA=
+      -  A_CURVE_SECRETKEY=YXEjKSs+R1pvTFZGVlBXd2xwMkpsdiohfVhmLUJ6KUs/d0V3ZGYqSQA=
+      -  A_CURVE_SERVER_PUBLICKEY=SF59dncubHJiT0xGZn1jK1B1dzZIbTNVOjBOJW12a0VrZTBsdT40KwA=
       - TCP_CLIENT_PORT=7768
       - ALLQ_DEBUG=true
     ports:
@@ -33,3 +33,5 @@ services:
 
 networks:
   test-foo:
+
+
