@@ -1,7 +1,9 @@
 #!/bin/bash
 
 PORT="${STATS_HTTP_PORT:-8090}"
-curl -m 5 http://localhost:$PORT
+TIMEOUT="${SERVER_TIMEOUT:-10}"
+
+curl -m $TIMEOUT http://localhost:$PORT/stats
 
 retVal=$?
 echo $retVal

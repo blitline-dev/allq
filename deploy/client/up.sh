@@ -8,8 +8,8 @@ then
   /usr/bin/allq_client &
   while true
   do
+   sleep 15
    ./healthcheck.sh
-   sleep 5
   done
 else
   echo "Single Process"

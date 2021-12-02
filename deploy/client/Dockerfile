@@ -24,7 +24,7 @@ RUN ruby -v
 
 RUN gem install bundler -v 1.16.3 && gem update --system
 RUN apt-get dist-upgrade -y
-ENV version=171
+ENV version=173
 
 RUN cd /
 
