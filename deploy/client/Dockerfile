@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.2.2
+FROM crystallang/crystal:1.3.2
 RUN echo "touch4"
 RUN apt-get update
 RUN apt-get install -y git nano wget

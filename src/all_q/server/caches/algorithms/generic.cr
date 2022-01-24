@@ -1,15 +1,13 @@
-# Simple round-robin fair queue implementation
+# Simple sharded fair queue implementation
 module AllQ
   class FairQueueAlgorithm
-    class Generic
+    class Generic < AbstractFairQueueAlgorithm
       @shard_count = 0
-      property reserved_cache : ReservedCache
-      property :shard_reservation_limit
 
-      def initialize(shard_count : Int32, name_to_index : Hash(String, Int32), @reserved : ReservedCache)
-        @name_to_index = name_to_index
+      def initialize(shard_count : Int32, reserved_cache : ReservedCache)
+        @reserved_cache = reserved_cache
+        @name_to_index = Hash(String, Int32).new
         @shard_count = shard_count
-        @reserved_cache = reserved
         @shard_reservation_limit = Int32.new((ENV["SHARD_RESERVATION_LIMIT"]? || 0).to_i)
       end
 
@@ -45,7 +43,35 @@ module AllQ
         "#{name}_#{index}"
       end
 
-      def next_tube_index(name, tube_index)
+      def pause(name, paused, server_tube_cache)
+        each_fq_tube do |raw_name|
+          server_tube_cache[raw_name].pause(paused)
+        end
+      end
+
+      def clear(name, server_tube_cache)
+        each_fq_tube do |raw_name|
+          server_tube_cache[raw_name].clear
+        end
+      end
+
+      def tube_name_from_shard_key(name, shard_key : String, tubes)
+        if @name_to_index[name]?.nil?
+          @name_to_index[name] = 0
+        end
+
+        index = Digest::Adler32.checksum(shard_key) % @shard_count
+        "#{name}_#{index}"
+      end
+
+      private def each_fq_tube(name, &block)
+        0.upto(@shard_count - 1) do |index|
+          tube_name = "#{name}_#{index}"
+          yield(tube_name)
+        end
+      end
+
+      private def next_tube_index(name, tube_index)
         tube_index += 1
         if tube_index > @shard_count - 1
           tube_index = 0
@@ -54,7 +80,7 @@ module AllQ
         tube_index
       end
 
-      def check_tube_for_job(raw_name, server_tube_cache, reservations)
+      private def check_tube_for_job(raw_name, server_tube_cache, reservations)
         job = nil
 
         # Check to see if there is a reservation limit

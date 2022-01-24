@@ -50,65 +50,104 @@ describe AllQ do
   end
 end
 
-it "should respect TimeWeightQueue values" do
+it "should respect TrueRoundRobin" do
   helper = FQSpecHelper.new
-  helper.fair_queue.set_queuing_algorithm(AllQ::FairQueueCache::QUEUE_ALGORITHM_TIME_WEIGHTED_FAIR_QUEUE)
+  helper.fair_queue.set_queuing_algorithm(AllQ::FairQueueCache::QUEUE_ALGORITHM_TRUE_ROUND_ROBIN)
+  1.upto(2) do
+    helper.put_using_handler("first_shard_key")
+  end
+
   1.upto(1) do
-    helper.put_using_handler("same_shard_key")
+    helper.put_using_handler("second_shard_key")
   end
-  # Make sure there is only 1 shard
+
+  1.upto(1) do
+    helper.put_using_handler("third_shard_key")
+  end
+
+  1.upto(1) do
+    helper.put_using_handler("fourth_shard_key")
+  end
+
   stats = helper.stats
-  stats.keys.size.should eq(1)
+  stats.keys.size.should eq(4)
   # Record only shard (tube_name)
-  tube_name = stats.keys[0]
 
-  # For long queue time
-  1.upto(GuageStats::MAX_ARRAY_SIZE) do
-    GuageStats.push(tube_name, 10)
-  end
-  sleep(6) # This is needed for GuageStats to update internally
+  job = helper.get_single_job(true)
+  job["tube"].should eq("fq-test:s:first_shard_key")
 
-  # Add slow jobs
-  1.upto(10) do
-    helper.put_using_handler("same_shard_key")
-  end
+  job = helper.get_single_job(true)
+  job["tube"].should eq("fq-test:s:second_shard_key")
 
-  # Pull out original job
-  helper.get_single_job(true)
+  job = helper.get_single_job(true)
+  job["tube"].should eq("fq-test:s:third_shard_key")
 
-  # -- Start Add fast jobs
-  1.upto(8) do
-    helper.put_using_handler("different_key")
-  end
+  job = helper.get_single_job(true)
+  job["tube"].should eq("fq-test:s:fourth_shard_key")
 
-  1.upto(8) do
-    job = helper.get_single_job
-    job["tube"].should_not eq(tube_name)
-  end
-  # -- End fast jobs
+  job = helper.get_single_job(true)
+  job["tube"].should eq("fq-test:s:first_shard_key")
+end
 
-  # -- Check that slow job is ready to run again
-  sleep(11)
-  job = helper.get_single_job
-  stats = helper.stats
-  job["tube"].should eq(tube_name)
+it "should respect TimeWeightQueue values" do
+  # helper = FQSpecHelper.new
+  # helper.fair_queue.set_queuing_algorithm(AllQ::FairQueueCache::QUEUE_ALGORITHM_TIME_WEIGHTED_FAIR_QUEUE)
+  # 1.upto(1) do
+  #   helper.put_using_handler("same_shard_key")
+  # end
+  # # Make sure there is only 1 shard
+  # stats = helper.stats
+  # stats.keys.size.should eq(1)
+  # # Record only shard (tube_name)
+  # tube_name = stats.keys[0]
 
-  # -- Start Add fast jobs again
-  1.upto(8) do
-    helper.put_using_handler("different_key")
-  end
+  # # For long queue time
+  # 1.upto(GuageStats::MAX_ARRAY_SIZE) do
+  #   GuageStats.push(tube_name, 10)
+  # end
+  # sleep(6) # This is needed for GuageStats to update internally
 
-  1.upto(8) do
-    job = helper.get_single_job
-    job["tube"].should_not eq(tube_name)
-  end
-  # -- End fast jobs
+  # # Add slow jobs
+  # 1.upto(10) do
+  #   helper.put_using_handler("same_shard_key")
+  # end
 
-  # -- Finally, finish up slow jobs
-  1.upto(9) do
-    job = helper.get_single_job
-    job["tube"].should eq(tube_name)
-  end
+  # # Pull out original job
+  # helper.get_single_job(true)
+
+  # # -- Start Add fast jobs
+  # 1.upto(8) do
+  #   helper.put_using_handler("different_key")
+  # end
+
+  # 1.upto(8) do
+  #   job = helper.get_single_job
+  #   job["tube"].should_not eq(tube_name)
+  # end
+  # # -- End fast jobs
+
+  # # -- Check that slow job is ready to run again
+  # sleep(11)
+  # job = helper.get_single_job
+  # stats = helper.stats
+  # job["tube"].should eq(tube_name)
+
+  # # -- Start Add fast jobs again
+  # 1.upto(8) do
+  #   helper.put_using_handler("different_key")
+  # end
+
+  # 1.upto(8) do
+  #   job = helper.get_single_job
+  #   job["tube"].should_not eq(tube_name)
+  # end
+  # # -- End fast jobs
+
+  # # -- Finally, finish up slow jobs
+  # 1.upto(9) do
+  #   job = helper.get_single_job
+  #   job["tube"].should eq(tube_name)
+  # end
 end
 
 class FQSpecHelper

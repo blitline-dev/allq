@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.1.1
+FROM crystallang/crystal:1.3.2
 RUN echo "touch6"
 
 RUN apt-get update
@@ -12,7 +12,7 @@ RUN apt-get install -y socat
 ENV VERSION=127
 RUN echo $(crystal -v)
 RUN apt-get dist-upgrade -y
-ENV VERSION=131
+ENV VERSION=132
 
 RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && shards install

@@ -1,3 +1,5 @@
+# NOT IMPLEMENTED YET!
+#
 # Time-weighted_fair_queuing_algorithm
 # https://en.wikipedia.org/wiki/Fair_queuing#A_byte-weighted_fair_queuing_algorithm
 # (revamped for time weighted)

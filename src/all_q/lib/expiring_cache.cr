@@ -6,11 +6,14 @@ class ExpiringCache(T)
     end
   end
 
-  def initialize(expiration_in_seconds = 3600, @sweep_interval = 5, block : (String -> T)? = nil)
+  RENEW = "renew"
+
+  def initialize(expiration_in_seconds = 3600, @sweep_interval = 5, default_value_proc : (String -> T)? = nil, pre_expire_proc : (String -> T)? = nil)
     @cache = Hash(String, CacheItem(T)).new
     @expiration = expiration_in_seconds
     start_sweeper
-    @block = block
+    @default_value_proc = default_value_proc
+    @pre_expire_proc = pre_expire_proc
   end
 
   def clear
@@ -25,9 +28,9 @@ class ExpiringCache(T)
 
   def get(name)
     result = @cache[name]?
-    block = @block
-    if result.nil? && !block.nil?
-      result = block.call(name).as(T)
+    default_value_proc = @default_value_proc
+    if result.nil? && !default_value_proc.nil?
+      result = default_value_proc.call(name).as(T)
       put(name, result)
     end
     return result
@@ -43,6 +46,10 @@ class ExpiringCache(T)
 
   def size
     @cache.size
+  end
+
+  def keys
+    @cache.keys
   end
 
   # ------------------------------------
@@ -65,11 +72,19 @@ class ExpiringCache(T)
   def sweep
     puts "Sweeping Expiring Cache..."
     now = Time.utc.to_unix
-    @cache.delete_if do |k, v|
+
+    @cache.reject! do |k, v|
       if v.start < now - @expiration
         puts "deleting #{k}"
       end
-      v.start < now - @expiration
+      should_reject = v.start < now - @expiration
+      if should_reject && !@pre_expire_proc.nil?
+        output = pre_expire_proc.call(k).as(T)
+        if output == RENEW
+          should_reject = false
+        end
+      end
+      should_reject
     end
   end
 end

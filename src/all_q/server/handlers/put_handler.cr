@@ -14,6 +14,7 @@ module AllQ
       handler_response = HandlerResponse.new("put")
       data = normalize_json_hash(json)
 
+      # Builds job from request data
       job = JobFactory.build_job_factory_from_hash(json).get_job
       job.id = Random::Secure.urlsafe_base64(16)
       tube_name = data["tube"]
@@ -21,14 +22,7 @@ module AllQ
       delay = data["delay"]? ? data["delay"].to_s.to_i(strict: false) : 0
       # Fair queue check
       if @cache_store.fair_queue.is_fair_queue(tube_name)
-        shard_key = data["shard_key"]?
-        if shard_key.nil?
-          raise "Shard key required for Fair Queue (fq-) tubes"
-        else
-          tube_name = fair_queue_from_put_shard(tube_name, shard_key)
-          job.tube = tube_name
-          @cache_store.fair_queue.decorate_job(job, @cache_store.tubes)
-        end
+        tube_name = handle_fair_queue(data, job, tube_name)
       end
       @cache_store.tubes[tube_name].put(job, priority.to_i, delay)
 
@@ -38,6 +32,18 @@ module AllQ
 
       handler_response.job_id = job.id
       return handler_response
+    end
+
+    private def handle_fair_queue(data, job, tube_name)
+      shard_key = data["shard_key"]?
+      if shard_key.nil?
+        raise "Shard key required for Fair Queue (fq-) tubes"
+      else
+        tube_name = fair_queue_from_put_shard(tube_name, shard_key)
+        job.tube = tube_name
+        @cache_store.fair_queue.decorate_job(job, @cache_store.tubes)
+      end
+      tube_name
     end
   end
 end
