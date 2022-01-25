@@ -1,5 +1,5 @@
 FROM crystallang/crystal:1.3.2
-RUN echo "touch6"
+RUN echo "touch7"
 
 RUN apt-get update
 
