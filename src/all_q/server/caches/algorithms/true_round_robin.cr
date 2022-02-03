@@ -48,11 +48,11 @@ module AllQ
       end
 
       def tube_name_from_shard_key(name, shard_key : String, tubes)
-        validation = /^[a-zA-Z0-1][a-zA-Z0-1-_=@\:\$\!\#]*/.match(shard_key)
+        validation = /^[a-zA-Z0-9][a-zA-Z0-9-_=@\:\$\!\#]*/.match(shard_key)
         if validation
-          raise "Invalid shard_key '#{shard_key}', must match REGEX ^[a-zA-Z0-1]+[a-zA-Z0-1-_=@:$!\#]*" unless validation[0].to_s.size == shard_key.size
+          raise "Invalid shard_key '#{shard_key}', must match REGEX ^[a-zA-Z0-1]+[a-zA-Z0-9-_=@:$!\#]*" unless validation[0].to_s.size == shard_key.size
         else
-          raise "Couldn't validate shard_key #{shard_key}, must match REGEX ^[a-zA-Z0-1]+[a-zA-Z0-1-_=@:$!\#]*"
+          raise "Couldn't validate shard_key #{shard_key}, must match REGEX ^[a-zA-Z0-9]+[a-zA-Z0-9-_=@:$!\#]*"
         end
         "#{name}#{SHARD_SEPARATOR}#{shard_key}"
       end

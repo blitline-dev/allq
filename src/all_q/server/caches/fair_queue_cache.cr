@@ -16,7 +16,8 @@ module AllQ
 
     def initialize(reserved_cache : ReservedCache)
       @reserved_queue = reserved_cache
-      if (ENV["TWFQ"]? || "false").to_s.downcase == "true"
+      if (ENV["TRRFQ"]? || "false").to_s.downcase == "true"
+        puts "Using TrueRoundRobin for Fair Queuing..."
         @algorithm = AllQ::FairQueueAlgorithm::TrueRoundRobin.new(@reserved_queue)
       else
         @algorithm = AllQ::FairQueueAlgorithm::Generic.new(SHARD_COUNT, @reserved_queue)
