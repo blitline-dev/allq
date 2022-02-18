@@ -9,7 +9,7 @@ RUN apt-get install -y git nano wget
 RUN apt-get install -y  libsodium-dev libzmq3-dev
 RUN apt-get install -y socat
 
-ENV VERSION=127
+ENV VERSION=128
 RUN echo $(crystal -v)
 RUN apt-get dist-upgrade -y
 ENV VERSION=133

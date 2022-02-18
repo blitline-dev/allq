@@ -31,15 +31,6 @@ module AllQ
     def special_cased(parsed_data) : Nil | String
       results = nil
       if parsed_data["action"]?
-        if parsed_data["action"].to_s == "update_servers"
-          puts "Updating servers #{parsed_data.to_s}"
-          servers_urls = parsed_data["params"]["servers"].to_s
-          servers = servers_urls.split(",")
-          @server_connection_cache = ServerConnectionCache.new(servers)
-          @server_connection_cache.start_sweeping
-          results = "{}"
-        end
-
         case parsed_data["action"].to_s
         when "stats"
           stats_aggregator = AllQ::StatsAggregator.new(@server_connection_cache)
@@ -62,6 +53,13 @@ module AllQ
         when "throttle"
           throttle_aggregator = AllQ::ThrottleAggregator.new(@server_connection_cache)
           results = throttle_aggregator.process(parsed_data)
+        when "update_servers"
+          puts "Updating servers #{parsed_data.to_s}"
+          servers_urls = parsed_data["params"]["servers"].to_s
+          servers = servers_urls.split(",")
+          @server_connection_cache = ServerConnectionCache.new(servers)
+          @server_connection_cache.start_sweeping
+          results = "{}"
         end
       end
       results

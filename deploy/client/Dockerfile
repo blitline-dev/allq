@@ -17,14 +17,14 @@ RUN curl -SLfO https://raw.githubusercontent.com/fullstaq-labs/fullstaq-ruby-ser
   && apt update \
   && apt install -y fullstaq-ruby-common \
   && apt install -y fullstaq-ruby-2.6
-  
+
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/fullstaq-ruby/versions/2.6/bin
 
 RUN ruby -v
 
 RUN gem install bundler -v 1.16.3 && gem update --system
 RUN apt-get dist-upgrade -y
-ENV version=176
+ENV version=178
 
 RUN cd /
 
