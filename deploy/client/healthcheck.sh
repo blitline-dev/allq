@@ -1,7 +1,6 @@
 #!/bin/bash
 
-./http_stat.sh
-retVal=$?
+retVal=$(./http_stat.sh)
 if [ $retVal -ne 0 ]; then
   echo "Trying to kill allq_client http_stat"
   pkill -x allq_client
@@ -11,7 +10,6 @@ if [ $retVal -ne 0 ]; then
 fi
 
 ./stats.sh
-
 retVal=$?
 if [ $retVal -ne 0 ]; then
   echo "Trying to kill allq_client stats"
