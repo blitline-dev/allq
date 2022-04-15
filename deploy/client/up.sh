@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Multiprocess allows us to kill the allq_client inside a container without exiting
+MULTIPROC="${MULTIPROCESS:-false}"
 
-if [ $MULTIPROCESS == "true" ]
+if [ $MULTIPROC == "true" ]
 then
   echo "Multi Process"
   /usr/bin/allq_client &
@@ -15,3 +16,4 @@ else
   echo "Single Process"
   /usr/bin/allq_client
 fi
+

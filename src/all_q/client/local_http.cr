@@ -147,6 +147,8 @@ class AllQHttpClient
     case url_base
     when "touch"
       ap = AllQHttpClientActionParams.new("touch", body)
+    when "kick"
+      ap = AllQHttpClientActionParams.new("kick", body)
     when "bury"
       ap = AllQHttpClientActionParams.new("bury", body)
     when "release"
