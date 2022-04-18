@@ -12,7 +12,7 @@ RUN apt-get install -y socat
 ENV VERSION=128
 RUN echo $(crystal -v)
 RUN apt-get dist-upgrade -y
-ENV VERSION=133
+ENV VERSION=135
 
 RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && shards install

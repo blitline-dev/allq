@@ -23,6 +23,8 @@ struct AllQStats
   property buried : Int32 = 0
   property parents : Int32 = 0
   property throttle_size : Int32 | Nil = nil
+  property avg : Float64 = 0
+  property tps : Float64 = 0
 
   def initialize(@tube)
   end
@@ -342,6 +344,8 @@ class AllQHttpClient
       s.buried = metrics["buried"].to_s.to_i
       s.parents = metrics["parents"].to_s.to_i
       s.throttle_size = metrics["throttle_size"].to_s.to_i if metrics["throttle_size"]?
+      s.avg = metrics["avg"].to_s.to_f64.round(2) if metrics["avg"]?
+      s.tps = metrics["tps"].to_s.to_f64.round(2) if metrics["tps"]?
     rescue ex
       puts ex.inspect_with_backtrace
     end

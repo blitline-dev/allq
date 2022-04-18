@@ -1,38 +1,58 @@
 class GuageStats
-  MAX_ARRAY_SIZE = 100
+  AVG_SAMPLE_SIZE = ENV["MAX_ARRAY_SIZE"]? || "100"
+  MAX_ARRAY_SIZE = AVG_SAMPLE_SIZE.to_i
+  DELAY_BETWEEN_CALC = 5
+  TPS_AVG_MAX = 60 / DELAY_BETWEEN_CALC
 
   property vals = Hash(String, Array(Int64)).new
-  property averages = Hash(String, Int64).new
-  property delay_between_calc = 5
+  property averages = Hash(String, Float64).new  
+  property tps_counter =  Hash(String, Int64).new
+  property tps_samples =  Hash(String, Array(Int64)).new
+  property tps_cache =  Hash(String, Float64).new
 
   def initialize
     start_sweeper
-    # @vals = Hash(String, Array(Int32)).new
-    # @averages = = Hash(String, Array(Int32)).new
-
-    # @vals = Hash(String, Array(Int32)).new
-    # @averages = Hash(String, Array(Int32)).new
   end
 
   def self.push(name : String, val : Int64)
-    result = self.instance.vals[name]?
+    push_tps(name)
+    push_duration(name, val)
+  end
+
+  def self.push_tps(name : String)
+    count = GuageStats.instance.tps_counter[name]?
+    if count.nil?
+      GuageStats.instance.tps_counter[name] = 0 
+      count = 0
+    end
+    count += 1
+    GuageStats.instance.tps_counter[name] = count.to_i64
+  end
+
+  def self.push_duration(name : String, val : Int64)
+    result = GuageStats.instance.vals[name]?
     if result.nil?
-      self.instance.vals[name] = Array(Int64).new
-      result = self.instance.vals[name]
+      GuageStats.instance.vals[name] = Array(Int64).new
+      result = GuageStats.instance.vals[name]
     end
     result << val
     if result.size > MAX_ARRAY_SIZE
       result.shift
-    end
+    end  
   end
 
-  def self.get_avg(name : String) : Int64
-    val = self.instance.averages[name]?
-    if val.nil?
-      return Int64.new(0)
-    end
-    return val
+  def self.get_avg(name : String) : Float64
+    val = GuageStats.instance.averages[name]?
+    return Float64.new(0) if val.nil?
+    val
   end
+
+  def self.get_tps(name : String) : Float64
+    val = GuageStats.instance.tps_cache[name]?
+    return Float64.new(0) if val.nil?
+    val
+  end
+
 
   def self.instance
     @@instance ||= new
@@ -42,8 +62,8 @@ class GuageStats
     spawn do
       loop do
         begin
-          build_averages
-          sleep(GuageStats.instance.delay_between_calc)
+          run_calc
+          sleep(DELAY_BETWEEN_CALC)
         rescue ex
           puts "GuageStats Sweeper Exception..."
           puts ex.inspect_with_backtrace
@@ -52,11 +72,44 @@ class GuageStats
     end
   end
 
+  def run_calc
+    build_tps_samples
+    build_averages
+  end
+
+  def build_tps_samples
+    GuageStats.instance.tps_counter.each do |name, i|
+      add_to_tps_samples(name, i)
+
+      # Reset Count, we will capture these at ('DELAY_BETWEEN_CALC') second intervals
+      # and reset after 5 seconds.
+      GuageStats.instance.tps_counter[name] = 0
+    end
+  end
+
+  def add_to_tps_samples(name, i)
+    avg_array = GuageStats.instance.tps_samples[name]?
+    if avg_array.nil?
+      GuageStats.instance.tps_samples[name] = Array(Int64).new
+      avg_array = GuageStats.instance.tps_samples[name]
+    end
+    avg_array << i
+    avg_array.shift if avg_array.size > TPS_AVG_MAX
+    i
+  end
+
   def build_averages
     GuageStats.instance.vals.each do |name, arr|
       if arr.size > 0
-        GuageStats.instance.averages[name] = (arr.sum / arr.size).to_i64
+        GuageStats.instance.averages[name] = (arr.sum / arr.size).to_f64
+      end
+    end
+
+    GuageStats.instance.tps_samples.each do |name, arr|
+      if arr.size > 0
+        GuageStats.instance.tps_cache[name] = (arr.sum / arr.size).to_f64
       end
     end
   end
+
 end
