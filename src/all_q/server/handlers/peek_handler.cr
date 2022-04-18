@@ -32,7 +32,6 @@ module AllQ
       if job
         handler_response.job = JobFactory.to_hash(job)
       else
-        puts "No jobs for peek..."
         handler_response.job = Hash(String, String).new
       end
       return handler_response
