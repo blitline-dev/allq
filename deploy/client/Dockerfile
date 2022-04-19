@@ -6,8 +6,8 @@ RUN apt-get install -y git nano wget
 #install dependency
 RUN apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
 
-
-RUN apt-get install -y  libsodium-dev libzmq3-dev
+RUN apt-get update
+RUN apt-get install -y  libsodium-dev libzmq5-dev
 RUN apt-get install -y socat curl
 
 
@@ -24,7 +24,7 @@ RUN ruby -v
 
 RUN gem install bundler -v 1.16.3 && gem update --system
 RUN apt-get dist-upgrade -y
-ENV version=184
+ENV version=185
 
 RUN cd /
 
