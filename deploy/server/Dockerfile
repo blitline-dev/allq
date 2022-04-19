@@ -6,13 +6,14 @@ RUN apt-get update
 RUN apt-get install -y git nano wget
 
 
-RUN apt-get install -y  libsodium-dev libzmq3-dev
+RUN apt-get install -y  libsodium-dev libzmq5-dev
 RUN apt-get install -y socat
 
-ENV VERSION=128
+ENV VERSION=129
+RUN apt-get update
 RUN echo $(crystal -v)
 RUN apt-get dist-upgrade -y
-ENV VERSION=135
+ENV VERSION=136
 
 RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && shards install
