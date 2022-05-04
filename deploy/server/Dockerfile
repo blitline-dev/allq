@@ -13,7 +13,7 @@ ENV VERSION=129
 RUN apt-get update
 RUN echo $(crystal -v)
 RUN apt-get dist-upgrade -y
-ENV VERSION=136
+ENV VERSION=137
 
 RUN git clone -b master https://github.com/blitline-dev/allq.git
 RUN cd allq && shards install
