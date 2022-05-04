@@ -10,6 +10,25 @@ class GuageStats
   property tps_samples =  Hash(String, Array(Int64)).new
   property tps_cache =  Hash(String, Float64).new
 
+  # ------------------------------------------------------------------------------------
+  #
+  # TPS is calculated by keeping an incrementing counter upon completion of a job (+=1)
+  # Every DELAY_BETWEEN_CALC (5 sec, for example), we record the number of increments
+  # into an array. It would look like [5,2,3,4,12,2,...]. To get the TPS we would sum the
+  # amounts and divide by how large the array is (we try to keep it to about 12, which means we've
+  # sampled every 5 seconds, for a full minute).
+  # This is to keep the number of individual arrays down for every possible tube ( since we 'could'
+  # have 1000 tubes ). We also calculate and cache the results periodically so we don't do
+  # complex math everytime someone requests the tps.
+  #
+  # Averages are calculated similarly, except we store the total duration of the job in a fixed 100
+  # element Array. Thus reducing the number of elements and Arrays needed.
+  # Average calculations happen every 5 seconds as well.
+  #
+  # All of these operations happen PER TUBE, so each tube has it's own set of data.
+  #
+  # -------------------------------------------------------------------------------------
+
   def initialize
     start_sweeper
   end
@@ -99,12 +118,14 @@ class GuageStats
   end
 
   def build_averages
+    # AVG duration
     GuageStats.instance.vals.each do |name, arr|
       if arr.size > 0
         GuageStats.instance.averages[name] = (arr.sum / arr.size).to_f64
       end
     end
 
+    # TPS completed
     GuageStats.instance.tps_samples.each do |name, arr|
       if arr.size > 0
         GuageStats.instance.tps_cache[name] = (arr.sum / arr.size).to_f64
