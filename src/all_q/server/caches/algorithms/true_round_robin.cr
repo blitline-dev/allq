@@ -17,13 +17,14 @@ module AllQ
 
         tube_names = existing_tube_names.select { |tube_name| tube_name.starts_with?("#{name}#{SHARD_SEPARATOR}") }
         tube_names_count = tube_names.size
+        return nil if tube_names.size == 0
         raw_name = get_next_tube_name(name, tube_names)
 
         count = 0
         job = check_tube_for_job(raw_name, server_tube_cache)
         while job.nil?
           count += 1
-          return nil if count == tube_names_count
+          return nil if count == tube_names_count || tube_names.size == 0
           raw_name = get_next_tube_name(name, tube_names)
           job = check_tube_for_job(raw_name, server_tube_cache)
         end
