@@ -1,14 +1,15 @@
 class GuageStats
-  AVG_SAMPLE_SIZE = ENV["MAX_ARRAY_SIZE"]? || "100"
-  MAX_ARRAY_SIZE = AVG_SAMPLE_SIZE.to_i
-  DELAY_BETWEEN_CALC = 5
-  TPS_AVG_MAX = 60 / DELAY_BETWEEN_CALC
+  AVG_SAMPLE_SIZE        = ENV["MAX_ARRAY_SIZE"]? || "100"
+  MAX_ARRAY_SIZE         = AVG_SAMPLE_SIZE.to_i
+  DELAY_BETWEEN_CALC     =  5
+  DELAY_BETWEEN_TPS_CALC = 60 # TPS is calculated at the minute level
+  TPS_AVG_MAX            =  2
 
   property vals = Hash(String, Array(Int64)).new
-  property averages = Hash(String, Float64).new  
-  property tps_counter =  Hash(String, Int64).new
-  property tps_samples =  Hash(String, Array(Int64)).new
-  property tps_cache =  Hash(String, Float64).new
+  property averages = Hash(String, Float64).new
+  property tps_counter = Hash(String, Int64).new
+  property tps_samples = Hash(String, Array(Int64)).new
+  property tps_cache = Hash(String, Float64).new
 
   # ------------------------------------------------------------------------------------
   #
@@ -41,7 +42,7 @@ class GuageStats
   def self.push_tps(name : String)
     count = GuageStats.instance.tps_counter[name]?
     if count.nil?
-      GuageStats.instance.tps_counter[name] = 0 
+      GuageStats.instance.tps_counter[name] = 0
       count = 0
     end
     count += 1
@@ -57,7 +58,7 @@ class GuageStats
     result << val
     if result.size > MAX_ARRAY_SIZE
       result.shift
-    end  
+    end
   end
 
   def self.get_avg(name : String) : Float64
@@ -72,7 +73,6 @@ class GuageStats
     val
   end
 
-
   def self.instance
     @@instance ||= new
   end
@@ -81,8 +81,21 @@ class GuageStats
     spawn do
       loop do
         begin
-          run_calc
+          build_averages
           sleep(DELAY_BETWEEN_CALC)
+        rescue ex
+          puts "GuageStats Sweeper Exception..."
+          puts ex.inspect_with_backtrace
+        end
+      end
+    end
+
+    spawn do
+      loop do
+        begin
+          build_tps_samples
+          build_tps_averages
+          sleep(DELAY_BETWEEN_TPS_CALC)
         rescue ex
           puts "GuageStats Sweeper Exception..."
           puts ex.inspect_with_backtrace
@@ -93,6 +106,7 @@ class GuageStats
 
   def run_calc
     build_tps_samples
+    build_tps_averages
     build_averages
   end
 
@@ -117,14 +131,7 @@ class GuageStats
     i
   end
 
-  def build_averages
-    # AVG duration
-    GuageStats.instance.vals.each do |name, arr|
-      if arr.size > 0
-        GuageStats.instance.averages[name] = (arr.sum / arr.size).to_f64
-      end
-    end
-
+  def build_tps_averages
     # TPS completed
     GuageStats.instance.tps_samples.each do |name, arr|
       if arr.size > 0
@@ -133,4 +140,12 @@ class GuageStats
     end
   end
 
+  def build_averages
+    # AVG duration
+    GuageStats.instance.vals.each do |name, arr|
+      if arr.size > 0
+        GuageStats.instance.averages[name] = ((arr.sum / arr.size).to_f64) / 1000
+      end
+    end
+  end
 end

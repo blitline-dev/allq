@@ -34,9 +34,9 @@ module AllQ
 
     def set_job_reserved(job : Job)
       now = Time.utc.to_unix
-      @cache[job.id] = ReservedJob.new(now, job)
+      @cache[job.id] = ReservedJob.new(now, Time.utc.to_unix_ms, job)
       @serializer.serialize(@cache[job.id])
-      puts "Time in ready(#{job.id} #{Time.utc.to_unix_ms - job.created_time})" if @debug
+      puts "Time in ready(#{job.id} #{Time.utc.to_unix - job.created_time})" if @debug
     end
 
     def start_sweeper
@@ -106,7 +106,7 @@ module AllQ
 
     def update_stats(reserved_job)
       begin
-        duration = Time.utc.to_unix - reserved_job.start
+        duration = Time.utc.to_unix_ms - reserved_job.start_ms
         GuageStats.push(reserved_job.job.tube, duration)
       rescue ex
         puts "Error with update_stats"
@@ -155,6 +155,7 @@ module AllQ
       reserved_job = @cache[job_id]?
       if reserved_job
         reserved_job.start = Time.utc.to_unix
+        reserved_job.start_ms = Time.utc.to_unix_ms
         # We must RECACHE this because it's a struct which was passed as a copy from the @cache
         @cache[job_id] = reserved_job
       end
@@ -172,9 +173,9 @@ module AllQ
 
     struct ReservedJob
       include JSON::Serializable
-      property start : Int64, job
+      property start : Int64, start_ms : Int64, job
 
-      def initialize(@start, @job : Job)
+      def initialize(@start, @start_ms, @job : Job)
       end
     end
   end
