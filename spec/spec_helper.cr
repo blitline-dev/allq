@@ -27,11 +27,32 @@ Spec.before_each do
 end
 
 class JobSpec
+  struct StatsStruct
+    property reserved, ready, buried, delayed
+
+    def initialize(@reserved : Int32, @ready : Int32, @buried : Int32, @delayed : Int32)
+    end
+  end
+
+  def self.stats(cache_store, tube_name)
+    hash_output = AllQ::StatsHandler.new(cache_store).process(JSON.parse("{}"))
+    hash_output["global"] = Hash(String, String).new
+    default = hash_output[tube_name]
+    StatsStruct.new(default["reserved"].to_i32, default["ready"].to_i32, default["buried"].to_i32, default["delayed"].to_i32)
+  end
+
   def self.delete_via_handler(cache_store, job_id)
     val = {
       job_id: job_id,
     }.to_json
     AllQ::DeleteHandler.new(cache_store).process(JSON.parse(val))
+  end
+
+  def self.sleeper(duration_in_seconds)
+    1.to(duration_in_seconds) do |i|
+      sleep(1)
+      print i.to_s
+    end
   end
 
   def self.get_job_and_delete(cache_store, tube)

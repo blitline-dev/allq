@@ -21,7 +21,7 @@ describe AllQ do
     output.should eq(0.9505)
   end
 
-  if "guage should handle tps"
+  it "guage should handle tps" do
     1.upto(100) do
       GuageStats.push_tps("test_2tps")
     end
@@ -35,7 +35,7 @@ describe AllQ do
     output.should eq(50.0)
   end
 
-  if "integration test with gugage works"
+  it "integration test with gugage works" do
     helper = FQSpecHelper.new
     1.upto(3) do
       helper.put_using_handler("first_shard_key")

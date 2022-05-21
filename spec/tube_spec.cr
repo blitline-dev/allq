@@ -29,6 +29,74 @@ describe AllQ do
     done.should eq(10_000)
   end
 
+  it "should handle priority" do
+    cache_store = AllQ::CacheStore.new
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "PRI_10", {priority: 10})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "PRI_DEFAULT", {ttl: 10000})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "PRI_1", {priority: 1})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "PRI_DEFAULT", {ttl: 10000})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+
+    job = JobSpec.get_job_and_delete(cache_store, TEST_TUBE_NAME)
+    job["body"].should eq("PRI_1")
+    job = JobSpec.get_job_and_delete(cache_store, TEST_TUBE_NAME)
+    job["body"].should eq("PRI_DEFAULT")
+    job = JobSpec.get_job_and_delete(cache_store, TEST_TUBE_NAME)
+    job["body"].should eq("PRI_DEFAULT")
+    job = JobSpec.get_job_and_delete(cache_store, TEST_TUBE_NAME)
+    job["body"].should eq("PRI_10")
+  end
+
+  it "should handle delay" do
+    cache_store = AllQ::CacheStore.new
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "X", {delay: 3})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(0)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).delayed.should eq(1)
+    JobSpec.sleeper(5)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(1)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).delayed.should eq(0)
+  end
+
+  it "should not be overzealous with TTL" do
+    cache_store = AllQ::CacheStore.new
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "X", {ttl: 30})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(1)
+    JobSpec.sleeper(5)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(1)
+  end
+
+  it "should respect TTL as expected AND BURY" do
+    cache_store = AllQ::CacheStore.new
+    job_params = JobSpec.build_json_params(TEST_TUBE_NAME, "X", {ttl: 2})
+    job_result = AllQ::PutHandler.new(cache_store).process(JSON.parse(job_params))
+    stats = JobSpec.stats(cache_store, TEST_TUBE_NAME)
+    stats.ready.should eq(1)
+    job = JobSpec.get_via_handler(cache_store, TEST_TUBE_NAME)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(0)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(1)
+    JobSpec.sleeper(5) # Sweep delay is currently 3 seconds
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(1)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(0)
+    job = JobSpec.get_via_handler(cache_store, TEST_TUBE_NAME)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(0)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(1)
+    JobSpec.sleeper(5) # Sweep delay is currently 3 seconds
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(1)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(0)
+    job = JobSpec.get_via_handler(cache_store, TEST_TUBE_NAME)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(0)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(1)
+    JobSpec.sleeper(5) # Sweep delay is currently 3 seconds
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).buried.should eq(1)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).reserved.should eq(0)
+    JobSpec.stats(cache_store, TEST_TUBE_NAME).ready.should eq(0)
+  end
+
   it "should pause as expected" do
     cache_store = AllQ::CacheStore.new
     JobSpec.build_alot_of_jobs(cache_store)
