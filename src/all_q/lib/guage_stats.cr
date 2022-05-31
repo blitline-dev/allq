@@ -135,7 +135,7 @@ class GuageStats
     # TPS completed
     GuageStats.instance.tps_samples.each do |name, arr|
       if arr.size > 0
-        GuageStats.instance.tps_cache[name] = (arr.sum / arr.size).to_f64
+        GuageStats.instance.tps_cache[name] = ((arr.sum / arr.size).to_f64) / 60.0
       end
     end
   end
